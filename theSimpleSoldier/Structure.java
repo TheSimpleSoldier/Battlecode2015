@@ -7,7 +7,7 @@ import battlecode.common.*;
  */
 public abstract class Structure extends Unit
 {
-    public void collectData()
+    public void collectData() throws GameActionException
     {
         // collect our data
     }
