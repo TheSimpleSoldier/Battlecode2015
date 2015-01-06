@@ -19,12 +19,23 @@ public class Tank extends Unit
         nav = new Navigator(rc);
         fighter = new FightMicro(rc);
         range = rc.getType().attackRadiusSquared;
+        us = rc.getTeam();
+        opponent = us.opponent();
+        target = rc.senseTowerLocations()[0];
     }
 
     public void collectData()
     {
-        target = rc.senseEnemyHQLocation();
         nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
+        if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
+        {
+            target = enemyTower[0];
+        }
+        else if (Clock.getRoundNum() > 1500)
+        {
+            target = rc.senseEnemyHQLocation();
+        }
     }
 
     public void handleMessages() throws GameActionException
@@ -34,6 +45,10 @@ public class Tank extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
+        if (nearByEnemies.length > 0)
+        {
+            return false;
+        }
         return nav.badMovement(target);
     }
 

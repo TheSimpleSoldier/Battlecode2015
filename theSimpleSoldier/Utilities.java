@@ -54,6 +54,35 @@ public class Utilities
         return best;
     }
 
+    public static MapLocation greedyBestMiningSpot(RobotController rc)
+    {
+        MapLocation best;
+        MapLocation currentBest;
+
+        best = rc.getLocation();
+        currentBest = best;
+        Direction[] dirs = Direction.values();
+
+        do
+        {
+            currentBest = best;
+            MapLocation current = best;
+            for (int i = 0; i < 8; i++)
+            {
+                MapLocation newSpot = current.add(dirs[i]);
+                if (rc.canSenseLocation(newSpot))
+                {
+                    if (rc.senseOre(newSpot) > rc.senseOre(best))
+                    {
+                        best = newSpot;
+                    }
+                }
+            }
+        } while (rc.senseOre(best) > rc.senseOre(currentBest));
+
+        return currentBest;
+    }
+
     /**
      * This function returns the Robot type for a given message
      */
@@ -160,7 +189,7 @@ public class Utilities
     {
         int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED - 1;
 
-        RobotInfo[] nearByAllies = rc.senseNearbyRobots(dist, rc.getTeam().opponent());
+        RobotInfo[] nearByAllies = rc.senseNearbyRobots(dist, rc.getTeam());
         if (nearByAllies.length <= 0)
         {
             return;

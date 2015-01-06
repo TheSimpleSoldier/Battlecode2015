@@ -2,6 +2,7 @@ package theSimpleSoldier.Structures;
 
 import battlecode.common.*;
 import theSimpleSoldier.Structure;
+import theSimpleSoldier.Utilities;
 
 public class AerospaceLab extends Structure
 {
@@ -11,4 +12,12 @@ public class AerospaceLab extends Structure
     }
 
     // any code to override base structure methods goes here
+    public boolean carryOutAbility() throws GameActionException
+    {
+        if (Utilities.spawnUnit(RobotType.LAUNCHER, rc))
+        {
+            return true;
+        }
+        return false;
+    }
 }

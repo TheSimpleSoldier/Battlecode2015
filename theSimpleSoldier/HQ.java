@@ -57,6 +57,10 @@ public class HQ extends Structure
             System.out.println("Near by enemies length to great");
             return false;
         }
+        if (numbOfSpawnedSoldiers > 0 && rc.getTeamOre() < 600)
+        {
+            return false;
+        }
         if (Utilities.spawnUnit(RobotType.BEAVER, rc))
         {
             numbOfSpawnedSoldiers++;

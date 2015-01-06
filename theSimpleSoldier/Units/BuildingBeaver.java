@@ -45,23 +45,23 @@ public class BuildingBeaver extends Beaver
             Direction dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
             if (builtBaracks)
             {
-                while(!rc.canBuild(dir, RobotType.TANKFACTORY))
+                while(!rc.canBuild(dir, RobotType.AEROSPACELAB))
                 {
                     dir = dir.rotateRight();
                 }
-                rc.build(dir, RobotType.TANKFACTORY);
-                if (rc.hasBuildRequirements(RobotType.TANKFACTORY))
+                rc.build(dir, RobotType.AEROSPACELAB);
+                if (rc.hasBuildRequirements(RobotType.AEROSPACELAB))
                 {
                     builtTankFactory = true;
                 }
             }
             else
             {
-                while(!rc.canBuild(dir, RobotType.BARRACKS))
+                while(!rc.canBuild(dir, RobotType.HELIPAD))
                 {
                     dir = dir.rotateRight();
                 }
-                rc.build(dir, RobotType.BARRACKS);
+                rc.build(dir, RobotType.HELIPAD);
                 builtBaracks = true;
             }
             return true;
