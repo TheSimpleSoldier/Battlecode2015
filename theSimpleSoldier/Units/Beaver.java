@@ -41,10 +41,6 @@ public class Beaver extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
-        if (!rc.isCoreReady())
-        {
-            return false;
-        }
 
         if (target == null)
         {
@@ -57,11 +53,7 @@ public class Beaver extends Unit
 
     public boolean fight() throws GameActionException
     {
-        if (rc.isWeaponReady() && nearByEnemies.length > 0)
-        {
-            return fighter.basicFightMicro(nearByEnemies);
-        }
-        return false;
+        return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

@@ -30,11 +30,7 @@ public class Tower extends Structure
 
     public boolean fight() throws GameActionException
     {
-        if (nearByEnemies.length > 0 && rc.isWeaponReady())
-        {
-            return fighter.structureFightMicro(nearByEnemies);
-        }
-        return false;
+        return fighter.structureFightMicro(nearByEnemies);
     }
 
 }
