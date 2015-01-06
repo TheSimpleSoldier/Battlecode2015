@@ -73,7 +73,7 @@ public class Beaver extends Unit
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && rc.canMine())
+        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
         {
             rc.mine();
             return true;

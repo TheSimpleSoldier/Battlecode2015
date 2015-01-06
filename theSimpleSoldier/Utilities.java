@@ -14,6 +14,7 @@ public class Utilities
      */
     public static MapLocation getBestMiningSpot(RobotController rc)
     {
+        System.out.println("getBestMiningSpot");
         int range = rc.getType().sensorRadiusSquared;
         MapLocation ourLocation  = rc.getLocation();
         MapLocation current = ourLocation;
@@ -25,13 +26,17 @@ public class Utilities
 
         do
         {
+            if (Clock.getBytecodeNum() > 4000 && rc.senseOre(best) >= 2)
+            {
+                return best;
+            }
             current = stack2.pop();
             MapLocation next;
             for (int i = 0; i < dirs.length; i++)
             {
                 next = current.add(dirs[i]);
 
-                if (!stack.contains(next)) {
+                 if (!stack.contains(next)) {
                     if (ourLocation.distanceSquaredTo(next) < range)
                     {
                         stack2.push(next);
@@ -41,6 +46,7 @@ public class Utilities
                             best = next;
                         }
                     }
+                    stack.push(next);
                 }
             }
         } while (!stack2.empty());
