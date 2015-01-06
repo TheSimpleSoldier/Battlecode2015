@@ -14,7 +14,6 @@ public class Utilities
      */
     public static MapLocation getBestMiningSpot(RobotController rc)
     {
-        System.out.println("getBestMiningSpot");
         int range = rc.getType().sensorRadiusSquared;
         MapLocation ourLocation  = rc.getLocation();
         MapLocation current = ourLocation;
@@ -151,5 +150,37 @@ public class Utilities
             }
         }
         return false;
+    }
+
+    /**
+     * This method is for a unit to distribute Supplies to allies who are further away from the HQ
+     */
+    public static void shareSupplies(RobotController rc) throws GameActionException
+    {
+        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED;
+
+        RobotInfo[] nearByAllies = rc.senseNearbyRobots(dist, rc.getTeam().opponent());
+        if (nearByAllies.length <= 0)
+        {
+            return;
+        }
+
+        MapLocation ourHQ = rc.senseHQLocation();
+        int distToHQ = rc.getLocation().distanceSquaredTo(ourHQ);
+
+        for (int i = 0; i < nearByAllies.length; i++)
+        {
+            int allyDist = nearByAllies[i].location.distanceSquaredTo(ourHQ);
+            if (allyDist > distToHQ)
+            {
+                int allySupply = (int) nearByAllies[i].supplyLevel;
+                if (allySupply < rc.getSupplyLevel())
+                {
+                    // transfer half of difference to them
+                    int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
+                    rc.transferSupplies(amount, nearByAllies[i].location);
+                }
+            }
+        }
     }
 }

@@ -37,4 +37,32 @@ public abstract class Structure extends Unit
     {
         return false;
     }
+
+    // for structures even distribute supplies among all allies
+    public void distributeSupply() throws  GameActionException
+    {
+        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED - 1;
+
+        if (rc == null)
+        {
+            System.out.println("Houston we have a serious problem");
+        }
+
+        RobotInfo[] closeAllies = rc.senseNearbyRobots(dist, us);
+        if (closeAllies.length <= 0)
+        {
+            return;
+        }
+
+        int supplies = (int) (rc.getSupplyLevel() / closeAllies.length);
+
+
+        for (int i = 0; i < closeAllies.length; i++)
+        {
+            if (rc.senseRobotAtLocation(closeAllies[i].location) != null)
+            {
+                rc.transferSupplies(supplies, closeAllies[i].location);
+            }
+        }
+    }
 }
