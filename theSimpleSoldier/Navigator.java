@@ -16,12 +16,17 @@ public class Navigator
         // TODO: Implement
     }
 
-    public void badMovement(MapLocation target) throws GameActionException
+    public boolean badMovement(MapLocation target) throws GameActionException
     {
+        if (!rc.isCoreReady())
+        {
+            return false;
+        }
         Direction dir = rc.getLocation().directionTo(target);
         if (rc.canMove(dir))
         {
             rc.move(dir);
+            return true;
         }
         else
         {
@@ -30,6 +35,7 @@ public class Navigator
                 dir = dir.rotateRight();
             }
             rc.move(dir);
+            return true;
         }
     }
 }

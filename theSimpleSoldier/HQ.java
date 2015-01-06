@@ -48,11 +48,7 @@ public class HQ extends Structure
 
     public boolean fight() throws GameActionException
     {
-        if (rc.isWeaponReady())
-        {
-            return fighter.structureFightMicro(nearByEnemies);
-        }
-        return false;
+        return fighter.structureFightMicro(nearByEnemies);
     }
 
     public boolean carryOutAbility() throws GameActionException

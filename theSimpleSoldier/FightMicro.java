@@ -15,6 +15,11 @@ public class FightMicro
 
     public boolean basicFightMicro(RobotInfo[] nearByEnemies) throws GameActionException
     {
+        if (!rc.isWeaponReady())
+        {
+            return false;
+        }
+
         if (nearByEnemies.length < 1)
         {
             return false;
@@ -36,6 +41,10 @@ public class FightMicro
      */
     public boolean structureFightMicro(RobotInfo[] nearByEnemies) throws GameActionException
     {
+        if (!rc.isWeaponReady())
+        {
+            return false;
+        }
         if (nearByEnemies.length < 1)
         {
             return false;
