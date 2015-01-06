@@ -52,9 +52,7 @@ public class Beaver extends Unit
         }
 
         //nav.takeNextStep(target);
-        nav.badMovement(target);
-
-        return true;
+        return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException

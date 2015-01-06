@@ -5,7 +5,6 @@ import theSimpleSoldier.Structure;
 
 public class AerospaceLab extends Structure
 {
-    RobotController rc;
     public AerospaceLab(RobotController rc)
     {
         this.rc = rc;

@@ -190,7 +190,7 @@ public class Utilities
             }
         }
     }
-    
+
     /**
      * This method is for transferring almost all supplies right before death
      */

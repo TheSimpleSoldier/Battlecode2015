@@ -5,6 +5,7 @@ import theSimpleSoldier.BuildOrderMessaging;
 import theSimpleSoldier.Messaging;
 import theSimpleSoldier.Navigator;
 import theSimpleSoldier.Utilities;
+import theSimpleSoldier.Unit;
 
 import java.util.Random;
 
@@ -16,6 +17,9 @@ public class BuildingBeaver extends Beaver
     Direction dir;
     static Random rand;
     Direction[] dirs;
+    boolean builtTankFactory = false;
+    boolean builtBaracks = false;
+
     public BuildingBeaver(RobotController rc)
     {
         super(rc);
@@ -27,37 +31,51 @@ public class BuildingBeaver extends Beaver
     public void collectData() throws GameActionException
     {
         super.collectData();
-        if (!build)
-        {
-            BuildOrderMessaging message = BuildOrderMessaging.values()[buildingType];
-            RobotType robot = Utilities.getRobotType(message);
-            if (Utilities.canBuild(robot, rc))
-            {
-                build = true;
-                building = robot;
-                rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
-                MapLocation[] towers = rc.senseTowerLocations();
-                int random = rand.nextInt(towers.length);
-                target = towers[random].add(rc.getLocation().directionTo(towers[random]).opposite());
-            }
-        }
-        dir = rc.getLocation().directionTo(target);
     }
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && build && rc.canBuild(dir, building) && rc.getLocation().isAdjacentTo(target))
+        if (!rc.isCoreReady())
         {
-            rc.build(dir, building);
-            return true;
+            return false;
         }
 
-        while (rc.getLocation().isAdjacentTo(target) && !rc.canBuild(dir, building))
+        if (!rc.getLocation().isAdjacentTo(rc.senseHQLocation()))
         {
-            target = target.add(dirs[rand.nextInt(8)]);
+            Direction dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
+            if (builtBaracks)
+            {
+                while(!rc.canBuild(dir, RobotType.TANKFACTORY))
+                {
+                    dir = dir.rotateRight();
+                }
+                rc.build(dir, RobotType.TANKFACTORY);
+                if (rc.hasBuildRequirements(RobotType.TANKFACTORY))
+                {
+                    builtTankFactory = true;
+                }
+            }
+            else
+            {
+                while(!rc.canBuild(dir, RobotType.BARRACKS))
+                {
+                    dir = dir.rotateRight();
+                }
+                rc.build(dir, RobotType.BARRACKS);
+                builtBaracks = true;
+            }
+            return true;
         }
 
         return false;
     }
 
+    public Unit getNewStrategy(Unit current) throws GameActionException
+    {
+        if (builtTankFactory)
+        {
+            return new MinerBeaver(rc);
+        }
+        return current;
+    }
 }

@@ -27,7 +27,7 @@ public class HQ extends Structure
     public void handleMessages() throws GameActionException
     {
         rc.broadcast(Messaging.BuildOrder.ordinal(), BuildOrderMessaging.BuildBaracks.ordinal());
-        if (numbOfSpawnedSoldiers % 5 == 15)
+        if (numbOfSpawnedSoldiers == 0)
         {
             rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
         }
