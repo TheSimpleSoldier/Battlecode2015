@@ -158,7 +158,7 @@ public class Utilities
      */
     public static void shareSupplies(RobotController rc) throws GameActionException
     {
-        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED;
+        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED - 1;
 
         RobotInfo[] nearByAllies = rc.senseNearbyRobots(dist, rc.getTeam().opponent());
         if (nearByAllies.length <= 0)
@@ -169,19 +169,48 @@ public class Utilities
         MapLocation ourHQ = rc.senseHQLocation();
         int distToHQ = rc.getLocation().distanceSquaredTo(ourHQ);
 
-        for (int i = 0; i < nearByAllies.length; i++)
+        if (shareAllSupplies(rc, nearByAllies))
         {
-            int allyDist = nearByAllies[i].location.distanceSquaredTo(ourHQ);
-            if (allyDist > distToHQ)
+        }
+        else
+        {
+            for (int i = 0; i < nearByAllies.length; i++)
             {
-                int allySupply = (int) nearByAllies[i].supplyLevel;
-                if (allySupply < rc.getSupplyLevel())
+                int allyDist = nearByAllies[i].location.distanceSquaredTo(ourHQ);
+                if (allyDist > distToHQ)
                 {
-                    // transfer half of difference to them
-                    int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
-                    rc.transferSupplies(amount, nearByAllies[i].location);
+                    int allySupply = (int) nearByAllies[i].supplyLevel;
+                    if (allySupply < rc.getSupplyLevel())
+                    {
+                        // transfer half of difference to them
+                        int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
+                        rc.transferSupplies(amount, nearByAllies[i].location);
+                    }
                 }
             }
         }
+    }
+    
+    /**
+     * This method is for transferring almost all supplies right before death
+     */
+    public static boolean shareAllSupplies(RobotController rc, RobotInfo[] nearByAllies) throws GameActionException
+    {
+        if (rc.getHealth() < 20)
+        {
+            int totalSupplies = (int) rc.getSupplyLevel();
+            totalSupplies = totalSupplies - 50;
+
+            if (totalSupplies > 0)
+            {
+                for (int i = 0; i < nearByAllies.length; i++)
+                {
+                    rc.transferSupplies((totalSupplies/nearByAllies.length), nearByAllies[i].location);
+                }
+            }
+
+            return true;
+        }
+        return false;
     }
 }
