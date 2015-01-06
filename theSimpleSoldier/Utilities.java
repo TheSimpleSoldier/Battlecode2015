@@ -35,7 +35,8 @@ public class Utilities
             {
                 next = current.add(dirs[i]);
 
-                 if (!stack.contains(next)) {
+                 if (!stack.contains(next))
+                 {
                     if (ourLocation.distanceSquaredTo(next) < range)
                     {
                         stack2.push(next);

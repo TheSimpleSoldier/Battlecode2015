@@ -43,10 +43,17 @@ public abstract class Structure extends Unit
     {
         int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED - 1;
 
+        if (rc.getSupplyLevel() == 0)
+        {
+            return;
+        }
+
         if (rc == null)
         {
             System.out.println("Houston we have a serious problem");
         }
+        rc.setIndicatorString(1, "");
+        rc.setIndicatorString(2, "");
 
         RobotInfo[] closeAllies = rc.senseNearbyRobots(dist, us);
         if (closeAllies.length <= 0)
@@ -59,9 +66,12 @@ public abstract class Structure extends Unit
 
         for (int i = 0; i < closeAllies.length; i++)
         {
-            if (rc.senseRobotAtLocation(closeAllies[i].location) != null)
+            MapLocation ally = closeAllies[i].location;
+            if (rc.senseRobotAtLocation(ally) != null && rc.getLocation().distanceSquaredTo(ally) < dist)
             {
-                rc.transferSupplies(supplies, closeAllies[i].location);
+                rc.setIndicatorString(1, "x: " + ally.x + ", y:" + ally.y);
+                rc.setIndicatorString(2, "ally at location:" + rc.senseRobotAtLocation(ally));
+                rc.transferSupplies(supplies, ally);
             }
         }
     }
