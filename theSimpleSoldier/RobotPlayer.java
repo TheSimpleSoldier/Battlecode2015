@@ -87,12 +87,14 @@ public class RobotPlayer
                 {
                     unit = getTower(rc);
                 }
+                else if (rc.getType() == RobotType.MISSILE)
+                {
+                    unit = getMissile(rc);
+                }
                 else
                 {
                     System.out.println("Houston we have a problem");
                 }
-
-                System.out.println("Enemy HQ: " + rc.senseEnemyHQLocation());
 
                 while (true)
                 {
@@ -108,7 +110,7 @@ public class RobotPlayer
                         {
                             // execute ability
                         }
-                        else if (unit.takeNextStep())
+                        if (unit.takeNextStep())
                         {
                             // take one step forward
                         }
@@ -223,7 +225,7 @@ public class RobotPlayer
         return new TrainingField(rc);
     }
 
-    private static Unit getHQ(RobotController rc)
+    private static Unit getHQ(RobotController rc) throws GameActionException
     {
         return new HQ(rc);
     }
@@ -231,5 +233,10 @@ public class RobotPlayer
     private static Unit getTower(RobotController rc)
     {
         return new Tower(rc);
+    }
+
+    private static Unit getMissile(RobotController rc)
+    {
+        return new Missile(rc);
     }
 }
