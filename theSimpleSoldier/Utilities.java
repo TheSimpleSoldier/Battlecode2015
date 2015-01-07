@@ -2,12 +2,167 @@ package theSimpleSoldier;
 
 import battlecode.common.*;
 
-import java.util.*;
+import java.util.Random;
 
 public class Utilities
 {
     public static Random random = new Random();
     // location for methods that can be used across multiple domains
+
+    private static int startChannelMineSpots = 100;
+
+    public static MapLocation getBestSpot(RobotController rc, boolean lightWeight) throws GameActionException
+    {
+        int numberMineSpots = 3;
+
+        MapLocation location = rc.senseHQLocation();
+        Random rand = new Random();
+
+        //set to 20 or 50 depending on how many bytecodes you want to use
+        //20 will use about 1700 and 50 will use about 4500
+        int k = 50;
+        if(lightWeight)
+        {
+            k = 20;
+        }
+
+        //run hill climbing for how many iterations specified earlier.
+        for(; --k >= 0;)
+        {
+            MapLocation nextLocation = location.add(Direction.values()[rand.nextInt(8)]);
+
+            if(rc.senseOre(nextLocation) >= rc.senseOre(location))
+            {
+                location = nextLocation;
+            }
+        }
+
+        if(!minesInitialized(rc, numberMineSpots))
+        {
+            initializeMines(rc, numberMineSpots);
+        }
+
+        int startChannel = -1;
+
+        //if far from us, but also not near enemy
+        if(farFromHome(rc, rc.getTeam(), location) && farFromHome(rc, rc.getTeam().opponent(), location))
+        {
+            startChannel = startChannelMineSpots + numberMineSpots * 3;
+        }
+        //if near us
+        else if(!farFromHome(rc, rc.getTeam(), location))
+        {
+            startChannel = startChannelMineSpots;
+        }
+
+        //this looks at the current top spots and inserts the current spot if it is larger big enough
+        if(startChannel != -1)
+        {
+            for(int a = 0; a < numberMineSpots; a++)
+            {
+                if(rc.readBroadcast(startChannel + a * 3) == location.x &&
+                   rc.readBroadcast(startChannel + a * 3 + 1) == location.y &&
+                   rc.readBroadcast(startChannel + a * 3 + 2) == rc.senseOre(location))
+                {
+                    return location;
+                }
+            }
+            int lastBiggest = -1;
+            for(int a = 0; a < numberMineSpots; a++)
+            {
+                if(rc.readBroadcast(startChannel + a * 3 + 2) < rc.senseOre(location))
+                {
+                    lastBiggest = a;
+                    //shuffle order of locations to make room for new one
+                    if(a > 0)
+                    {
+                        rc.broadcast(startChannel + (a - 1) * 3, rc.readBroadcast(startChannel + a * 3));
+                        rc.broadcast(startChannel + (a - 1) * 3 + 1, rc.readBroadcast(startChannel + a * 3 + 1));
+                        rc.broadcast(startChannel + (a - 1) * 3 + 2, rc.readBroadcast(startChannel + a * 3 + 2));
+                    }
+                }
+            }
+            if(lastBiggest > -1)
+            {
+                rc.broadcast(startChannel + lastBiggest * 3, location.x);
+                rc.broadcast(startChannel + lastBiggest * 3 + 1, location.y);
+                rc.broadcast(startChannel + lastBiggest * 3 + 2, (int)Math.round(rc.senseOre(location)));
+            }
+        }
+
+        //this is mainly for debug purposes and should be removed when it no longer needs to be checked
+        return location;
+    }
+
+    //sets all ore values to -1
+    private static void initializeMines(RobotController rc, int numberMineSpots) throws GameActionException
+    {
+        for(int k = startChannelMineSpots + 2; k < startChannelMineSpots + numberMineSpots * 2 * 3; k += 3)
+        {
+            rc.broadcast(k, -1);
+        }
+    }
+
+    //this will check if a spot is near the towers or hq of a particular team.
+    private static boolean farFromHome(RobotController rc, Team team, MapLocation location)
+    {
+        int close = 10;
+
+        boolean opponent = false;
+        if(rc.getTeam() != team)
+        {
+            opponent = true;
+        }
+
+        if(opponent)
+        {
+            if(location.distanceSquaredTo(rc.senseEnemyHQLocation()) < close)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if(location.distanceSquaredTo(rc.senseHQLocation()) < close)
+            {
+                return false;
+            }
+        }
+
+        MapLocation[] towers;
+        if(opponent)
+        {
+            towers = rc.senseEnemyTowerLocations();
+        }
+        else
+        {
+            towers = rc.senseTowerLocations();
+        }
+
+        for(int k = towers.length; --k >= 0;)
+        {
+            if(location.distanceSquaredTo(towers[k]) < close)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    //checks if the mines channels have been initialized yet
+    private static boolean minesInitialized(RobotController rc, int numberMineSpots) throws GameActionException
+    {
+        for(int k = startChannelMineSpots; k < startChannelMineSpots + numberMineSpots * 2 * 3; k++)
+        {
+            if(rc.readBroadcast(k) != 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public static MapLocation greedyBestMiningSpot(RobotController rc) throws GameActionException
     {

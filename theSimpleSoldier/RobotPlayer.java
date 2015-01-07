@@ -86,6 +86,7 @@ public class RobotPlayer
                 else if (rc.getType() == RobotType.TOWER)
                 {
                     unit = getTower(rc);
+                    Utilities.getBestSpot(rc, false);
                 }
                 else if (rc.getType() == RobotType.MISSILE)
                 {
