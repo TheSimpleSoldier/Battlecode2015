@@ -157,4 +157,27 @@ public class Navigator
         //if no where is blocked, move on
         return true;
     }
+
+    public boolean badMovement(MapLocation target) throws GameActionException
+    {
+        if (!rc.isCoreReady())
+        {
+            return false;
+        }
+        Direction dir = rc.getLocation().directionTo(target);
+        if (rc.canMove(dir))
+        {
+            rc.move(dir);
+            return true;
+        }
+        else
+        {
+            while (!rc.canMove(dir))
+            {
+                dir = dir.rotateRight();
+            }
+            rc.move(dir);
+            return true;
+        }
+    }
 }

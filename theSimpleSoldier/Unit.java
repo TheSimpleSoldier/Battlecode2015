@@ -4,6 +4,13 @@ import battlecode.common.*;
 
 public abstract class Unit
 {
+    public RobotController rc;
+    public int range;
+    public Team us;
+    public Team opponent;
+    MapLocation ourHQ;
+    MapLocation enemyHQ;
+
     public abstract void collectData() throws GameActionException;
 
     public void handleMessages() throws GameActionException
@@ -29,5 +36,10 @@ public abstract class Unit
     public boolean carryOutAbility() throws GameActionException
     {
         return false;
+    }
+
+    public void distributeSupply() throws GameActionException
+    {
+        Utilities.shareSupplies(rc);
     }
 }
