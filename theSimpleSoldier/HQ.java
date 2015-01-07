@@ -25,7 +25,7 @@ public class HQ extends Structure
         us = rc.getTeam();
         opponent = us.opponent();
         fighter = new FightMicro(rc);
-        strat = new BuildOrderMessaging[12];
+        strat = new BuildOrderMessaging[15];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
         strat[2] = BuildOrderMessaging.BuildBeaverMiner;
@@ -41,9 +41,12 @@ public class HQ extends Structure
         strat[6] = BuildOrderMessaging.BuildMinerFactory;
         strat[7] = BuildOrderMessaging.BuildHelipad;
         strat[8] = BuildOrderMessaging.BuildBaracks;
-        strat[9] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[10] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[9] = BuildOrderMessaging.BuildTankFactory;
+        strat[10] = BuildOrderMessaging.BuildTankFactory;
         strat[11] = BuildOrderMessaging.BuildTankFactory;
+        strat[12] = BuildOrderMessaging.BuildTankFactory;
+        strat[13] = BuildOrderMessaging.BuildTankFactory;
+        strat[14] = BuildOrderMessaging.BuildTankFactory;
     }
 
     public void handleMessages() throws GameActionException

@@ -15,7 +15,6 @@ public class Utilities
         MapLocation currentBest;
 
         best = rc.getLocation();
-        currentBest = best;
         Direction[] dirs = Direction.values();
 
         do
@@ -32,8 +31,20 @@ public class Utilities
                         best = newSpot;
                     }
                 }
+                for (int j = 0; j < 8; j++)
+                {
+                    MapLocation newSpot2 = newSpot.add(dirs[j]);
+                    if (rc.canSenseLocation(newSpot2))
+                    {
+                        if (rc.senseOre(newSpot2) > rc.senseOre(best))
+                        {
+                            best = newSpot2;
+                        }
+                    }
+                }
             }
         } while (rc.senseOre(best) > rc.senseOre(currentBest));
+
 
         return currentBest;
     }
@@ -410,5 +421,28 @@ public class Utilities
         }
 
         return target;
+    }
+
+    /**
+     * This method determines if we are within firing distance
+     * of an enemy tower or HQ
+     */
+    public static boolean nearEnemyTower(RobotController rc)
+    {
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+
+        for (int i = 0; i < towers.length; i++)
+        {
+            if (rc.getLocation().distanceSquaredTo(towers[i]) < 34)
+            {
+                return true;
+            }
+        }
+
+        if (rc.getLocation().distanceSquaredTo(rc.senseEnemyHQLocation()) < 34)
+        {
+            return true;
+        }
+        return false;
     }
 }

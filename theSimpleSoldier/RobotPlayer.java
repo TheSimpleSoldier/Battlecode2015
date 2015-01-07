@@ -110,7 +110,7 @@ public class RobotPlayer
                         {
                             // execute ability
                         }
-                        else if (unit.takeNextStep())
+                        if (unit.takeNextStep())
                         {
                             // take one step forward
                         }

@@ -1,7 +1,6 @@
 package theSimpleSoldier.Units;
 
 import theSimpleSoldier.FightMicro;
-import theSimpleSoldier.Messaging;
 import theSimpleSoldier.Navigator;
 import theSimpleSoldier.Unit;
 import battlecode.common.*;
@@ -45,8 +44,8 @@ public class Beaver extends Unit
             return false;
         }
 
-        //nav.takeNextStep(target);
-        return nav.badMovement(target);
+        return nav.takeNextStep(target);
+        //return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException

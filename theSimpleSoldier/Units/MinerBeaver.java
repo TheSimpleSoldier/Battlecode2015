@@ -1,7 +1,6 @@
 package theSimpleSoldier.Units;
 
 import battlecode.common.*;
-import battlecode.world.Util;
 import theSimpleSoldier.Utilities;
 
 import java.util.Random;

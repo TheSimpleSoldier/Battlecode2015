@@ -5,7 +5,6 @@ import battlecode.common.*;
 import theSimpleSoldier.FightMicro;
 import theSimpleSoldier.Navigator;
 import theSimpleSoldier.Unit;
-import theSimpleSoldier.Utilities;
 
 public class Missile extends Unit
 {
@@ -52,6 +51,6 @@ public class Missile extends Unit
 
     public void distributeSupply() throws GameActionException
     {
-        //Utilities.shareSupplies(rc);
+        // can't afford to waste bytecodes with supplies
     }
 }

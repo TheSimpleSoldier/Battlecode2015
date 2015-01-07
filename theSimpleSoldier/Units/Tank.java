@@ -49,6 +49,7 @@ public class Tank extends Unit
         {
             return false;
         }
+        //return nav.takeNextStep(target);
         return nav.badMovement(target);
     }
 

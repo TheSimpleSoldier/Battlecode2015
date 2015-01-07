@@ -14,7 +14,7 @@ public class MinerFactory extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (numbOfMiners > 4)
+        if (numbOfMiners > 9)
         {
             return false;
         }

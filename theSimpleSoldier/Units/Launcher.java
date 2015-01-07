@@ -6,6 +6,7 @@ import theSimpleSoldier.Navigator;
 import theSimpleSoldier.Unit;
 
 import battlecode.common.*;
+import theSimpleSoldier.Utilities;
 
 public class Launcher extends Unit
 {
@@ -50,11 +51,15 @@ public class Launcher extends Unit
         {
             return false;
         }
-        else if (rc.getLocation().distanceSquaredTo(target) > 35)
+        else if (Utilities.nearEnemyTower(rc))
         {
+            return false;
+        }
+        else
+        {
+            //return nav.takeNextStep(target);
             return nav.badMovement(target);
         }
-        return false;
     }
 
     public boolean fight() throws GameActionException

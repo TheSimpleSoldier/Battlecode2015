@@ -3,7 +3,6 @@ package theSimpleSoldier.Units;
 import battlecode.common.*;
 import theSimpleSoldier.BuildOrderMessaging;
 import theSimpleSoldier.Messaging;
-import theSimpleSoldier.Navigator;
 import theSimpleSoldier.Utilities;
 import theSimpleSoldier.Unit;
 
