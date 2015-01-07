@@ -4,6 +4,13 @@ public enum Messaging {
     BuildOrder,
     Strategy,
     BeaverType,
+    BasherType,
+    ComputerType,
+    DroneType,
+    LauncherType,
+    MinerType,
+    SoldierType,
+    TankType,
     NumbOfBeavers,
     ShutOffTechnologyProd,
     ShutOffTrainingFieldProd,
@@ -13,6 +20,13 @@ public enum Messaging {
     ShutOffHelipadProd,
     ShutOffAerospaceProd,
     ShutOffMinerProd,
-
+    FirstNeedSupplyX,
+    FirstNeedSupplyY,
+    SecondNeedSupplyX,
+    SecondNeedSupplyY,
+    TowerUnderAttack,
+    BuildingInDistressX,
+    BuildingInDistressY,
+    HQUnderAttack,
     // etc
 }

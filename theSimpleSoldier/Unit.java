@@ -15,7 +15,25 @@ public abstract class Unit
 
     public void handleMessages() throws GameActionException
     {
-        // default to doing nothing
+        // if we are getting low on supply send out request
+        if (rc.getSupplyLevel() < 40)
+        {
+            if (rc.readBroadcast(Messaging.FirstNeedSupplyX.ordinal()) == 0)
+            {
+                MapLocation mySpot = rc.getLocation();
+                rc.broadcast(Messaging.FirstNeedSupplyX.ordinal(), mySpot.x);
+                rc.broadcast(Messaging.FirstNeedSupplyY.ordinal(), mySpot.y);
+            }
+            else if (rc.readBroadcast(Messaging.SecondNeedSupplyX.ordinal()) == 0)
+            {
+                MapLocation mySpot = rc.getLocation();
+                rc.broadcast(Messaging.SecondNeedSupplyX.ordinal(), mySpot.x);
+                rc.broadcast(Messaging.SecondNeedSupplyY.ordinal(), mySpot.y);
+            }
+        }
+
+
+
     }
 
     public boolean takeNextStep() throws GameActionException
