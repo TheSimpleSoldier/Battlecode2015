@@ -13,16 +13,18 @@ public class BuildingBeaver extends Beaver
 {
     MapLocation nextBuildSpot;
     Boolean build;
-    RobotType building;
+    RobotType building = null;
     Direction dir;
     static Random rand;
     Direction[] dirs;
     boolean becomeMiner;
     int numb;
+    MapLocation buildingSpot;
 
     public BuildingBeaver(RobotController rc) throws GameActionException
     {
         super(rc);
+        rc.setIndicatorString(1, "BuildingBeaver");
         build = false;
         dirs = Direction.values();
         target = rc.senseTowerLocations()[0];
@@ -33,8 +35,7 @@ public class BuildingBeaver extends Beaver
     public void collectData() throws GameActionException
     {
         super.collectData();
-
-        if (building == null)
+        if (building == null && rc.isCoreReady())
         {
             int type = rc.readBroadcast(Messaging.BuildOrder.ordinal());
 
@@ -55,8 +56,13 @@ public class BuildingBeaver extends Beaver
             }
             else
             {
+                numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
                 target = Utilities.findLocationForBuilding(rc, numb, building);
+                buildingSpot = target;
+                target = target.add(target.directionTo(rc.getLocation()));
+                rc.setIndicatorString(0, "Numb: " + numb);
+                rc.setIndicatorString(2, "Building: " + building);
             }
         }
     }
@@ -78,9 +84,9 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (rc.getLocation().isAdjacentTo(target))
+        if (rc.getLocation().isAdjacentTo(buildingSpot) || rc.getLocation().equals(target))
         {
-            if (Utilities.BuildStructure(rc, target, building))
+            if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
                 target = null;
                 building = null;

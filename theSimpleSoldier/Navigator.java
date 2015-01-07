@@ -23,6 +23,11 @@ public class Navigator
             return false;
         }
 
+        if (rc.getLocation().equals(target))
+        {
+            return false;
+        }
+
         Direction dir = rc.getLocation().directionTo(target);
         if (rc.canMove(dir))
         {

@@ -22,6 +22,7 @@ public class FightMicro
         {
             return false;
         }
+
         RobotInfo enemyToAttack = findWeakestEnemy(nearByEnemies);
         MapLocation target = enemyToAttack.location;
 
@@ -77,44 +78,6 @@ public class FightMicro
         return weakest;
     }
 
-
-    /**
-     * This method carrys out a missile's attack
-     */
-    public void missileAttack() throws GameActionException
-    {
-        Direction bestDir = Direction.NONE;
-        int bestScore;
-        MapLocation us = rc.getLocation();
-
-        bestScore = getSpotScore(us);
-        int currentScore;
-        MapLocation current;
-
-        for (int i = 0; i < 8; i++)
-        {
-            if (rc.canMove(dirs[i]))
-            {
-                current = us.add(dirs[i]);
-                currentScore = getSpotScore(current);
-                if (currentScore > bestScore)
-                {
-                    bestDir = dirs[i];
-                    bestScore = currentScore;
-                }
-            }
-        }
-
-        if (bestDir != Direction.NONE)
-        {
-            rc.move(bestDir);
-        }
-        else
-        {
-            rc.explode();
-        }
-    }
-
     /**
      * This is a second attempt with missile fighting
      */
@@ -150,36 +113,6 @@ public class FightMicro
         return rc.getLocation();
     }
 
-    /**
-     * This method calculates the score for a location
-     */
-    public int getSpotScore(MapLocation spot) throws GameActionException
-    {
-        int totalScore = 0;
-        MapLocation newSpot;
-        RobotInfo bot;
-        Team us = rc.getTeam();
-
-        for (int i = 8; --i >= 0; )
-        {
-            newSpot = spot.add(dirs[i]);
-            bot = rc.senseRobotAtLocation(newSpot);
-
-            if (bot != null)
-            {
-                if (bot.team == us)
-                {
-                    totalScore -= 20;
-                }
-                else
-                {
-                    totalScore += 20;
-                }
-            }
-        }
-        return totalScore;
-    }
-
 
     public boolean launcherAttack(RobotInfo[] nearByEnemies) throws GameActionException
     {
@@ -195,6 +128,31 @@ public class FightMicro
 
         if (nearByEnemies.length == 0)
         {
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+            for (int i = 0; i < enemyTowers.length; i++)
+            {
+                if (rc.getLocation().distanceSquaredTo(enemyTowers[i]) < 49)
+                {
+                    Direction dir = rc.getLocation().directionTo(enemyTowers[i]);
+                    if (rc.canMove(dir))
+                    {
+                        rc.launchMissile(dir);
+                        return true;
+                    }
+                }
+            }
+
+            if (rc.getLocation().distanceSquaredTo(rc.senseEnemyHQLocation()) < 49)
+            {
+                Direction dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
+                if (rc.canMove(dir))
+                {
+                    rc.launchMissile(dir);
+                    return true;
+                }
+            }
+
             return false;
         }
 

@@ -12,6 +12,7 @@ public class MinerBeaver extends Beaver
     public MinerBeaver(RobotController rc)
     {
         super(rc);
+        rc.setIndicatorString(1, "Miner Beaver");
     }
 
     public void collectData() throws GameActionException

@@ -11,7 +11,7 @@ public class HQ extends Structure
     int range;
     Team us;
     Team opponent;
-    int numbOfSpawnedSoldiers = 0;
+    int numberOfMinerFactories = -1;
     Direction[] dirs;
     FightMicro fighter;
 
@@ -25,14 +25,20 @@ public class HQ extends Structure
         us = rc.getTeam();
         opponent = us.opponent();
         fighter = new FightMicro(rc);
-        strat = new BuildOrderMessaging[100];
+        strat = new BuildOrderMessaging[12];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        strat[2] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[3] = BuildOrderMessaging.BuildMinerFactory;
-        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[5] = BuildOrderMessaging.BuildMinerFactory;
-        strat[6] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[2] = BuildOrderMessaging.BuildBeaverMiner;
+        strat[3] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[4] = BuildOrderMessaging.BuildMinerFactory;
+        strat[5] = BuildOrderMessaging.BuildBeaverMiner;
+        //strat[6] = BuildOrderMessaging.BuildBeaverBuilder;
+        //strat[7] = BuildOrderMessaging.BuildMinerFactory;
+        //strat[8] = BuildOrderMessaging.BuildBeaverMiner;
+        //strat[9] = BuildOrderMessaging.BuildBeaverMiner;
+        //strat[10] = BuildOrderMessaging.BuildBeaverMiner;
+        //strat[11] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[6] = BuildOrderMessaging.BuildMinerFactory;
         strat[7] = BuildOrderMessaging.BuildHelipad;
         strat[8] = BuildOrderMessaging.BuildBaracks;
         strat[9] = BuildOrderMessaging.BuildAerospaceLab;
@@ -42,11 +48,10 @@ public class HQ extends Structure
 
     public void handleMessages() throws GameActionException
     {
-        rc.broadcast(Messaging.BuildOrder.ordinal(), BuildOrderMessaging.BuildBaracks.ordinal());
-
         if (currentUnit >= strat.length)
         {
             // we are done excecuting build order
+            rc.setIndicatorString(1, "currentUnit >= strat.length ");
         }
         else if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverBuilder)
         {
@@ -61,16 +66,25 @@ public class HQ extends Structure
             // if a beaver has taken up a job then we go ahead and post the next building
             if (rc.readBroadcast(Messaging.BuildOrder.ordinal()) == -1)
             {
+                System.out.println("Increase Unit count");
                 currentUnit++;
             }
 
+            if (currentUnit >= strat.length)
+            {
+                return;
+            }
+
+            if (strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+            {
+                numberOfMinerFactories++;
+                rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+            }
+
             // state which building we want built next
+            rc.setIndicatorString(1, ""+strat[currentUnit]);
             rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
         }
-
-        rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numbOfSpawnedSoldiers);
-
-
     }
 
     public void collectData() throws GameActionException
@@ -102,8 +116,21 @@ public class HQ extends Structure
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
-                numbOfSpawnedSoldiers++;
                 currentUnit++;
+                if (currentUnit >= strat.length)
+                {
+                    return true;
+                }
+
+                // state which building we want built next
+                if (strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+                {
+                    numberOfMinerFactories++;
+                    rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+                }
+
+                rc.setIndicatorString(1, ""+strat[currentUnit]);
+                rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
                 return true;
             }
         }

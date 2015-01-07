@@ -36,7 +36,6 @@ public class Beaver extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        buildingType = rc.readBroadcast(Messaging.BuildOrder.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException

@@ -166,9 +166,16 @@ public class Utilities
                     int allySupply = (int) nearByAllies[i].supplyLevel;
                     if (allySupply < rc.getSupplyLevel())
                     {
-                        // transfer half of difference to them
-                        int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
-                        rc.transferSupplies(amount, nearByAllies[i].location);
+                        if (Clock.getBytecodeNum() > 4500)
+                        {
+                            break;
+                        }
+                        if (rc.isLocationOccupied(nearByAllies[i].location))
+                        {
+                            // transfer half of difference to them
+                            int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
+                            rc.transferSupplies(amount, nearByAllies[i].location);
+                        }
                     }
                 }
             }
@@ -189,7 +196,14 @@ public class Utilities
             {
                 for (int i = 0; i < nearByAllies.length; i++)
                 {
-                    rc.transferSupplies((totalSupplies/nearByAllies.length), nearByAllies[i].location);
+                    if (Clock.getBytecodeNum() > 4500)
+                    {
+                        break;
+                    }
+                    if (rc.isLocationOccupied(nearByAllies[i].location))
+                    {
+                        rc.transferSupplies((totalSupplies/nearByAllies.length), nearByAllies[i].location);
+                    }
                 }
             }
 
@@ -205,10 +219,6 @@ public class Utilities
      */
     public static boolean BuildStructure(RobotController rc, MapLocation target, RobotType type) throws GameActionException
     {
-        if (!rc.getLocation().isAdjacentTo(target))
-        {
-            return false;
-        }
         if (!rc.isCoreReady())
         {
             return false;
@@ -331,7 +341,45 @@ public class Utilities
 
         MapLocation[] towers = rc.senseTowerLocations();
 
-        target = towers[numb % towers.length];
+        if (numb < towers.length)
+        {
+            target = towers[numb];
+        }
+        else
+        {
+            // first go to right
+            if (numb == towers.length)
+            {
+                MapLocation ourHQ = rc.senseHQLocation();
+                int dist = ourHQ.distanceSquaredTo(rc.senseEnemyHQLocation());
+                Direction dir = ourHQ.directionTo(rc.senseEnemyHQLocation());
+                dir = dir.rotateRight();
+                MapLocation current = rc.senseHQLocation().add(dir);
+                int newDist = current.distanceSquaredTo(ourHQ);
+                while (newDist < (dist/2))
+                {
+                    current = current.add(dir);
+                    newDist = current.distanceSquaredTo(ourHQ);
+                }
+                target = current;
+            }
+            // next go to left
+            else
+            {
+                MapLocation ourHQ = rc.senseHQLocation();
+                int dist = ourHQ.distanceSquaredTo(rc.senseEnemyHQLocation());
+                Direction dir = ourHQ.directionTo(rc.senseEnemyHQLocation());
+                dir = dir.rotateLeft();
+                MapLocation current = rc.senseHQLocation().add(dir);
+                int newDist = current.distanceSquaredTo(ourHQ);
+                while (newDist < dist/2)
+                {
+                    current = current.add(dir);
+                    newDist = current.distanceSquaredTo(ourHQ);
+                }
+                target = current;
+            }
+        }
 
         target = target.add(target.directionTo(rc.getLocation()));
 

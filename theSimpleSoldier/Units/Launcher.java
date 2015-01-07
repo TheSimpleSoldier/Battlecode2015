@@ -46,7 +46,11 @@ public class Launcher extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
-        if (rc.getLocation().distanceSquaredTo(target) > 35)
+        if (nearByEnemies.length > 0)
+        {
+            return false;
+        }
+        else if (rc.getLocation().distanceSquaredTo(target) > 35)
         {
             return nav.badMovement(target);
         }

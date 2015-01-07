@@ -225,7 +225,7 @@ public class RobotPlayer
         return new TrainingField(rc);
     }
 
-    private static Unit getHQ(RobotController rc)
+    private static Unit getHQ(RobotController rc) throws GameActionException
     {
         return new HQ(rc);
     }
