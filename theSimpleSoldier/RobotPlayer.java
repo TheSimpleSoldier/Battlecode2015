@@ -101,7 +101,6 @@ public class RobotPlayer
                 {
                     try
                     {
-                        Utilities.getBestSpot(rc, false);
                         unit.collectData();
                         unit.handleMessages();
                         if (unit.fight())
