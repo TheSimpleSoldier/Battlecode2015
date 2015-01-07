@@ -4,7 +4,6 @@ import battlecode.common.*;
 
 public class HQ extends Structure
 {
-    RobotController rc;
     RobotInfo[] enemies;
     RobotInfo[] nearByEnemies;
     RobotInfo[] allies;

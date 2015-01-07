@@ -92,6 +92,8 @@ public class RobotPlayer
                     System.out.println("Houston we have a problem");
                 }
 
+                System.out.println("Enemy HQ: " + rc.senseEnemyHQLocation());
+
                 while (true)
                 {
                     try
@@ -112,6 +114,8 @@ public class RobotPlayer
                         }
 
                         unit = unit.getNewStrategy(unit);
+
+                        unit.distributeSupply();
                         rc.yield();
                     }
                     catch (Exception e)
