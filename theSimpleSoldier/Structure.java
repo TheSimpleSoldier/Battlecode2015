@@ -14,7 +14,7 @@ public abstract class Structure extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        // default to doing nothing
+
     }
 
     // structures can't move!
