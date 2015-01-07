@@ -6,10 +6,10 @@ import java.util.*;
 
 public class Utilities
 {
-    public static Random random;
+    public static Random random = new Random();
     // location for methods that can be used across multiple domains
 
-    public static MapLocation greedyBestMiningSpot(RobotController rc)
+    public static MapLocation greedyBestMiningSpot(RobotController rc) throws GameActionException
     {
         MapLocation best;
         MapLocation currentBest;
@@ -26,26 +26,36 @@ public class Utilities
                 MapLocation newSpot = current.add(dirs[i]);
                 if (rc.canSenseLocation(newSpot))
                 {
-                    if (rc.senseOre(newSpot) > rc.senseOre(best))
+                    if (rc.senseOre(newSpot) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot))
                     {
                         best = newSpot;
                     }
-                }
-                for (int j = 0; j < 8; j++)
-                {
-                    MapLocation newSpot2 = newSpot.add(dirs[j]);
-                    if (rc.canSenseLocation(newSpot2))
+                    for (int j = 0; j < 8; j++)
                     {
-                        if (rc.senseOre(newSpot2) > rc.senseOre(best))
+                        MapLocation newSpot2 = newSpot.add(dirs[j]);
+                        if (rc.canSenseLocation(newSpot2))
                         {
-                            best = newSpot2;
+                            if (rc.senseOre(newSpot2) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot2))
+                            {
+                                best = newSpot2;
+                            }
                         }
                     }
                 }
             }
         } while (rc.senseOre(best) > rc.senseOre(currentBest));
 
+        if (currentBest == rc.getLocation())
+        {
+            Direction dir = dirs[random.nextInt(8)];
+            while (!rc.canMove(dir))
+            {
+                dir = dirs[random.nextInt(8)];
+            }
+            currentBest = currentBest.add(dir);
+        }
 
+        rc.setIndicatorString(1, "Best: "+currentBest);
         return currentBest;
     }
 

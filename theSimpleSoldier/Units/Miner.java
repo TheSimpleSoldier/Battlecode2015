@@ -24,7 +24,7 @@ public class Miner extends Unit
         opponent = us.opponent();
     }
 
-    public void collectData()
+    public void collectData() throws GameActionException
     {
         // collect our data
         nearByEnemies = rc.senseNearbyRobots(range, opponent);
@@ -63,7 +63,7 @@ public class Miner extends Unit
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
+        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 1)
         {
             rc.mine();
             return true;
