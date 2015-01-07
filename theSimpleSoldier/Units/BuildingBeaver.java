@@ -55,6 +55,7 @@ public class BuildingBeaver extends Beaver
             }
             else
             {
+                rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
                 target = Utilities.findLocationForBuilding(rc, numb, building);
             }
         }
@@ -83,6 +84,7 @@ public class BuildingBeaver extends Beaver
             {
                 target = null;
                 building = null;
+                return true;
             }
         }
 

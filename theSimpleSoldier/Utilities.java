@@ -9,52 +9,6 @@ public class Utilities
     public static Random random;
     // location for methods that can be used across multiple domains
 
-    /**
-     * This method returns the location in the Robots sensor range
-     * with the highest ore
-     */
-    public static MapLocation getBestMiningSpot(RobotController rc)
-    {
-        int range = rc.getType().sensorRadiusSquared;
-        MapLocation ourLocation  = rc.getLocation();
-        MapLocation current = ourLocation;
-        MapLocation best = ourLocation;
-        Stack<MapLocation> stack = new Stack<MapLocation>();
-        Stack<MapLocation> stack2 = new Stack<MapLocation>();
-        stack2.push(current);
-        Direction[] dirs = Direction.values();
-
-        do
-        {
-            if (Clock.getBytecodeNum() > 4000 && rc.senseOre(best) >= 2)
-            {
-                return best;
-            }
-            current = stack2.pop();
-            MapLocation next;
-            for (int i = 0; i < dirs.length; i++)
-            {
-                next = current.add(dirs[i]);
-
-                 if (!stack.contains(next))
-                 {
-                    if (ourLocation.distanceSquaredTo(next) < range)
-                    {
-                        stack2.push(next);
-
-                        if (rc.senseOre(next) > rc.senseOre(best))
-                        {
-                            best = next;
-                        }
-                    }
-                    stack.push(next);
-                }
-            }
-        } while (!stack2.empty());
-
-        return best;
-    }
-
     public static MapLocation greedyBestMiningSpot(RobotController rc)
     {
         MapLocation best;
@@ -393,6 +347,9 @@ public class Utilities
         MapLocation target = rc.senseHQLocation();
 
         Direction[] dirs = Direction.values();
+
+        random = new Random();
+
         int dir = random.nextInt(8);
 
         target = target.add(dirs[dir], 2);
