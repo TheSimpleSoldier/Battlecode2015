@@ -1,0 +1,32 @@
+package team044;
+
+public enum Messaging {
+    BuildOrder,
+    Strategy,
+    BeaverType,
+    BasherType,
+    ComputerType,
+    DroneType,
+    LauncherType,
+    MinerType,
+    SoldierType,
+    TankType,
+    NumbOfBeavers,
+    ShutOffTechnologyProd,
+    ShutOffTrainingFieldProd,
+    ShutOffBarracksProd,
+    ProduceBashers,
+    ShutOffTankProd,
+    ShutOffHelipadProd,
+    ShutOffAerospaceProd,
+    ShutOffMinerProd,
+    FirstNeedSupplyX,
+    FirstNeedSupplyY,
+    SecondNeedSupplyX,
+    SecondNeedSupplyY,
+    TowerUnderAttack,
+    BuildingInDistressX,
+    BuildingInDistressY,
+    HQUnderAttack,
+    // etc
+}
