@@ -28,8 +28,6 @@ public class Navigator
     //The dog moves in a bug patterns, but the owner will cut corners.
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
-        rc.setIndicatorString(0, "me: " + rc.getLocation());
-        rc.setIndicatorString(1, "dog: " + dog.toString());
         //if target changed, act like dog is next to owner
         if(!target.equals(this.target))
         {
@@ -63,7 +61,7 @@ public class Navigator
     {
         Direction lastDir = Direction.NONE;
         //go till out of site
-        while(dogInSight())
+        while(dogInSight() && !dog.equals(target))
         {
             //This is used so the dog knows if it is going around an object
             //preventing it getting stuck in bowls
@@ -116,8 +114,11 @@ public class Navigator
             dog = dog.add(lastDir);
         }
 
-        //now go back one so in sight
-        dog = dog.subtract(lastDir);
+        //now go back one so in sight if not at target
+        if(!dog.equals(target))
+        {
+            dog = dog.subtract(lastDir);
+        }
     }
 
     //returns true if dog is in sight of human
