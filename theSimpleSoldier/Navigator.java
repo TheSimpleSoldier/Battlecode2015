@@ -5,16 +5,37 @@ import battlecode.common.*;
 public class Navigator
 {
     private RobotController rc;
-    Navigator nav;
     public Navigator(RobotController rc)
     {
         this.rc = rc;
-        nav = new Navigator(rc);
     }
 
     // This method uses a simple Bug algorithm to move
     public void takeNextStep(MapLocation target)
     {
         // TODO: Implement
+    }
+
+    public boolean badMovement(MapLocation target) throws GameActionException
+    {
+        if (!rc.isCoreReady())
+        {
+            return false;
+        }
+        Direction dir = rc.getLocation().directionTo(target);
+        if (rc.canMove(dir))
+        {
+            rc.move(dir);
+            return true;
+        }
+        else
+        {
+            while (!rc.canMove(dir))
+            {
+                dir = dir.rotateRight();
+            }
+            rc.move(dir);
+            return true;
+        }
     }
 }

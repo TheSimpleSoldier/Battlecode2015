@@ -4,6 +4,10 @@ import battlecode.common.*;
 
 public abstract class Unit
 {
+    public RobotController rc;
+    public int range;
+    public Team us;
+    public Team opponent;
     public abstract void collectData() throws GameActionException;
 
     public void handleMessages() throws GameActionException
