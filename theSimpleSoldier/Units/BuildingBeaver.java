@@ -3,8 +3,8 @@ package theSimpleSoldier.Units;
 import battlecode.common.*;
 import theSimpleSoldier.BuildOrderMessaging;
 import theSimpleSoldier.Messaging;
-import theSimpleSoldier.Navigator;
 import theSimpleSoldier.Utilities;
+import theSimpleSoldier.Unit;
 
 import java.util.Random;
 
@@ -12,52 +12,96 @@ public class BuildingBeaver extends Beaver
 {
     MapLocation nextBuildSpot;
     Boolean build;
-    RobotType building;
+    RobotType building = null;
     Direction dir;
     static Random rand;
     Direction[] dirs;
-    public BuildingBeaver(RobotController rc)
+    boolean becomeMiner;
+    int numb;
+    MapLocation buildingSpot;
+
+    public BuildingBeaver(RobotController rc) throws GameActionException
     {
         super(rc);
+        rc.setIndicatorString(1, "BuildingBeaver");
         build = false;
         dirs = Direction.values();
         target = rc.senseTowerLocations()[0];
+        becomeMiner = false;
+        numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
     }
 
     public void collectData() throws GameActionException
     {
         super.collectData();
-        if (!build)
+        if (building == null && rc.isCoreReady())
         {
-            BuildOrderMessaging message = BuildOrderMessaging.values()[buildingType];
-            RobotType robot = Utilities.getRobotType(message);
-            if (Utilities.canBuild(robot, rc))
+            int type = rc.readBroadcast(Messaging.BuildOrder.ordinal());
+
+            building = Utilities.getTypeForInt(type);
+
+            if (type == BuildOrderMessaging.DoneBuilding.ordinal())
             {
-                build = true;
-                building = robot;
+                becomeMiner = true;
+            }
+            else if (building == null)
+            {
+                // just mine until we get a different job
+                if (rc.senseOre(rc.getLocation()) < 5)
+                {
+                    //target = Utilities.getBestMiningSpot(rc);
+                    target = Utilities.greedyBestMiningSpot(rc);
+                }
+            }
+            else
+            {
+                numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
-                MapLocation[] towers = rc.senseTowerLocations();
-                int random = rand.nextInt(towers.length);
-                target = towers[random].add(rc.getLocation().directionTo(towers[random]).opposite());
+                target = Utilities.findLocationForBuilding(rc, numb, building);
+                buildingSpot = target;
+                target = target.add(target.directionTo(rc.getLocation()));
+                rc.setIndicatorString(0, "Numb: " + numb);
+                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
         }
-        dir = rc.getLocation().directionTo(target);
     }
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && build && rc.canBuild(dir, building) && rc.getLocation().isAdjacentTo(target))
+        if (!rc.isCoreReady())
         {
-            rc.build(dir, building);
-            return true;
+            return false;
         }
 
-        while (rc.getLocation().isAdjacentTo(target) && !rc.canBuild(dir, building))
+        if (target == null || building == null)
         {
-            target = target.add(dirs[rand.nextInt(8)]);
+            if (rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
+            {
+                rc.mine();
+                return true;
+            }
+            return false;
+        }
+
+        if (rc.getLocation().distanceSquaredTo(buildingSpot) < 15)
+        {
+            if (Utilities.BuildStructure(rc, buildingSpot, building))
+            {
+                target = null;
+                building = null;
+                return true;
+            }
         }
 
         return false;
     }
 
+    public Unit getNewStrategy(Unit current) throws GameActionException
+    {
+        if (becomeMiner)
+        {
+            return new MinerBeaver(rc);
+        }
+        return current;
+    }
 }

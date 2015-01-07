@@ -66,25 +66,14 @@ public abstract class Structure extends Unit
 
         for (int i = 0; i < closeAllies.length; i++)
         {
-            if (Clock.getBytecodeNum() > 9000)
+            if (Clock.getBytecodeNum() > 1750)
             {
                 break;
             }
             MapLocation ally = closeAllies[i].location;
-            int roundNum = Clock.getRoundNum();
             if (rc.senseRobotAtLocation(ally) != null && rc.getLocation().distanceSquaredTo(ally) < dist)
             {
-                try
-                {
-                    rc.transferSupplies(supplies, ally);
-                }
-                catch(Exception e)
-                {
-                    e.printStackTrace();
-                    System.out.println("x: "+ ally.x + ", y:"+ally.y);
-                    System.out.println(rc.senseRobotAtLocation(ally));
-                    System.out.println("Before: " + roundNum + ", After: " + Clock.getRoundNum());
-                }
+                rc.transferSupplies(supplies, ally);
             }
         }
     }
