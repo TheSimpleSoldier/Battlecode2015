@@ -29,11 +29,11 @@ public class Launcher extends Unit
         // collect our data
         nearByEnemies = rc.senseNearbyRobots(range, opponent);
         MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
-        if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
+        if (enemyTower.length > 0)
         {
             target = enemyTower[0];
         }
-        else if (Clock.getRoundNum() > 1500)
+        else
         {
             target = rc.senseEnemyHQLocation();
         }
@@ -46,7 +46,7 @@ public class Launcher extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
-        if (rc.getLocation().distanceSquaredTo(target) > 24)
+        if (rc.getLocation().distanceSquaredTo(target) > 35)
         {
             return nav.badMovement(target);
         }

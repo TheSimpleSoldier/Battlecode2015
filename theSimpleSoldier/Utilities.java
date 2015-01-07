@@ -2,10 +2,11 @@ package theSimpleSoldier;
 
 import battlecode.common.*;
 
-import java.util.Stack;
+import java.util.*;
 
 public class Utilities
 {
+    public static Random random;
     // location for methods that can be used across multiple domains
 
     /**
@@ -241,5 +242,168 @@ public class Utilities
             return true;
         }
         return false;
+    }
+
+    /**
+     * This method is for creating a structure
+     * currently it tries to build it in the target location
+     * but will build it in any open location if it can't
+     */
+    public static boolean BuildStructure(RobotController rc, MapLocation target, RobotType type) throws GameActionException
+    {
+        if (!rc.getLocation().isAdjacentTo(target))
+        {
+            return false;
+        }
+        if (!rc.isCoreReady())
+        {
+            return false;
+        }
+
+        Direction dir = rc.getLocation().directionTo(target);
+
+        if (rc.canMove(dir))
+        {
+            if (rc.canBuild(dir, type))
+            {
+                rc.build(dir, type);
+                return true;
+            }
+        }
+        else
+        {
+            Direction[] dirs = Direction.values();
+            for (int i = 0; i < 8; i++)
+            {
+                if (rc.canMove(dirs[i]))
+                {
+                    if (rc.canBuild(dirs[i], type))
+                    {
+                        rc.build(dirs[i], type);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * This method returns the type of Building for an int
+     * or -1 if it is not on list
+     */
+    public static RobotType getTypeForInt(int type)
+    {
+        if (type == BuildOrderMessaging.BuildAerospaceLab.ordinal())
+        {
+            return RobotType.AEROSPACELAB;
+        }
+        else if (type == BuildOrderMessaging.BuildBaracks.ordinal())
+        {
+            return RobotType.BARRACKS;
+        }
+        else if (type == BuildOrderMessaging.BuildHelipad.ordinal())
+        {
+            return RobotType.HELIPAD;
+        }
+        else if (type == BuildOrderMessaging.BuildMinerFactory.ordinal())
+        {
+            return RobotType.MINERFACTORY;
+        }
+        else if (type == BuildOrderMessaging.BuildTankFactory.ordinal())
+        {
+            return RobotType.TANKFACTORY;
+        }
+        else if (type == BuildOrderMessaging.BuildSupplyDepot.ordinal())
+        {
+            return RobotType.SUPPLYDEPOT;
+        }
+        else if (type == BuildOrderMessaging.BuildTechnologyInstitute.ordinal())
+        {
+            return RobotType.TECHNOLOGYINSTITUTE;
+        }
+        else if (type == BuildOrderMessaging.BuildTrainingField.ordinal())
+        {
+            return RobotType.TRAININGFIELD;
+        }
+        return null;
+    }
+
+    /**
+     * This method returns a MapLocation to build a target structure at
+     */
+    public static MapLocation findLocationForBuilding(RobotController rc, int numb, RobotType robotType) throws GameActionException
+    {
+        MapLocation target = null;
+
+        // supply depot
+        if (robotType == RobotType.SUPPLYDEPOT)
+        {
+            target = buildSupplyDepot(rc);
+        }
+        // mining facility
+        else if (robotType == RobotType.MINERFACTORY)
+        {
+            target = buildMiningCamp(rc, numb);
+        }
+        // otherwise troop building
+        else
+        {
+            target = buildTrainingFacility(rc);
+        }
+
+        return target;
+    }
+
+    /**
+     * Currently and unimplemented method for determining where to put the next supply depot
+     */
+    public static MapLocation buildSupplyDepot(RobotController rc)
+    {
+        MapLocation target = null;
+
+        // TODO: Implement supply depot creation
+
+        return target;
+    }
+
+    /**
+     * This method builds a mining camp at the tower that the beaver was assigned to
+     */
+    public static MapLocation buildMiningCamp(RobotController rc, int numb)
+    {
+        MapLocation target = null;
+
+        MapLocation[] towers = rc.senseTowerLocations();
+
+        target = towers[numb % towers.length];
+
+        target = target.add(target.directionTo(rc.getLocation()));
+
+        return target;
+    }
+
+    /**
+     * This method builds a training facility near our HQ
+     * so that the units it spawns can get supply
+     */
+    public static MapLocation buildTrainingFacility(RobotController rc) throws GameActionException
+    {
+        MapLocation target = rc.senseHQLocation();
+
+        Direction[] dirs = Direction.values();
+        int dir = random.nextInt(8);
+
+        target = target.add(dirs[dir], 2);
+
+        while (rc.isLocationOccupied(target))
+        {
+            dir = random.nextInt(8);
+
+            target = target.add(dirs[dir], 2);
+        }
+
+        return target;
     }
 }

@@ -17,20 +17,47 @@ public class BuildingBeaver extends Beaver
     Direction dir;
     static Random rand;
     Direction[] dirs;
-    boolean builtTankFactory = false;
-    boolean builtBaracks = false;
+    boolean becomeMiner;
+    int numb;
 
-    public BuildingBeaver(RobotController rc)
+    public BuildingBeaver(RobotController rc) throws GameActionException
     {
         super(rc);
         build = false;
         dirs = Direction.values();
         target = rc.senseTowerLocations()[0];
+        becomeMiner = false;
+        numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
     }
 
     public void collectData() throws GameActionException
     {
         super.collectData();
+
+        if (building == null)
+        {
+            int type = rc.readBroadcast(Messaging.BuildOrder.ordinal());
+
+            building = Utilities.getTypeForInt(type);
+
+            if (type == BuildOrderMessaging.DoneBuilding.ordinal())
+            {
+                becomeMiner = true;
+            }
+            else if (building == null)
+            {
+                // just mine until we get a different job
+                if (rc.senseOre(rc.getLocation()) < 5)
+                {
+                    //target = Utilities.getBestMiningSpot(rc);
+                    target = Utilities.greedyBestMiningSpot(rc);
+                }
+            }
+            else
+            {
+                target = Utilities.findLocationForBuilding(rc, numb, building);
+            }
+        }
     }
 
     public boolean carryOutAbility() throws GameActionException
@@ -40,31 +67,23 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (!rc.getLocation().isAdjacentTo(rc.senseHQLocation()))
+        if (target == null || building == null)
         {
-            Direction dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
-            if (builtBaracks)
+            if (rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
             {
-                while(!rc.canBuild(dir, RobotType.AEROSPACELAB))
-                {
-                    dir = dir.rotateRight();
-                }
-                rc.build(dir, RobotType.AEROSPACELAB);
-                if (rc.hasBuildRequirements(RobotType.AEROSPACELAB))
-                {
-                    builtTankFactory = true;
-                }
+                rc.mine();
+                return true;
             }
-            else
+            return false;
+        }
+
+        if (rc.getLocation().isAdjacentTo(target))
+        {
+            if (Utilities.BuildStructure(rc, target, building))
             {
-                while(!rc.canBuild(dir, RobotType.HELIPAD))
-                {
-                    dir = dir.rotateRight();
-                }
-                rc.build(dir, RobotType.HELIPAD);
-                builtBaracks = true;
+                target = null;
+                building = null;
             }
-            return true;
         }
 
         return false;
@@ -72,7 +91,7 @@ public class BuildingBeaver extends Beaver
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (builtTankFactory)
+        if (becomeMiner)
         {
             return new MinerBeaver(rc);
         }

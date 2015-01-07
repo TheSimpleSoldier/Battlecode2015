@@ -2,9 +2,6 @@ package theSimpleSoldier;
 
 import battlecode.common.*;
 
-/**
- * Created by fred on 1/5/15.
- */
 public class FightMicro
 {
     RobotController rc;
@@ -127,7 +124,7 @@ public class FightMicro
 
         if (nearByEnemies.length == 0)
         {
-            nearByEnemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+            nearByEnemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
             if (nearByEnemies.length == 0)
             {
                 nearByEnemies = rc.senseNearbyRobots(999, rc.getTeam().opponent());
@@ -143,7 +140,7 @@ public class FightMicro
         }
         else
         {
-            nearByEnemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+            nearByEnemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
             if (nearByEnemies.length == 0)
             {
                 nearByEnemies = rc.senseNearbyRobots(999, rc.getTeam().opponent());

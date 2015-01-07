@@ -41,7 +41,6 @@ public class Beaver extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
-
         if (target == null)
         {
             return false;

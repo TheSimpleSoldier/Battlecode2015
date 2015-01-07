@@ -1,11 +1,18 @@
 package theSimpleSoldier;
 
-/**
- * Created by fred on 1/5/15.
- */
 public enum Messaging {
     BuildOrder,
     Strategy,
-    BeaverType
+    BeaverType,
+    NumbOfBeavers,
+    ShutOffTechnologyProd,
+    ShutOffTrainingFieldProd,
+    ShutOffBarracksProd,
+    ProduceBashers,
+    ShutOffTankProd,
+    ShutOffHelipadProd,
+    ShutOffAerospaceProd,
+    ShutOffMinerProd,
+
     // etc
 }

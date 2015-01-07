@@ -15,26 +15,62 @@ public class HQ extends Structure
     Direction[] dirs;
     FightMicro fighter;
 
-    public HQ(RobotController rc)
+    BuildOrderMessaging[] strat;
+    int currentUnit = 0;
+
+    public HQ(RobotController rc) throws GameActionException
     {
         this.rc = rc;
         range = rc.getType().attackRadiusSquared;
         us = rc.getTeam();
         opponent = us.opponent();
         fighter = new FightMicro(rc);
+        strat = new BuildOrderMessaging[100];
+        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[1] = BuildOrderMessaging.BuildMinerFactory;
+        strat[2] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[3] = BuildOrderMessaging.BuildMinerFactory;
+        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[5] = BuildOrderMessaging.BuildMinerFactory;
+        strat[6] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[7] = BuildOrderMessaging.BuildHelipad;
+        strat[8] = BuildOrderMessaging.BuildBaracks;
+        strat[9] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[10] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[11] = BuildOrderMessaging.BuildTankFactory;
     }
 
     public void handleMessages() throws GameActionException
     {
         rc.broadcast(Messaging.BuildOrder.ordinal(), BuildOrderMessaging.BuildBaracks.ordinal());
-        if (numbOfSpawnedSoldiers == 0)
+
+        if (currentUnit >= strat.length)
+        {
+            // we are done excecuting build order
+        }
+        else if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverBuilder)
         {
             rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
         }
-        else
+        else if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverMiner)
         {
             rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverMiner.ordinal());
         }
+        else
+        {
+            // if a beaver has taken up a job then we go ahead and post the next building
+            if (rc.readBroadcast(Messaging.BuildOrder.ordinal()) == -1)
+            {
+                currentUnit++;
+            }
+
+            // state which building we want built next
+            rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
+        }
+
+        rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numbOfSpawnedSoldiers);
+
+
     }
 
     public void collectData() throws GameActionException
@@ -57,15 +93,21 @@ public class HQ extends Structure
             System.out.println("Near by enemies length to great");
             return false;
         }
-        if (numbOfSpawnedSoldiers > 0 && rc.getTeamOre() < 600)
+        if (currentUnit >= strat.length)
         {
             return false;
         }
-        if (Utilities.spawnUnit(RobotType.BEAVER, rc))
+        // we only build a beaver if it is the next unit to be built
+        if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverBuilder || strat[currentUnit] == BuildOrderMessaging.BuildBeaverMiner)
         {
-            numbOfSpawnedSoldiers++;
-            return true;
+            if (Utilities.spawnUnit(RobotType.BEAVER, rc))
+            {
+                numbOfSpawnedSoldiers++;
+                currentUnit++;
+                return true;
+            }
         }
+
         return false;
     }
 }
