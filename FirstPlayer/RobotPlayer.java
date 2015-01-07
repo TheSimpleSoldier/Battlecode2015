@@ -12,6 +12,18 @@ public class RobotPlayer
 	static int myRange;
 	static Random rand;
 	static Direction[] directions = {Direction.NORTH, Direction.NORTH_EAST, Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH, Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST};
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	public static void run(RobotController tomatojuice) {
 		rc = tomatojuice;
@@ -37,6 +49,14 @@ public class RobotPlayer
 				try {					
 					int fate = rand.nextInt(10000);
 					myRobots = rc.senseNearbyRobots(999999, myTeam);
+
+
+
+
+
+
+
+
 					int numSoldiers = 0;
 					int numBashers = 0;
 					int numBeavers = 0;
@@ -61,6 +81,14 @@ public class RobotPlayer
 					if (rc.isWeaponReady()) {
 						attackSomething();
 					}
+
+
+
+
+
+
+
+
 
 					if (rc.isCoreReady() && rc.getTeamOre() >= 100 && fate < Math.pow(1.2,12-numBeavers)*10000) {
 						trySpawn(directions[rand.nextInt(8)], RobotType.BEAVER);
