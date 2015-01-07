@@ -45,7 +45,7 @@ public class Basher extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
-        return nav.badMovement(target);
+        return nav.takeNextStep(target);
     }
 
     public boolean fight() throws GameActionException

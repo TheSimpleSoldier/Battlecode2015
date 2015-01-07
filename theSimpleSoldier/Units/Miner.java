@@ -47,8 +47,8 @@ public class Miner extends Unit
             return false;
         }
 
-        //nav.takeNextStep(target);
-        return nav.badMovement(target);
+        return nav.takeNextStep(target);
+        //return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException

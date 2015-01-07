@@ -51,8 +51,8 @@ public class Tank extends Unit
         {
             return false;
         }
-        //return nav.takeNextStep(target);
-        return nav.badMovement(target);
+        return nav.takeNextStep(target);
+        //return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException
