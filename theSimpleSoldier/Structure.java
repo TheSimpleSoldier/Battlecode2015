@@ -7,14 +7,20 @@ import battlecode.common.*;
  */
 public abstract class Structure extends Unit
 {
+    public RobotInfo[] nearByEnemies;
     public void collectData() throws GameActionException
     {
         // collect our data
+        nearByEnemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
     }
 
     public void handleMessages() throws GameActionException
     {
-
+        if (nearByEnemies.length > 0)
+        {
+            rc.broadcast(Messaging.BuildingInDistressX.ordinal(), rc.getLocation().x);
+            rc.broadcast(Messaging.BuildingInDistressY.ordinal(), rc.getLocation().y);
+        }
     }
 
     // structures can't move!

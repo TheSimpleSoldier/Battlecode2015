@@ -14,7 +14,7 @@ public class HQ extends Structure
     int numberOfMinerFactories = -1;
     Direction[] dirs;
     FightMicro fighter;
-
+    Messenger messenger;
     BuildOrderMessaging[] strat;
     int currentUnit = 0;
 
@@ -25,6 +25,7 @@ public class HQ extends Structure
         us = rc.getTeam();
         opponent = us.opponent();
         fighter = new FightMicro(rc);
+        messenger = new Messenger(rc);
         strat = new BuildOrderMessaging[15];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
@@ -32,12 +33,6 @@ public class HQ extends Structure
         strat[3] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[4] = BuildOrderMessaging.BuildMinerFactory;
         strat[5] = BuildOrderMessaging.BuildBeaverMiner;
-        //strat[6] = BuildOrderMessaging.BuildBeaverBuilder;
-        //strat[7] = BuildOrderMessaging.BuildMinerFactory;
-        //strat[8] = BuildOrderMessaging.BuildBeaverMiner;
-        //strat[9] = BuildOrderMessaging.BuildBeaverMiner;
-        //strat[10] = BuildOrderMessaging.BuildBeaverMiner;
-        //strat[11] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[6] = BuildOrderMessaging.BuildMinerFactory;
         strat[7] = BuildOrderMessaging.BuildHelipad;
         strat[8] = BuildOrderMessaging.BuildBaracks;
@@ -51,6 +46,8 @@ public class HQ extends Structure
 
     public void handleMessages() throws GameActionException
     {
+        messenger.giveUnitOrders();
+
         if (currentUnit >= strat.length)
         {
             // we are done excecuting build order
@@ -86,6 +83,15 @@ public class HQ extends Structure
             // state which building we want built next
             rc.setIndicatorString(1, ""+strat[currentUnit]);
             rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
+        }
+
+        if (nearByEnemies.length > 0)
+        {
+            rc.broadcast(Messaging.HQUnderAttack.ordinal(), 1);
+        }
+        else
+        {
+            rc.broadcast(Messaging.HQUnderAttack.ordinal(), 0);
         }
     }
 
