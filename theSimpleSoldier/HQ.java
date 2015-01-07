@@ -43,6 +43,12 @@ public class HQ extends Structure
         nearByEnemies = rc.senseNearbyRobots(range, opponent);
         allies = rc.senseNearbyRobots(99999, us);
         nearByAllies = rc.senseNearbyRobots(range, us);
+
+        for(int k = 100; k < 118; k += 3)
+        {
+            System.out.println("(" + rc.readBroadcast(k) + ", " + rc.readBroadcast(k + 1) +
+                               "): " + rc.readBroadcast(k + 2));
+        }
     }
 
     public boolean fight() throws GameActionException
