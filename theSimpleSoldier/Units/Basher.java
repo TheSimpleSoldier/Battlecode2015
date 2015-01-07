@@ -6,6 +6,7 @@ import theSimpleSoldier.Navigator;
 import theSimpleSoldier.Unit;
 
 import battlecode.common.*;
+import theSimpleSoldier.Utilities;
 
 public class Basher extends Unit
 {
@@ -20,7 +21,7 @@ public class Basher extends Unit
         range = rc.getType().attackRadiusSquared;
         us = rc.getTeam();
         opponent = us.opponent();
-        target = rc.senseTowerLocations()[0];
+        target = Utilities.getTowerClosestToEnemyHQ(rc);
     }
 
     public void collectData()

@@ -455,4 +455,29 @@ public class Utilities
         }
         return false;
     }
+
+    /**
+     * This method returns the Tower that is closest to the enemy's HQ
+     * Which is generally the first tower to come under attack
+     */
+    public static MapLocation getTowerClosestToEnemyHQ(RobotController rc)
+    {
+        MapLocation[] towers = rc.senseTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+
+        int bestDist = 9999999;
+        MapLocation bestTower = null;
+
+        for (int i = 0; i < towers.length; i++)
+        {
+            int dist = towers[i].distanceSquaredTo(enemyHQ);
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                bestTower = towers[i];
+            }
+        }
+
+        return bestTower;
+    }
 }
