@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import team044.FightMicroUtilities;
 
 public class FightMicro
 {
@@ -43,40 +44,17 @@ public class FightMicro
         // if we can't move then skip to shooting part
         if (!rc.isCoreReady())
         {
-            // guess we can't do much except maybe shoot
+            // guess we can't do much
             move = false;
         }
         else
         {
-            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
             // search for enemies in sight range
             RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
 
             // if their are no enemies we can't fight
             if (enemies.length == 0)
             {
-                if (FightMicroUtilities.enemyTowerClose(rc, enemyTowers))
-                {
-                    RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
-                    int balance = FightMicroUtilities.balanceOfPower(enemies, allies);
-
-                    // if we have health advantage press forward
-                    if (balance > 1100)
-                    {
-                        Direction dir = rc.getLocation().directionTo(Utilities.closestTower(rc, enemyTowers));
-                        if (rc.canMove(dir))
-                        {
-                            rc.move(dir);
-                        }
-
-                    }
-                    // else wait
-                    else
-                    {
-                        // wait
-                    }
-                    return true;
-                }
                 return false;
             }
 
@@ -84,16 +62,8 @@ public class FightMicro
             RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
 
             int balance = FightMicroUtilities.balanceOfPower(enemies, allies);
-            MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
-            int dist = rc.getLocation().distanceSquaredTo(closestTower);
-
-            if (dist > 24 && dist < 36)
-            {
-                balance -= 1000;
-            }
-
             // if enemy is more powerful retreat
-            if (balance < -50)
+            if (balance < 0)
             {
                 FightMicroUtilities.retreat(rc, enemies);
 
@@ -104,7 +74,7 @@ public class FightMicro
                 FightMicroUtilities.lockOntoLauncher(rc, enemies);
             }
             // If we are evenly matched stand ground
-            else if (balance < 50)
+            else if (balance < 10)
             {
                 // hold position shoot enemies that approach
             }

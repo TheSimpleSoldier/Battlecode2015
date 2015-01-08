@@ -111,11 +111,11 @@ public class RobotPlayer
                         {
                             // run fight micro
                         }
-                        else if (unit.carryOutAbility())
+                        if (unit.carryOutAbility())
                         {
                             // execute ability
                         }
-                        else if (unit.takeNextStep())
+                        if (unit.takeNextStep())
                         {
                             // take one step forward
                         }

@@ -3,7 +3,6 @@ package team044;
 import battlecode.common.*;
 import battlecode.world.Robot;
 
-import java.util.Map;
 import java.util.Random;
 
 public class Utilities
@@ -726,27 +725,5 @@ public class Utilities
         {
             System.out.println("Unknown building type");
         }
-    }
-
-    /**
-     * This method returns the closest tower
-     */
-    public static MapLocation closestTower(RobotController rc, MapLocation[] towers)
-    {
-        int closestDist = 99999;
-        MapLocation closest = null;
-        MapLocation us = rc.getLocation();
-
-        for (int i = towers.length; --i>=0; )
-        {
-            int dist = towers[i].distanceSquaredTo(us);
-            if (dist < closestDist)
-            {
-                closestDist = dist;
-                closest = towers[i];
-            }
-        }
-
-        return closest;
     }
 }

@@ -1,7 +1,7 @@
-package team044;
+package _teamfightMicro;
 
-import team044.Units.*;
-import team044.Structures.*;
+import _teamfightMicro.Units.*;
+import _teamfightMicro.Structures.*;
 import battlecode.common.*;
 
 public class RobotPlayer
@@ -111,11 +111,11 @@ public class RobotPlayer
                         {
                             // run fight micro
                         }
-                        else if (unit.carryOutAbility())
+                        if (unit.carryOutAbility())
                         {
                             // execute ability
                         }
-                        else if (unit.takeNextStep())
+                        if (unit.takeNextStep())
                         {
                             // take one step forward
                         }
