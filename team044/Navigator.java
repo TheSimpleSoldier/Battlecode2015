@@ -11,6 +11,7 @@ public class Navigator
     private Random rand;
     private boolean goingLeft, goingAround;
     private Direction lastFacing;
+
     public Navigator(RobotController rc)
     {
         this.rc = rc;
@@ -35,10 +36,9 @@ public class Navigator
     //This method uses a walk the dog method
     //The walk the dog method has a dog that runs away till the owner
     //is about to lose sight of it, then it sits there until the owner catches up.
-    //The dog moves in a bug patterns, but the owner will cut corners.
+    //The dog moves in a bug pattern, but the owner will cut corners.
     public boolean takeNextStep(MapLocation target, boolean avoidTowers, boolean isDrone) throws GameActionException
     {
-        rc.setIndicatorString(2, "dog: " + dog.toString());
         //if target changed, act like dog is next to owner
         if(!target.equals(this.target))
         {
@@ -72,9 +72,37 @@ public class Navigator
     {
         Direction lastDir = Direction.NONE;
         //go till out of site
-        while(dogInSight(avoidTowers, isDrone) && !dog.equals(target))
+        while(dogInSight(dog, avoidTowers, isDrone) && !dog.equals(target))
         {
             //This is used so the dog knows if it is going around an object
+            //prevents bugging around exterior of map
+            if(goingAround)
+            {
+                Direction towardTarget = dog.directionTo(target);
+                if(goingLeft)
+                {
+                    if(rc.senseTerrainTile(dog.add(lastFacing.rotateRight().rotateRight())) == TerrainTile.OFF_MAP &&
+                       lastFacing != towardTarget && lastFacing.rotateRight() != towardTarget &&
+                       lastFacing.rotateLeft() != towardTarget)
+                    {
+                        goingLeft = !goingLeft;
+                        lastFacing = lastFacing.rotateRight().rotateRight().rotateRight().rotateRight();
+                    }
+                }
+                else
+                {
+                    if(rc.senseTerrainTile(dog.add(lastFacing.rotateLeft().rotateLeft())) == TerrainTile.OFF_MAP &&
+                       lastFacing != towardTarget && lastFacing.rotateRight() != towardTarget &&
+                       lastFacing.rotateLeft() != towardTarget &&
+                       lastFacing.rotateRight().rotateRight() != towardTarget &&
+                       lastFacing.rotateLeft().rotateLeft() != towardTarget)
+                    {
+                        goingLeft = !goingLeft;
+                        lastFacing = lastFacing.rotateRight().rotateRight().rotateRight().rotateRight();
+                    }
+                }
+            }
+
             //preventing it getting stuck in bowls
             if(goingAround)
             {
@@ -228,9 +256,8 @@ public class Navigator
     }
 
     //returns true if dog is in sight of human
-    private boolean dogInSight(boolean avoidTowers, boolean isDrone) throws GameActionException
+    private boolean dogInSight(MapLocation dog, boolean avoidTowers, boolean isDrone) throws GameActionException
     {
-        rc.setIndicatorString(0, "" + avoidTowers);
         //start one closer to dog's location since we can get to where we are
         MapLocation currentLocation = rc.getLocation().add(rc.getLocation().directionTo(dog));
         //go through each spot until the dog
