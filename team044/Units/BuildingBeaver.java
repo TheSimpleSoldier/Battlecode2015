@@ -114,6 +114,11 @@ public class BuildingBeaver extends Beaver
                 building = null;
                 return true;
             }
+            else if (rc.getTeamOre() > building.oreCost && !rc.hasBuildRequirements(building))
+            {
+                rc.setIndicatorString(1, "Building requirement");
+                Utilities.buildRequirement(rc, buildingSpot, building);
+            }
         }
 
         return false;

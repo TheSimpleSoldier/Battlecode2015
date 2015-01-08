@@ -700,4 +700,30 @@ public class Utilities
             rc.broadcast(channelOdd, numb);
         }
     }
+
+    /**
+     * This method will build the requirement for a building
+     */
+    public static void buildRequirement(RobotController rc, MapLocation spot, RobotType type) throws GameActionException
+    {
+        // need to build barracks
+        if (type == RobotType.TANKFACTORY)
+        {
+            BuildStructure(rc, spot, RobotType.BARRACKS);
+        }
+        // need to build a helipad
+        else if (type == RobotType.AEROSPACELAB)
+        {
+            BuildStructure(rc, spot, RobotType.HELIPAD);
+        }
+        // need to build a technology institue
+        else if (type == RobotType.TRAININGFIELD)
+        {
+            BuildStructure(rc, spot, RobotType.TECHNOLOGYINSTITUTE);
+        }
+        else
+        {
+            System.out.println("Unknown building type");
+        }
+    }
 }

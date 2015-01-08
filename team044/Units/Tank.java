@@ -3,10 +3,16 @@ package team044.Units;
 import team044.*;
 
 import battlecode.common.*;
+import team044.Units.Rushers.TankRusher;
 
 public class Tank extends Unit
 {
-    MapLocation target;
+    public MapLocation target;
+
+    public Tank()
+    {
+        // Houston we have a problem
+    }
 
     public Tank(RobotController rc)
     {
@@ -52,11 +58,16 @@ public class Tank extends Unit
 
     public boolean fight() throws GameActionException
     {
-        return fighter.basicFightMicro(nearByEnemies);
+        return fighter.advancedFightMicro(nearByEnemies);
+        //return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new TankRusher(rc);
+        }
         return current;
     }
 

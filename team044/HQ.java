@@ -68,6 +68,13 @@ public class HQ extends Structure
         messenger.giveUnitOrders();
         rc.setIndicatorString(0, "after give unit orders");
 
+        // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
+        if (Clock.getRoundNum() > 1700)
+        {
+            rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
+            rc.setIndicatorString(2, "Rushing enemy");
+        }
+
         // even round so odd channel has data
         if (Clock.getRoundNum() % 2 == 0)
         {
@@ -245,7 +252,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 1)
+        else if (numbOfBeavers < 2)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
