@@ -155,10 +155,13 @@ public class HQ extends Structure
             {
                 System.out.println("Increase Unit count");
                 currentUnit++;
-                if (currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+                if(currentUnit < strat.length)
                 {
-                    numberOfMinerFactories++;
-                    rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+                    if(currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+                    {
+                        numberOfMinerFactories++;
+                        rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+                    }
                 }
             }
 
