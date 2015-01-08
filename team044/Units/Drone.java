@@ -1,12 +1,10 @@
 package team044.Units;
 
 
-import team044.Messaging;
-import team044.Navigator;
+import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
+import battlecode.common.RobotController;
 import team044.Unit;
-
-import battlecode.common.*;
-import team044.Utilities;
 
 public class Drone extends Unit
 {
@@ -32,7 +30,7 @@ public class Drone extends Unit
         {
             return false;
         }
-        return nav.takeNextStep(target);
+        return nav.takeNextStep(target, true, true);
         //return nav.badMovement(target);
     }
 
