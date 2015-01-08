@@ -45,11 +45,11 @@ public class HQ extends Structure
         strat[6] = BuildOrderMessaging.BuildMinerFactory;
         strat[7] = BuildOrderMessaging.BuildHelipad;
         strat[8] = BuildOrderMessaging.BuildBaracks;
-        strat[9] = BuildOrderMessaging.BuildTankFactory;
-        strat[10] = BuildOrderMessaging.BuildTankFactory;
-        strat[11] = BuildOrderMessaging.BuildTankFactory;
-        strat[12] = BuildOrderMessaging.BuildTankFactory;
-        strat[13] = BuildOrderMessaging.BuildTankFactory;
+        strat[9] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[10] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[11] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[12] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[13] = BuildOrderMessaging.BuildAerospaceLab;
         strat[14] = BuildOrderMessaging.BuildSupplyDepot;
         strat[15] = BuildOrderMessaging.BuildSupplyDepot;
         strat[16] = BuildOrderMessaging.BuildSupplyDepot;

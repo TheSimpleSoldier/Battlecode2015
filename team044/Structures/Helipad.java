@@ -29,9 +29,6 @@ public class Helipad extends Structure
         }
         else if (Utilities.spawnUnit(RobotType.DRONE, rc))
         {
-            rc.yield();
-            rc.yield();
-            rc.yield();
             return true;
         }
         return false;
