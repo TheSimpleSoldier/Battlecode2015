@@ -174,6 +174,10 @@ public class RobotPlayer
     {
         int type = rc.readBroadcast(Messaging.SoldierType.ordinal());
 
+        if (type == BuildOrderMessaging.BuildDefensiveSoldier.ordinal())
+        {
+            return new DefensiveSoldiers(rc);
+        }
         // default to basic soldier
         return new Soldier(rc);
     }

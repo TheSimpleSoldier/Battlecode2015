@@ -10,6 +10,7 @@ import team044.Utilities;
 
 public class Soldier extends Unit
 {
+    MapLocation target;
     public Soldier(RobotController rc)
     {
         super(rc);
@@ -29,12 +30,20 @@ public class Soldier extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
-        return false;
+        if (target == null)
+        {
+            return false;
+        }
+        else if (nearByEnemies.length > 0)
+        {
+            return false;
+        }
+        return nav.takeNextStep(target, true, false);
     }
 
     public boolean fight() throws GameActionException
     {
-        return false;
+        return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

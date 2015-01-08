@@ -27,6 +27,11 @@ public class Tank extends Unit
         {
             target = rc.senseEnemyHQLocation();
         }
+
+        if (target == null)
+        {
+            target = rc.senseEnemyHQLocation();
+        }
     }
 
     public void handleMessages() throws GameActionException

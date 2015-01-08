@@ -23,7 +23,6 @@ public class BuildingBeaver extends Beaver
     public BuildingBeaver(RobotController rc) throws GameActionException
     {
         super(rc);
-        rc.broadcast(BuildOrderMessaging.BuilderAlive.ordinal(), 1);  // BuilderAlive = 1 next round, indicating live builder beaver to HQ
         rc.setIndicatorString(1, "BuildingBeaver");
         build = false;
         dirs = Direction.values();
@@ -54,6 +53,29 @@ public class BuildingBeaver extends Beaver
                     target = Utilities.greedyBestMiningSpot(rc);
                 }
             }
+            else if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal())
+            {
+                RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
+                rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
+                target = null;
+                for (int i = 0; i < allies.length; i++)
+                {
+                    if (allies[i].type == RobotType.MINERFACTORY)
+                    {
+                        target = allies[i].location;
+                        break;
+                    }
+                }
+
+                if (target != null)
+                {
+                    target = target.add(target.directionTo(rc.getLocation()));
+                }
+                else
+                {
+                    building = null;
+                }
+            }
             else
             {
                 numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
@@ -69,7 +91,6 @@ public class BuildingBeaver extends Beaver
 
     public boolean carryOutAbility() throws GameActionException
     {
-        rc.broadcast(BuildOrderMessaging.BuilderAlive.ordinal(), 1);  // BuilderAlive = 1 next round, indicating live builder beaver to HQ
         if (!rc.isCoreReady())
         {
             return false;
