@@ -80,6 +80,6 @@ public abstract class Unit
 
     public void distributeSupply() throws GameActionException
     {
-        //Utilities.shareSupplies(rc);
+        Utilities.shareSupplies(rc);
     }
 }

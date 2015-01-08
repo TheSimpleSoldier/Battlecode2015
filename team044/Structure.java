@@ -90,7 +90,7 @@ public abstract class Structure extends Unit
             MapLocation ally = closeAllies[i].location;
             if (rc.senseRobotAtLocation(ally) != null && rc.getLocation().distanceSquaredTo(ally) < dist)
             {
-                //rc.transferSupplies(supplies, ally);
+                rc.transferSupplies(supplies, ally);
             }
         }
     }
