@@ -397,6 +397,10 @@ public class Utilities
                 continue;
             }
             int supplyAmount = (int) rc.getSupplyLevel() - 100;
+            if (supplyAmount < 0 )
+            {
+                supplyAmount = 0;
+            }
             rc.transferSupplies(supplyAmount, allies[i].location);
             return true;
         }
@@ -483,6 +487,10 @@ public class Utilities
         {
             return RobotType.TRAININGFIELD;
         }
+        else if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal())
+        {
+            return RobotType.BARRACKS;
+        }
         return null;
     }
 
@@ -557,15 +565,17 @@ public class Utilities
             if (numb == 1)//towers.length)
             {
                 MapLocation ourHQ = rc.senseHQLocation();
-                int dist = ourHQ.distanceSquaredTo(rc.senseEnemyHQLocation());
-                Direction dir = ourHQ.directionTo(rc.senseEnemyHQLocation());
+                MapLocation enemyHQ = rc.senseEnemyHQLocation();
+                int dist = ourHQ.distanceSquaredTo(enemyHQ);
+                Direction dir = ourHQ.directionTo(enemyHQ);
                 dir = dir.rotateRight();
                 MapLocation current = rc.senseHQLocation().add(dir);
                 int newDist = current.distanceSquaredTo(ourHQ);
-                while (newDist < (dist/2))
+                while (newDist < (dist/2) && newDist < 1000)
                 {
                     current = current.add(dir);
                     newDist = current.distanceSquaredTo(ourHQ);
+                    dir = current.directionTo(enemyHQ).rotateRight();
                 }
                 target = current;
             }
@@ -573,15 +583,17 @@ public class Utilities
             else
             {
                 MapLocation ourHQ = rc.senseHQLocation();
-                int dist = ourHQ.distanceSquaredTo(rc.senseEnemyHQLocation());
-                Direction dir = ourHQ.directionTo(rc.senseEnemyHQLocation());
+                MapLocation enemyHQ = rc.senseEnemyHQLocation();
+                int dist = ourHQ.distanceSquaredTo(enemyHQ);
+                Direction dir = ourHQ.directionTo(enemyHQ);
                 dir = dir.rotateLeft();
                 MapLocation current = rc.senseHQLocation().add(dir);
                 int newDist = current.distanceSquaredTo(ourHQ);
-                while (newDist < dist/2)
+                while (newDist < dist/2 && newDist < 1000)
                 {
                     current = current.add(dir);
                     newDist = current.distanceSquaredTo(ourHQ);
+                    dir = current.directionTo(enemyHQ).rotateLeft();
                 }
                 target = current;
             }

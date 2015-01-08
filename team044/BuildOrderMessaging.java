@@ -22,6 +22,7 @@ public enum BuildOrderMessaging {
     BuildTrainingField,
     BuildSupplyDepot,
     BuildMiningBaracks,
+    BuildDefensiveSoldier,
     // this should be last entry
     DoneBuilding
 }

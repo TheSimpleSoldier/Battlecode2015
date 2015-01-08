@@ -53,6 +53,29 @@ public class BuildingBeaver extends Beaver
                     target = Utilities.greedyBestMiningSpot(rc);
                 }
             }
+            else if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal())
+            {
+                RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
+                rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
+                target = null;
+                for (int i = 0; i < allies.length; i++)
+                {
+                    if (allies[i].type == RobotType.MINERFACTORY)
+                    {
+                        target = allies[i].location;
+                        break;
+                    }
+                }
+
+                if (target != null)
+                {
+                    target = target.add(target.directionTo(rc.getLocation()));
+                }
+                else
+                {
+                    building = null;
+                }
+            }
             else
             {
                 numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());

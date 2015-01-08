@@ -66,7 +66,7 @@ public class Miner extends Unit
             return false;
         }
 
-        return nav.takeNextStep(target);
+        return nav.takeNextStep(target, true, false);
         //return nav.badMovement(target);
     }
 
