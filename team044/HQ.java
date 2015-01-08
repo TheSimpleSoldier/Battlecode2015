@@ -239,7 +239,7 @@ public class HQ extends Structure
                     rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
                 }
 
-                rc.setIndicatorString(1, ""+strat[currentUnit]);
+                rc.setIndicatorString(1, "" + strat[currentUnit]);
                 rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
                 return true;
             }
