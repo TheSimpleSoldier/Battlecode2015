@@ -21,7 +21,7 @@ public enum BuildOrderMessaging {
     BuildTechnologyInstitute,
     BuildTrainingField,
     BuildSupplyDepot,
-
+    BuildMiningBaracks,
     // this should be last entry
     DoneBuilding
 }

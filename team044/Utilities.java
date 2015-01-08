@@ -186,6 +186,7 @@ public class Utilities
                     {
                         best = newSpot;
                     }
+                    /*
                     for (int j = 0; j < 8; j++)
                     {
                         MapLocation newSpot2 = newSpot.add(dirs[j]);
@@ -196,20 +197,10 @@ public class Utilities
                                 best = newSpot2;
                             }
                         }
-                    }
+                    }*/
                 }
             }
         } while (rc.senseOre(best) > rc.senseOre(currentBest));
-
-        if (currentBest == rc.getLocation())
-        {
-            Direction dir = dirs[random.nextInt(8)];
-            while (!rc.canMove(dir))
-            {
-                dir = dirs[random.nextInt(8)];
-            }
-            currentBest = currentBest.add(dir);
-        }
 
         rc.setIndicatorString(1, "Best: "+currentBest);
         return currentBest;
@@ -556,14 +547,14 @@ public class Utilities
 
         MapLocation[] towers = rc.senseTowerLocations();
 
-        if (numb < towers.length)
+        if (numb == 0)//< towers.length)
         {
-            target = towers[numb];
+            target = getTowerClosestToEnemyHQ(rc);
         }
         else
         {
             // first go to right
-            if (numb == towers.length)
+            if (numb == 1)//towers.length)
             {
                 MapLocation ourHQ = rc.senseHQLocation();
                 int dist = ourHQ.distanceSquaredTo(rc.senseEnemyHQLocation());

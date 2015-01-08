@@ -17,6 +17,13 @@ public class SupplyDrone extends Drone
         }
     }
 
+    public void handleMessages() throws GameActionException
+    {
+        super.handleMessages();
+
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfDronesOdd.ordinal(), Messaging.NumbOfDronesEven.ordinal());
+    }
+
     public void collectData() throws GameActionException
     {
         super.collectData();

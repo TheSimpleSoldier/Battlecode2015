@@ -26,13 +26,6 @@ public class Drone extends Unit
         super.collectData();
     }
 
-    public void handleMessages() throws GameActionException
-    {
-        super.handleMessages();
-
-        Utilities.handleMessageCounter(rc, Messaging.NumbOfDronesOdd.ordinal(), Messaging.NumbOfDronesEven.ordinal());
-    }
-
     public boolean takeNextStep() throws GameActionException
     {
         if (target == null)

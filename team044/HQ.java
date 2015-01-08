@@ -38,10 +38,8 @@ public class HQ extends Structure
         strat = new BuildOrderMessaging[20];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        strat[2] = BuildOrderMessaging.BuildBeaverMiner;
         strat[3] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[4] = BuildOrderMessaging.BuildMinerFactory;
-        strat[5] = BuildOrderMessaging.BuildBeaverMiner;
         strat[6] = BuildOrderMessaging.BuildMinerFactory;
         strat[7] = BuildOrderMessaging.BuildHelipad;
         strat[8] = BuildOrderMessaging.BuildBaracks;
@@ -228,6 +226,15 @@ public class HQ extends Structure
 
                 rc.setIndicatorString(1, ""+strat[currentUnit]);
                 rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
+                return true;
+            }
+        }
+        // if we are trying to build a building but don't have any beavers then create a beaver
+        else if (numbOfBeavers < 1)
+        {
+            if (Utilities.spawnUnit(RobotType.BEAVER, rc))
+            {
+                rc.broadcast(Messaging.BuildOrder.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
                 return true;
             }
         }

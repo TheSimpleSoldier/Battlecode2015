@@ -23,11 +23,7 @@ public class Helipad extends Structure
     public boolean carryOutAbility() throws GameActionException
     {
         // start by only keeping up at most one drone at a time
-        if (numbOfDrones > 0)
-        {
-            return false;
-        }
-        else if (Utilities.spawnUnit(RobotType.DRONE, rc))
+        if (numbOfDrones <= 0 && Utilities.spawnUnit(RobotType.DRONE, rc))
         {
             return true;
         }

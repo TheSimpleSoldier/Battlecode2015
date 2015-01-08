@@ -157,15 +157,22 @@ public class FightMicro
         }
 
         Direction dir = rc.getLocation().directionTo(nearByEnemies[0].location);
-        int i = 0;
+        /*int i = 0;
         while (!rc.canMove(dir) && i < nearByEnemies.length)
         {
             dir = rc.getLocation().directionTo(nearByEnemies[i].location);
-        }
+        }*/
         if (rc.canMove(dir))
         {
             rc.launchMissile(dir);
         }
+
+        dir = dir.opposite();
+        if (rc.canMove(dir) && rc.isCoreReady())
+        {
+            rc.move(dir);
+        }
+
         return true;
     }
 
