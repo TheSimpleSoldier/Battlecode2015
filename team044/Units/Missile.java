@@ -12,6 +12,7 @@ public class Missile extends Unit
     Navigator nav;
     public Missile(RobotController rc)
     {
+        // to save bytecodes we don't use constructor supplied by Unit
         this.rc = rc;
         fighter = new FightMicro(rc);
         nav = new Navigator(rc);
@@ -19,7 +20,7 @@ public class Missile extends Unit
 
     public void collectData() throws GameActionException
     {
-
+        // do nothing to save on bytecodes
     }
 
     public void handleMessages() throws GameActionException

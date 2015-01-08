@@ -7,11 +7,10 @@ import battlecode.common.*;
  */
 public abstract class Structure extends Unit
 {
-    public RobotInfo[] nearByEnemies;
     public void collectData() throws GameActionException
     {
         // collect our data
-        nearByEnemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+        super.collectData();
     }
 
     public void handleMessages() throws GameActionException
@@ -29,6 +28,7 @@ public abstract class Structure extends Unit
         return false;
     }
 
+    // most structures can't fight will override for towers and HQ
     public boolean fight() throws GameActionException
     {
         return false;
@@ -69,6 +69,17 @@ public abstract class Structure extends Unit
 
         int supplies = (int) (rc.getSupplyLevel() / closeAllies.length);
 
+
+        // first give all supply to Drones
+        for (int i = 0; i < closeAllies.length; i++)
+        {
+            if (closeAllies[i].type == RobotType.DRONE)
+            {
+                int totalSupplies = (int) rc.getSupplyLevel();
+                rc.transferSupplies(totalSupplies, closeAllies[i].location);
+                return;
+            }
+        }
 
         for (int i = 0; i < closeAllies.length; i++)
         {

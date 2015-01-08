@@ -8,15 +8,40 @@ public abstract class Unit
     public int range;
     public Team us;
     public Team opponent;
-    MapLocation ourHQ;
-    MapLocation enemyHQ;
+    public MapLocation ourHQ;
+    public MapLocation enemyHQ;
+    public RobotInfo[] nearByEnemies;
+    public RobotInfo[] nearByAllies;
+    public FightMicro fighter;
+    public Navigator nav;
 
-    public abstract void collectData() throws GameActionException;
+    public Unit()
+    {
+        // default constructor
+    }
+
+    public Unit(RobotController rc)
+    {
+        this.rc = rc;
+        us = rc.getTeam();
+        opponent = us.opponent();
+        range = rc.getType().attackRadiusSquared;
+        nav = new Navigator(rc);
+        fighter = new FightMicro(rc);
+        ourHQ = rc.senseHQLocation();
+        enemyHQ = rc.senseEnemyHQLocation();
+    }
+
+    public void collectData() throws GameActionException
+    {
+        nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        nearByAllies = rc.senseNearbyRobots(range, us);
+    }
 
     public void handleMessages() throws GameActionException
     {
-        // if we are getting low on supply send out request
-        if (rc.getSupplyLevel() < 40)
+        // if we are getting low on supply and are near other robots send out request
+        if (rc.getSupplyLevel() < 40 && nearByAllies.length > 1)
         {
             if (rc.readBroadcast(Messaging.FirstNeedSupplyX.ordinal()) == 0)
             {
@@ -31,9 +56,6 @@ public abstract class Unit
                 rc.broadcast(Messaging.SecondNeedSupplyY.ordinal(), mySpot.y);
             }
         }
-
-
-
     }
 
     public boolean takeNextStep() throws GameActionException
