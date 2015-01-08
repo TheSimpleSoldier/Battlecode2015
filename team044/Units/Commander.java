@@ -8,16 +8,16 @@ import battlecode.common.*;
 public class Commander extends Unit
 {
     RobotController rc;
-    Navigator nav;
+
     public Commander(RobotController rc)
     {
-        this.rc = rc;
-        nav = new Navigator(rc);
+        super(rc);
     }
 
-    public void collectData()
+    public void collectData() throws GameActionException
     {
         // collect our data
+        super.collectData();
     }
 
     public void handleMessages() throws GameActionException

@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Robot;
 
 import java.util.Random;
 
@@ -389,6 +390,30 @@ public class Utilities
     }
 
     /**
+     * This method is for a supply drone to give away its supply
+     */
+    public static boolean supplyArmy(RobotController rc) throws GameActionException
+    {
+        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED - 1;
+
+        RobotInfo[] allies = rc.senseNearbyRobots(dist, rc.getTeam());
+
+        for (int i = 0; i < allies.length; i++)
+        {
+            // if building don't give it supply
+            if (!allies[i].type.needsSupply())
+            {
+                continue;
+            }
+            int supplyAmount = (int) rc.getSupplyLevel() - 100;
+            rc.transferSupplies(supplyAmount, allies[i].location);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * This method is for creating a structure
      * currently it tries to build it in the target location
      * but will build it in any open location if it can't
@@ -499,11 +524,25 @@ public class Utilities
     /**
      * Currently and unimplemented method for determining where to put the next supply depot
      */
-    public static MapLocation buildSupplyDepot(RobotController rc)
+    public static MapLocation buildSupplyDepot(RobotController rc) throws GameActionException
     {
-        MapLocation target = null;
+        MapLocation target = rc.senseHQLocation();
 
-        // TODO: Implement supply depot creation
+        // TODO: Implement supply depot creation currently is copy of building
+        Direction[] dirs = Direction.values();
+
+        random = new Random();
+
+        int dir = random.nextInt(8);
+
+        target = target.add(dirs[dir], 2);
+
+        while (rc.isLocationOccupied(target))
+        {
+            dir = random.nextInt(8);
+
+            target = target.add(dirs[dir], 2);
+        }
 
         return target;
     }
@@ -634,5 +673,28 @@ public class Utilities
         }
 
         return bestTower;
+    }
+
+
+    /**
+     * This method handles units incrementing the counter that tells us how many
+     * units of each type we have
+     */
+    public static void handleMessageCounter(RobotController rc, int channelOdd, int channelEven) throws GameActionException
+    {
+        // even
+        if (Clock.getRoundNum() % 2 == 0)
+        {
+            int numb = rc.readBroadcast(channelEven);
+            numb++;
+            rc.broadcast(channelEven, numb);
+        }
+        // odd
+        else
+        {
+            int numb = rc.readBroadcast(channelOdd);
+            numb++;
+            rc.broadcast(channelOdd, numb);
+        }
     }
 }

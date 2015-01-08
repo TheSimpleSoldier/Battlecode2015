@@ -1,31 +1,25 @@
 package team044.Units;
 
 
-import team044.FightMicro;
-import team044.Navigator;
-import team044.Unit;
+import team044.*;
 
 import battlecode.common.*;
-import team044.Utilities;
+
+import javax.rmi.CORBA.Util;
 
 public class Basher extends Unit
 {
-    FightMicro fighter;
     MapLocation target;
-    Navigator nav;
+
     public Basher(RobotController rc)
     {
-        this.rc = rc;
-        nav = new Navigator(rc);
-        fighter = new FightMicro(rc);
-        range = rc.getType().attackRadiusSquared;
-        us = rc.getTeam();
-        opponent = us.opponent();
+        super(rc);
         target = Utilities.getTowerClosestToEnemyHQ(rc);
     }
 
-    public void collectData()
+    public void collectData() throws GameActionException
     {
+        super.collectData();
         // collect our data
         MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
         if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
@@ -40,7 +34,9 @@ public class Basher extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        // default to doing nothing
+        super.handleMessages();
+
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfBashersOdd.ordinal(), Messaging.NumbOfBashersEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException

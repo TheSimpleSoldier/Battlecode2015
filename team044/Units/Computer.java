@@ -1,27 +1,31 @@
 package team044.Units;
 
+import team044.Messaging;
 import team044.Navigator;
 import team044.Unit;
 import battlecode.common.*;
+import team044.Utilities;
 
 public class Computer extends Unit
 {
     RobotController rc;
-    Navigator nav;
+
     public Computer(RobotController rc)
     {
-        this.rc = rc;
-        nav = new Navigator(rc);
+        super(rc);
     }
 
-    public void collectData()
+    public void collectData() throws GameActionException
     {
         // collect our data
+        super.collectData();
     }
 
     public void handleMessages() throws GameActionException
     {
-        // default to doing nothing
+        super.handleMessages();
+
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfCompsOdd.ordinal(), Messaging.NumbOfCompsEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException

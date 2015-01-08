@@ -1,17 +1,13 @@
 package team044.Units;
 
-import team044.FightMicro;
-import team044.Navigator;
-import team044.Unit;
+import team044.*;
 import battlecode.common.*;
 
 public class Beaver extends Unit
 {
-    Navigator nav;
-    FightMicro fighter;
     int buildingType;
     MapLocation target;
-    RobotInfo[] nearByEnemies;
+
     public Beaver()
     {
         // we are in trouble
@@ -19,22 +15,19 @@ public class Beaver extends Unit
 
     public Beaver(RobotController rc)
     {
-        this.rc = rc;
-        nav = new Navigator(rc);
-        fighter = new FightMicro(rc);
-        range = rc.getType().attackRadiusSquared;
-        us = rc.getTeam();
-        opponent = us.opponent();
+        super(rc);
     }
 
     public void collectData() throws GameActionException
     {
-        // collect our data
-        nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        super.collectData();
     }
 
     public void handleMessages() throws GameActionException
     {
+        super.handleMessages();
+
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfBeaverOdd.ordinal(), Messaging.NumbOfBeaverEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException

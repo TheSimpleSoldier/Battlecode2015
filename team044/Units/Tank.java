@@ -1,33 +1,23 @@
 package team044.Units;
 
-import team044.FightMicro;
-import team044.Navigator;
-import team044.Unit;
+import team044.*;
 
 import battlecode.common.*;
-import team044.Utilities;
 
 public class Tank extends Unit
 {
-    Navigator nav;
     MapLocation target;
-    FightMicro fighter;
-    RobotInfo[] nearByEnemies;
-    int range;
+
     public Tank(RobotController rc)
     {
-        this.rc = rc;
-        nav = new Navigator(rc);
-        fighter = new FightMicro(rc);
-        range = rc.getType().attackRadiusSquared;
-        us = rc.getTeam();
-        opponent = us.opponent();
+        super(rc);
         target = Utilities.getTowerClosestToEnemyHQ(rc);
     }
 
-    public void collectData()
+    public void collectData() throws GameActionException
     {
-        nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        super.collectData();
+
         MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
         if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
         {
@@ -41,7 +31,9 @@ public class Tank extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        // default to doing nothing
+        super.handleMessages();
+
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfTanksOdd.ordinal(), Messaging.NumbOfTanksEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException
@@ -51,7 +43,6 @@ public class Tank extends Unit
             return false;
         }
         return nav.takeNextStep(target);
-        //return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException
