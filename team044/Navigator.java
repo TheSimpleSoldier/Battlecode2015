@@ -38,6 +38,7 @@ public class Navigator
     //The dog moves in a bug patterns, but the owner will cut corners.
     public boolean takeNextStep(MapLocation target, boolean avoidTowers, boolean isDrone) throws GameActionException
     {
+        rc.setIndicatorString(2, "dog: " + dog.toString());
         //if target changed, act like dog is next to owner
         if(!target.equals(this.target))
         {
@@ -104,6 +105,10 @@ public class Navigator
                         nearTower = true;
                     }
                 }
+                if(nextSpot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
+                {
+                    nearTower = true;
+                }
             }
 
             if(!isDrone)
@@ -149,6 +154,10 @@ public class Navigator
                             {
                                 nearTower = true;
                             }
+                        }
+                        if(nextSpot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
+                        {
+                            nearTower = true;
                         }
                     }
                 }
@@ -197,6 +206,10 @@ public class Navigator
                                 nearTower = true;
                             }
                         }
+                        if(nextSpot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
+                        {
+                            nearTower = true;
+                        }
                     }
                 }
 
@@ -217,6 +230,7 @@ public class Navigator
     //returns true if dog is in sight of human
     private boolean dogInSight(boolean avoidTowers, boolean isDrone) throws GameActionException
     {
+        rc.setIndicatorString(0, "" + avoidTowers);
         //start one closer to dog's location since we can get to where we are
         MapLocation currentLocation = rc.getLocation().add(rc.getLocation().directionTo(dog));
         //go through each spot until the dog
@@ -244,6 +258,10 @@ public class Navigator
                         return false;
                     }
                 }
+                if(currentLocation.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
+                {
+                    return false;
+                }
             }
             currentLocation = currentLocation.add(currentLocation.directionTo(dog));
         }
@@ -270,6 +288,10 @@ public class Navigator
                 {
                     return false;
                 }
+            }
+            if(currentLocation.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
+            {
+                return false;
             }
         }
 

@@ -37,8 +37,8 @@ public class HQ extends Structure
         messenger = new Messenger(rc);
         strat = new BuildOrderMessaging[20];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildHelipad;
-        strat[2] = BuildOrderMessaging.BuildHelipad;
+        strat[1] = BuildOrderMessaging.BuildMinerFactory;
+        strat[2] = BuildOrderMessaging.BuildBeaverMiner;
         strat[3] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[4] = BuildOrderMessaging.BuildMinerFactory;
         strat[5] = BuildOrderMessaging.BuildBeaverMiner;
