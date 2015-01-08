@@ -211,6 +211,16 @@ public class HQ extends Structure
         {
             return false;
         }
+        // ensure that we always have at least one builder beaver
+        if (rc.readBroadcast(BuildOrderMessaging.BuilderAlive.ordinal()) == 0) {  // Check if a builder beaver exists
+            if (Utilities.spawnUnit(RobotType.BEAVER, rc))              // Spawn builder beaver if there are no builders
+            {
+                rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
+                rc.broadcast(BuildOrderMessaging.BuilderAlive.ordinal(), 0);  // BuilderAlive = 0 next round if builder died
+                return true;
+            }
+        }
+        rc.broadcast(BuildOrderMessaging.BuilderAlive.ordinal(), 0);  // BuilderAlive = 0 next round if builders are dead
         // we only build a beaver if it is the next unit to be built
         if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverBuilder || strat[currentUnit] == BuildOrderMessaging.BuildBeaverMiner)
         {
@@ -229,7 +239,7 @@ public class HQ extends Structure
                     rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
                 }
 
-                rc.setIndicatorString(1, ""+strat[currentUnit]);
+                rc.setIndicatorString(1, "" + strat[currentUnit]);
                 rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
                 return true;
             }

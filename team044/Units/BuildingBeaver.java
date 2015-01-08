@@ -23,6 +23,7 @@ public class BuildingBeaver extends Beaver
     public BuildingBeaver(RobotController rc) throws GameActionException
     {
         super(rc);
+        rc.broadcast(BuildOrderMessaging.BuilderAlive.ordinal(), 1);  // BuilderAlive = 1 next round, indicating live builder beaver to HQ
         rc.setIndicatorString(1, "BuildingBeaver");
         build = false;
         dirs = Direction.values();
@@ -68,6 +69,7 @@ public class BuildingBeaver extends Beaver
 
     public boolean carryOutAbility() throws GameActionException
     {
+        rc.broadcast(BuildOrderMessaging.BuilderAlive.ordinal(), 1);  // BuilderAlive = 1 next round, indicating live builder beaver to HQ
         if (!rc.isCoreReady())
         {
             return false;
