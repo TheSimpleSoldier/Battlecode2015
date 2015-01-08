@@ -28,8 +28,8 @@ public class HQ extends Structure
         messenger = new Messenger(rc);
         strat = new BuildOrderMessaging[15];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        strat[2] = BuildOrderMessaging.BuildBeaverMiner;
+        strat[1] = BuildOrderMessaging.BuildHelipad;
+        strat[2] = BuildOrderMessaging.BuildHelipad;
         strat[3] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[4] = BuildOrderMessaging.BuildMinerFactory;
         strat[5] = BuildOrderMessaging.BuildBeaverMiner;
@@ -68,10 +68,13 @@ public class HQ extends Structure
             {
                 System.out.println("Increase Unit count");
                 currentUnit++;
-                if (currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+                if(currentUnit < strat.length)
                 {
-                    numberOfMinerFactories++;
-                    rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+                    if(currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+                    {
+                        numberOfMinerFactories++;
+                        rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+                    }
                 }
             }
 

@@ -53,7 +53,7 @@ public class Messenger
         tankStrat[0] = BuildOrderMessaging.BuildTank;
 
         droneStrat = new BuildOrderMessaging[1];
-        droneStrat[0] = BuildOrderMessaging.BuildDrone;
+        droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
     }
 
     /**
@@ -103,7 +103,9 @@ public class Messenger
 
         if (rc.readBroadcast(Messaging.DroneType.ordinal()) == -1)
         {
-            numbOfDrones++;
+            message = droneStrat[numbOfDrones].ordinal();
+            rc.broadcast(Messaging.DroneType.ordinal(), message);
+            numbOfDrones = (numbOfDrones + 1) % droneStrat.length;
         }
     }
 

@@ -107,7 +107,7 @@ public class RobotPlayer
                         {
                             // run fight micro
                         }
-                        else if (unit.carryOutAbility())
+                        if (unit.carryOutAbility())
                         {
                             // execute ability
                         }
@@ -176,8 +176,12 @@ public class RobotPlayer
         return new Tank(rc);
     }
 
-    private static Unit getDrone(RobotController rc)
+    private static Unit getDrone(RobotController rc) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.DroneType.ordinal()) == BuildOrderMessaging.BuildScoutingDrone.ordinal())
+        {
+            return new ScoutingDrone(rc);
+        }
         return new Drone(rc);
     }
 

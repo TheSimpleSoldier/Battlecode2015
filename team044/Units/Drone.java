@@ -16,7 +16,7 @@ public class Drone extends Unit
         nav = new Navigator(rc);
     }
 
-    public void collectData()
+    public void collectData() throws GameActionException
     {
         // collect our data
     }

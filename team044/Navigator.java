@@ -22,11 +22,21 @@ public class Navigator
         lastFacing = Direction.NONE;
     }
 
+    public boolean takeNextStep(MapLocation target) throws GameActionException
+    {
+        return takeNextStep(target, false, false);
+    }
+
+    public boolean takeNextStep(MapLocation target, boolean avoidTowers) throws GameActionException
+    {
+        return takeNextStep(target, avoidTowers, false);
+    }
+
     //This method uses a walk the dog method
     //The walk the dog method has a dog that runs away till the owner
     //is about to lose sight of it, then it sits there until the owner catches up.
     //The dog moves in a bug patterns, but the owner will cut corners.
-    public boolean takeNextStep(MapLocation target) throws GameActionException
+    public boolean takeNextStep(MapLocation target, boolean avoidTowers, boolean isDrone) throws GameActionException
     {
         //if target changed, act like dog is next to owner
         if(!target.equals(this.target))
@@ -38,7 +48,7 @@ public class Navigator
         //if dog is at owner's location, it runs to its next spot
         if(rc.getLocation().equals(dog))
         {
-            dogGo();
+            dogGo(avoidTowers, isDrone);
         }
 
         //if you can move towards the dog, do
@@ -57,7 +67,7 @@ public class Navigator
     }
 
     //This is the method that moves the dog along till it is almost out of sight
-    private void dogGo() throws GameActionException
+    private void dogGo(boolean avoidTowers, boolean isDrone) throws GameActionException
     {
         Direction lastDir = Direction.NONE;
         //go till out of site
@@ -82,9 +92,11 @@ public class Navigator
             }
             MapLocation nextSpot = dog.add(lastDir);
 
-            if((!rc.senseTerrainTile(nextSpot).isTraversable() &&
+            if((rc.canSenseLocation(nextSpot) &&
+               !rc.senseTerrainTile(nextSpot).isTraversable() &&
                rc.senseTerrainTile(nextSpot) != TerrainTile.UNKNOWN) ||
-               rc.senseRobotAtLocation(nextSpot) != null)
+               (rc.canSenseLocation(nextSpot) &&
+               rc.senseRobotAtLocation(nextSpot) != null))
             {
                 goingAround = true;
             }
@@ -94,9 +106,11 @@ public class Navigator
             }
 
             //while way is blocked, rotate till free
-            while((!rc.senseTerrainTile(nextSpot).isTraversable() &&
+            while((rc.canSenseLocation(nextSpot) &&
+                  !rc.senseTerrainTile(nextSpot).isTraversable() &&
                   rc.senseTerrainTile(nextSpot) != TerrainTile.UNKNOWN) ||
-                  rc.senseRobotAtLocation(nextSpot) != null)
+                  (rc.canSenseLocation(nextSpot) &&
+                  rc.senseRobotAtLocation(nextSpot) != null))
             {
                 if(goingLeft)
                 {
