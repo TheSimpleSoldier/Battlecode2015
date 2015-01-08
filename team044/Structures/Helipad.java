@@ -1,21 +1,32 @@
 package team044.Structures;
 
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
-import battlecode.common.RobotType;
+import battlecode.common.*;
+import team044.Messaging;
 import team044.Structure;
 import team044.Utilities;
 
 public class Helipad extends Structure
 {
+    int numbOfDrones;
     public Helipad(RobotController rc)
     {
         this.rc = rc;
     }
 
-    @Override
+    public void collectData() throws GameActionException
+    {
+        // collect our data
+        super.collectData();
+        numbOfDrones = rc.readBroadcast(Messaging.NumbOfDrones.ordinal());
+    }
+
     public boolean carryOutAbility() throws GameActionException
     {
-        return Utilities.spawnUnit(RobotType.DRONE, rc);
+        // start by only keeping up at most one drone at a time
+        if (numbOfDrones <= 0 && Utilities.spawnUnit(RobotType.DRONE, rc))
+        {
+            return true;
+        }
+        return false;
     }
 }

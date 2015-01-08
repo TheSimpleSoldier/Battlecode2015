@@ -92,6 +92,10 @@ public class RobotPlayer
                 {
                     unit = getMissile(rc);
                 }
+                else if (rc.getType() == RobotType.SUPPLYDEPOT)
+                {
+                    unit = getSupplyDepot(rc);
+                }
                 else
                 {
                     System.out.println("Houston we have a problem");
@@ -140,19 +144,24 @@ public class RobotPlayer
 
     private static Unit getBeaver(RobotController rc) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.BeaverType.ordinal()) == BuildOrderMessaging.BuildBeaverBuilder.ordinal())
+        int type = rc.readBroadcast(Messaging.BeaverType.ordinal());
+        if (type == BuildOrderMessaging.BuildBeaverBuilder.ordinal())
         {
             return new BuildingBeaver(rc);
         }
-        else if (rc.readBroadcast(Messaging.BeaverType.ordinal()) == BuildOrderMessaging.BuildBeaverMiner.ordinal())
+        else if (type == BuildOrderMessaging.BuildBeaverMiner.ordinal())
         {
             return new MinerBeaver(rc);
         }
         return new Beaver(rc);
     }
 
-    private static Unit getComputer(RobotController rc)
+    private static Unit getComputer(RobotController rc) throws GameActionException
     {
+        // type for specific types of computers
+        int type = rc.readBroadcast(Messaging.ComputerType.ordinal());
+
+        // default to base computer
         return new Computer(rc);
     }
 
@@ -161,37 +170,60 @@ public class RobotPlayer
         return new Commander(rc);
     }
 
-    private static Unit getSoldier(RobotController rc)
+    private static Unit getSoldier(RobotController rc) throws GameActionException
     {
+        int type = rc.readBroadcast(Messaging.SoldierType.ordinal());
+
+        // default to basic soldier
         return new Soldier(rc);
     }
 
-    private static Unit getBasher(RobotController rc)
+    private static Unit getBasher(RobotController rc) throws GameActionException
     {
+        int type = rc.readBroadcast(Messaging.BasherType.ordinal());
+
+        // default Basher
         return new Basher(rc);
     }
 
-    private static Unit getTank(RobotController rc)
+    private static Unit getTank(RobotController rc) throws GameActionException
     {
+        int type = rc.readBroadcast(Messaging.TankType.ordinal());
+
+        // default Tank
         return new Tank(rc);
     }
 
     private static Unit getDrone(RobotController rc) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.DroneType.ordinal()) == BuildOrderMessaging.BuildScoutingDrone.ordinal())
+        int type = rc.readBroadcast(Messaging.DroneType.ordinal());
+
+        if (type == BuildOrderMessaging.BuildScoutingDrone.ordinal())
         {
             return new ScoutingDrone(rc);
         }
+        else if (type == BuildOrderMessaging.BuildSupplyDrone.ordinal())
+        {
+            return  new SupplyDrone(rc);
+        }
+
+        // default Drone
         return new Drone(rc);
     }
 
-    private static Unit getLauncher(RobotController rc)
+    private static Unit getLauncher(RobotController rc) throws GameActionException
     {
+        int type = rc.readBroadcast(Messaging.LauncherType.ordinal());
+
+        // default Launcher
         return new Launcher(rc);
     }
 
-    private static Unit getMiner(RobotController rc)
+    private static Unit getMiner(RobotController rc) throws GameActionException
     {
+        int type = rc.readBroadcast(Messaging.MinerType.ordinal());
+
+        // default miner
         return new Miner(rc);
     }
 
@@ -243,5 +275,10 @@ public class RobotPlayer
     private static Unit getMissile(RobotController rc)
     {
         return new Missile(rc);
+    }
+
+    private static Unit getSupplyDepot(RobotController rc)
+    {
+        return new SupplyDepot(rc);
     }
 }

@@ -8,6 +8,7 @@ public enum BuildOrderMessaging {
     BuildComputer,
     BuildDrone,
     BuildScoutingDrone,
+    BuildSupplyDrone,
     BuildLauncher,
     BuildMiner,
     BuildSoldier,

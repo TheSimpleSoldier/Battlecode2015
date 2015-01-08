@@ -1,33 +1,24 @@
 package team044.Units;
 
-import team044.FightMicro;
-import team044.Navigator;
-import team044.Unit;
+import battlecode.world.Util;
+import team044.*;
 
 import battlecode.common.*;
-import team044.Utilities;
 
 public class Miner extends Unit
 {
-    Navigator nav;
-    FightMicro fighter;
     MapLocation target;
-    RobotInfo[] nearByEnemies;
 
     public Miner(RobotController rc)
     {
-        this.rc = rc;
-        nav = new Navigator(rc);
-        fighter = new FightMicro(rc);
-        range = rc.getType().attackRadiusSquared;
-        us = rc.getTeam();
-        opponent = us.opponent();
+        super(rc);
     }
 
     public void collectData() throws GameActionException
     {
         // collect our data
-        nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        super.collectData();
+
         if (rc.senseOre(rc.getLocation()) < 5)
         {
             //target = Utilities.getBestMiningSpot(rc);
@@ -37,7 +28,9 @@ public class Miner extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        // default to doing nothing
+        super.handleMessages();
+
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfMinersOdd.ordinal(), Messaging.NumbOfMinersEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException
