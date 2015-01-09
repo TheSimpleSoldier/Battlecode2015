@@ -53,7 +53,16 @@ public class Tank extends Unit
         {
             return false;
         }
-        return nav.takeNextStep(target);
+        int byteCodes = Clock.getBytecodeNum();
+        int roundNumb = Clock.getRoundNum();
+        boolean move = nav.takeNextStep(target);
+        byteCodes = Clock.getBytecodeNum() - byteCodes;
+        roundNumb = Clock.getRoundNum() - roundNumb;
+        if (roundNumb > 0)
+        {
+            System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
+        }
+        return move;
     }
 
     public boolean fight() throws GameActionException

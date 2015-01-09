@@ -17,6 +17,8 @@ public class HQ extends Structure
     Messenger messenger;
     BuildOrderMessaging[] strat;
     int currentUnit = 0;
+    int numbOfBuildings = 0;
+    int lastNumbOfBuildings = 0;
 
     int numbOfBashers   = 0;
     int numbOfBeavers   = 0;
@@ -35,7 +37,7 @@ public class HQ extends Structure
         opponent = us.opponent();
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
-        strat = new BuildOrderMessaging[23];
+        strat = new BuildOrderMessaging[21];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
         strat[2] = BuildOrderMessaging.BuildBeaverBuilder;
@@ -44,20 +46,19 @@ public class HQ extends Structure
         strat[5] = BuildOrderMessaging.BuildMiningBaracks;
         strat[6] = BuildOrderMessaging.BuildHelipad;
         strat[7] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[8] = BuildOrderMessaging.BuildTankFactory;
         strat[9] = BuildOrderMessaging.BuildTankFactory;
         strat[10] = BuildOrderMessaging.BuildTankFactory;
         strat[11] = BuildOrderMessaging.BuildTankFactory;
         strat[12] = BuildOrderMessaging.BuildTankFactory;
         strat[13] = BuildOrderMessaging.BuildTankFactory;
-        strat[14] = BuildOrderMessaging.BuildHelipad;
-        strat[15] = BuildOrderMessaging.BuildTankFactory;
+        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[15] = BuildOrderMessaging.BuildSupplyDepot;
         strat[16] = BuildOrderMessaging.BuildSupplyDepot;
         strat[17] = BuildOrderMessaging.BuildSupplyDepot;
         strat[18] = BuildOrderMessaging.BuildSupplyDepot;
         strat[19] = BuildOrderMessaging.BuildSupplyDepot;
         strat[20] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[21] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[22] = BuildOrderMessaging.BuildSupplyDepot;
 
         rc.setIndicatorString(0, "HQ");
     }
@@ -142,7 +143,9 @@ public class HQ extends Structure
         rc.broadcast(Messaging.NumbOfSoldiers.ordinal(), numbOfSoldiers);
         rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);
 
-        rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + numbOfSoldiers + ", Tanks: " + numbOfTanks);
+        //rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + numbOfSoldiers + ", Tanks: " + numbOfTanks);
+        numbOfBuildings = Utilities.test(rc);
+
         if (currentUnit < strat.length)
         {
             rc.setIndicatorString(1, ""+strat[currentUnit]);
@@ -157,23 +160,31 @@ public class HQ extends Structure
         else if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverBuilder)
         {
             rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
+            lastNumbOfBuildings--;
         }
         else if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverMiner)
         {
             rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverMiner.ordinal());
+            lastNumbOfBuildings--;
         }
         else
         {
             // if a beaver has taken up a job then we go ahead and post the next building
             if (rc.readBroadcast(Messaging.BuildOrder.ordinal()) == -1)
             {
-                currentUnit++;
-                if(currentUnit < strat.length)
+                // wait to give orders for next building until current building is started
+                if (numbOfBuildings > lastNumbOfBuildings || rc.getTeamOre() > 600)
                 {
-                    if(currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+                    lastNumbOfBuildings = numbOfBuildings;
+
+                    currentUnit++;
+                    if(currentUnit < strat.length)
                     {
-                        numberOfMinerFactories++;
-                        rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+                        if(currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+                        {
+                            numberOfMinerFactories++;
+                            rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+                        }
                     }
                 }
             }

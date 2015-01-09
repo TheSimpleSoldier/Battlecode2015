@@ -73,6 +73,10 @@ public abstract class Structure extends Unit
         // first give all supply to Drones
         for (int i = 0; i < closeAllies.length; i++)
         {
+            if (Clock.getBytecodeNum() > 1500)
+            {
+                break;
+            }
             if (closeAllies[i].type == RobotType.DRONE)
             {
                 int totalSupplies = (int) rc.getSupplyLevel();

@@ -365,7 +365,7 @@ public class Utilities
             {
                 for (int i = 0; i < nearByAllies.length; i++)
                 {
-                    if (Clock.getBytecodeNum() > 4500)
+                    if (Clock.getBytecodeNum() > 4000)
                     {
                         break;
                     }
@@ -392,6 +392,10 @@ public class Utilities
 
         for (int i = 0; i < allies.length; i++)
         {
+            if (Clock.getBytecodeNum() > 4000)
+            {
+                break;
+            }
             // if building don't give it supply
             if (!allies[i].type.needsSupply())
             {
@@ -748,5 +752,62 @@ public class Utilities
         }
 
         return closest;
+    }
+
+    /**
+     * This is a test
+     */
+    public static int test(RobotController rc) throws GameActionException
+    {
+        int numbOfMinerFactories = 0;
+        int numbOfTankFactories = 0;
+        int numbOfBarracks = 0;
+        int numbOfHelipads = 0;
+        int numbOfAerospacelab = 0;
+        int numbOfSupplyDepots = 0;
+        int numbOfTrainingfields = 0;
+        int numbOfTechnologyInstitutes = 0;
+
+        RobotInfo[] allies = rc.senseNearbyRobots(9999, rc.getTeam());
+
+        for (int i = allies.length; --i>=0; )
+        {
+            if (allies[i].type == RobotType.BARRACKS)
+            {
+                numbOfBarracks++;
+            }
+            else if (allies[i].type == RobotType.MINERFACTORY)
+            {
+                numbOfMinerFactories++;
+            }
+            else if (allies[i].type == RobotType.TANKFACTORY)
+            {
+                numbOfTankFactories++;
+            }
+            else if (allies[i].type == RobotType.HELIPAD)
+            {
+                numbOfHelipads++;
+            }
+            else if (allies[i].type == RobotType.AEROSPACELAB)
+            {
+                numbOfAerospacelab++;
+            }
+            else if (allies[i].type == RobotType.SUPPLYDEPOT)
+            {
+                numbOfSupplyDepots++;
+            }
+            else if (allies[i].type == RobotType.TRAININGFIELD)
+            {
+                numbOfTrainingfields++;
+            }
+            else if (allies[i].type == RobotType.TECHNOLOGYINSTITUTE)
+            {
+                numbOfTechnologyInstitutes++;
+            }
+
+        }
+
+        rc.setIndicatorString(0, "Barracks: " + numbOfBarracks + ", MinerFactory: " + numbOfMinerFactories + ", Tank Factory: " + ", Helipads: " + numbOfHelipads);
+        return numbOfTankFactories + numbOfBarracks + numbOfHelipads + numbOfMinerFactories + numbOfAerospacelab + numbOfSupplyDepots + numbOfTechnologyInstitutes + numbOfTrainingfields;
     }
 }

@@ -39,6 +39,7 @@ public class FightMicro
      */
     public boolean advancedFightMicro(RobotInfo[] nearByEnemies) throws GameActionException
     {
+        rc.setIndicatorString(0, "running fight micro");
         boolean move = true;
         // if we can't move then skip to shooting part
         if (!rc.isCoreReady())
@@ -46,14 +47,13 @@ public class FightMicro
             // guess we can't do much except maybe shoot
             move = false;
         }
-        else
-        {
+        else {
             MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
             // search for enemies in sight range
             RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
 
             // if their are no enemies we can't fight
-            if (enemies.length == 0)
+            if (nearByEnemies.length == 0)
             {
                 if (FightMicroUtilities.enemyTowerClose(rc, enemyTowers))
                 {
@@ -61,14 +61,26 @@ public class FightMicro
                     int balance = FightMicroUtilities.balanceOfPower(enemies, allies);
 
                     // if we have health advantage press forward
-                    if (balance > 1100)
+                    if (balance > 500)
                     {
+                        rc.setIndicatorString(1, "balance > 500");
                         Direction dir = rc.getLocation().directionTo(Utilities.closestTower(rc, enemyTowers));
                         if (rc.canMove(dir))
                         {
                             rc.move(dir);
                         }
-
+                    }
+                    else if (FightMicroUtilities.alliesEngaged(allies, enemies, enemyTowers))
+                    {
+                        rc.setIndicatorString(1, "Allies Engaged");
+                        FightMicroUtilities.attack(rc, enemies);
+                        return true;
+                    }
+                    else if (FightMicroUtilities.enemyKitingUs(rc, enemies))
+                    {
+                        rc.setIndicatorString(1, "enemyKiting");
+                        FightMicroUtilities.attack(rc, enemies);
+                        return true;
                     }
                     // else wait
                     else
@@ -76,6 +88,11 @@ public class FightMicro
                         // wait
                     }
                     return true;
+                }
+                else if (FightMicroUtilities.enemyKitingUs(rc, enemies))
+                {
+                    rc.setIndicatorString(1, " Enemy kiting us");
+                    FightMicroUtilities.attack(rc, enemies);
                 }
                 return false;
             }
@@ -85,32 +102,54 @@ public class FightMicro
 
             int balance = FightMicroUtilities.balanceOfPower(enemies, allies);
             MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
-            int dist = rc.getLocation().distanceSquaredTo(closestTower);
+            int dist;
+            if (closestTower != null)
+            {
+                dist = rc.getLocation().distanceSquaredTo(closestTower);
+            }
+            else
+            {
+                dist = 9999;
+            }
 
             if (dist > 24 && dist < 36)
             {
-                balance -= 1000;
+                balance -= 500;
             }
 
-            // if enemy is more powerful retreat
-            if (balance < -50)
+            if (FightMicroUtilities.alliesEngaged(allies, enemies, enemyTowers))
             {
+                rc.setIndicatorString(1, "Allies Engaged");
+                FightMicroUtilities.attack(rc, enemies);
+            }
+            else if (FightMicroUtilities.enemyKitingUs(rc, enemies))
+            {
+                rc.setIndicatorString(1, "enemy is kiting us");
+                FightMicroUtilities.attack(rc, enemies);
+            }
+            // if enemy is more powerful retreat
+            else if (balance < -50)
+            {
+                rc.setIndicatorString(1, "retreat!");
                 FightMicroUtilities.retreat(rc, enemies);
 
             }
             // if we are against launchers just die
             else if (FightMicroUtilities.enemyHasLaunchers(enemies))
             {
+                rc.setIndicatorString(1, "enemy launchers");
                 FightMicroUtilities.lockOntoLauncher(rc, enemies);
             }
             // If we are evenly matched stand ground
             else if (balance < 50)
             {
+                rc.setIndicatorString(1, "Stand our ground");
                 // hold position shoot enemies that approach
             }
             // if we have the advantage Charge
             else
             {
+                rc.setIndicatorString(1, "Press our advantage");
                 if (nearByEnemies.length > 0)
                 {
                     // hold ground and shoot

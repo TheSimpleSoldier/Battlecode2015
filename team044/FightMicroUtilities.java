@@ -205,4 +205,62 @@ public class FightMicroUtilities {
         return false;
     }
 
+    /**
+     * This method determines if any of our allies have engaged
+     */
+    public static boolean alliesEngaged(RobotInfo[] allies, RobotInfo[] enemies, MapLocation[] enemyTowers)
+    {
+        for (int i = allies.length; --i>=0; )
+        {
+            int range = allies[i].type.attackRadiusSquared;
+            MapLocation ally = allies[i].location;
+
+            for (int j = enemies.length; --j>=0; )
+            {
+                MapLocation enemy = enemies[j].location;
+
+                if (ally.distanceSquaredTo(enemy) <= range)
+                {
+                    return true;
+                }
+            }
+
+            for (int j = enemyTowers.length; --j>=0; )
+            {
+                if (ally.distanceSquaredTo(enemyTowers[j]) <= 24)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * This method determines if we are being strafed by an enemy
+     */
+    public static boolean enemyKitingUs(RobotController rc, RobotInfo[] enemies)
+    {
+        int byteCodes = Clock.getBytecodeNum();
+        int roundNumb = Clock.getRoundNum();
+        MapLocation us = rc.getLocation();
+        int range = rc.getType().attackRadiusSquared;
+
+        for (int i = enemies.length; --i>=0; )
+        {
+            int dist = enemies[i].location.distanceSquaredTo(us);
+
+            if (dist > range)
+            {
+                int theirRange = enemies[i].type.attackRadiusSquared;
+                if (theirRange >= dist)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }
