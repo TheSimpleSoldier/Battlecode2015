@@ -3,10 +3,16 @@ package team044.Units;
 import team044.*;
 
 import battlecode.common.*;
+import team044.Units.Rushers.TankRusher;
 
 public class Tank extends Unit
 {
-    MapLocation target;
+    public MapLocation target;
+
+    public Tank()
+    {
+        // Houston we have a problem
+    }
 
     public Tank(RobotController rc)
     {
@@ -47,16 +53,30 @@ public class Tank extends Unit
         {
             return false;
         }
-        return nav.takeNextStep(target);
+        int byteCodes = Clock.getBytecodeNum();
+        int roundNumb = Clock.getRoundNum();
+        boolean move = nav.takeNextStep(target);
+        byteCodes = Clock.getBytecodeNum() - byteCodes;
+        roundNumb = Clock.getRoundNum() - roundNumb;
+        if (roundNumb > 0)
+        {
+            //System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
+        }
+        return move;
     }
 
     public boolean fight() throws GameActionException
     {
+        //return fighter.advancedFightMicro(nearByEnemies);
         return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new TankRusher(rc);
+        }
         return current;
     }
 

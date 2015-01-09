@@ -145,6 +145,8 @@ public class RobotPlayer
     private static Unit getBeaver(RobotController rc) throws GameActionException
     {
         int type = rc.readBroadcast(Messaging.BeaverType.ordinal());
+        rc.broadcast(Messaging.BeaverType.ordinal(), -1);
+
         if (type == BuildOrderMessaging.BuildBeaverBuilder.ordinal())
         {
             return new BuildingBeaver(rc);
@@ -153,13 +155,15 @@ public class RobotPlayer
         {
             return new MinerBeaver(rc);
         }
-        return new Beaver(rc);
+        // default to a building beaver
+        return new BuildingBeaver(rc);
     }
 
     private static Unit getComputer(RobotController rc) throws GameActionException
     {
         // type for specific types of computers
         int type = rc.readBroadcast(Messaging.ComputerType.ordinal());
+        rc.broadcast(Messaging.ComputerType.ordinal(), -1);
 
         // default to base computer
         return new Computer(rc);
@@ -173,18 +177,20 @@ public class RobotPlayer
     private static Unit getSoldier(RobotController rc) throws GameActionException
     {
         int type = rc.readBroadcast(Messaging.SoldierType.ordinal());
+        rc.broadcast(Messaging.SoldierType.ordinal(), -1);
 
         if (type == BuildOrderMessaging.BuildDefensiveSoldier.ordinal())
         {
             return new DefensiveSoldiers(rc);
         }
-        // default to basic soldier
-        return new Soldier(rc);
+        // default to defensive soldier
+        return new DefensiveSoldiers(rc);
     }
 
     private static Unit getBasher(RobotController rc) throws GameActionException
     {
         int type = rc.readBroadcast(Messaging.BasherType.ordinal());
+        rc.broadcast(Messaging.BasherType.ordinal(), -1);
 
         // default Basher
         return new Basher(rc);
@@ -193,6 +199,7 @@ public class RobotPlayer
     private static Unit getTank(RobotController rc) throws GameActionException
     {
         int type = rc.readBroadcast(Messaging.TankType.ordinal());
+        rc.broadcast(Messaging.TankType.ordinal(), -1);
 
         // default Tank
         return new Tank(rc);
@@ -201,6 +208,7 @@ public class RobotPlayer
     private static Unit getDrone(RobotController rc) throws GameActionException
     {
         int type = rc.readBroadcast(Messaging.DroneType.ordinal());
+        rc.broadcast(Messaging.DroneType.ordinal(), -1);
 
         if (type == BuildOrderMessaging.BuildScoutingDrone.ordinal())
         {
@@ -222,6 +230,7 @@ public class RobotPlayer
     private static Unit getLauncher(RobotController rc) throws GameActionException
     {
         int type = rc.readBroadcast(Messaging.LauncherType.ordinal());
+        rc.broadcast(Messaging.LauncherType.ordinal(), -1);
 
         // default Launcher
         return new Launcher(rc);
@@ -230,6 +239,7 @@ public class RobotPlayer
     private static Unit getMiner(RobotController rc) throws GameActionException
     {
         int type = rc.readBroadcast(Messaging.MinerType.ordinal());
+        rc.broadcast(Messaging.MinerType.ordinal(), -1);
 
         // default miner
         return new Miner(rc);
