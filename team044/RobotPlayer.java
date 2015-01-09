@@ -155,7 +155,8 @@ public class RobotPlayer
         {
             return new MinerBeaver(rc);
         }
-        return new Beaver(rc);
+        // default to a building beaver
+        return new BuildingBeaver(rc);
     }
 
     private static Unit getComputer(RobotController rc) throws GameActionException
