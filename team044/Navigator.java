@@ -10,9 +10,11 @@ public class Navigator
     private MapLocation dog, target;
     private Random rand;
     private boolean goingLeft, goingAround;
+    private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog;
     private Direction lastFacing;
 
-    public Navigator(RobotController rc)
+    public Navigator(RobotController rc, boolean avoidTowers, boolean avoidHQ,
+                     boolean lowBytecodes, boolean badDog)
     {
         this.rc = rc;
         dog = rc.getLocation();
@@ -21,24 +23,29 @@ public class Navigator
         goingLeft = rand.nextBoolean();
         goingAround = false;
         lastFacing = Direction.NONE;
-    }
+        this.avoidTowers = avoidTowers;
+        this.avoidHQ = avoidHQ;
+        this.lowBytecodes = lowBytecodes;
+        this.badDog = badDog;
 
-    public boolean takeNextStep(MapLocation target) throws GameActionException
-    {
-        return takeNextStep(target, false, false);
-    }
-
-    public boolean takeNextStep(MapLocation target, boolean avoidTowers) throws GameActionException
-    {
-        return takeNextStep(target, avoidTowers, false);
+        if(rc.getType() == RobotType.DRONE || rc.getType() == RobotType.MISSILE)
+        {
+            ignoreVoids = true;
+        }
+        else
+        {
+            ignoreVoids = false;
+        }
     }
 
     //This method uses a walk the dog method
     //The walk the dog method has a dog that runs away till the owner
     //is about to lose sight of it, then it sits there until the owner catches up.
     //The dog moves in a bug pattern, but the owner will cut corners.
-    public boolean takeNextStep(MapLocation target, boolean avoidTowers, boolean isDrone) throws GameActionException
+    public boolean takeNextStep(MapLocation target) throws GameActionException
     {
+        rc.setIndicatorString(0, "target: " + target.toString());
+        rc.setIndicatorString(1, "dog: " + dog.toString());
         //if target changed, act like dog is next to owner
         if(!target.equals(this.target))
         {
@@ -47,7 +54,7 @@ public class Navigator
         }
 
         //if dog is at owner's location, it runs to its next spot
-        dogGo(avoidTowers, isDrone);
+        dogGo();
 
         //if you can move towards the dog, do
         if(rc.canMove(rc.getLocation().directionTo(dog)) && rc.isCoreReady())
@@ -65,45 +72,23 @@ public class Navigator
     }
 
     //This is the method that moves the dog along till it is almost out of sight
-    private void dogGo(boolean avoidTowers, boolean isDrone) throws GameActionException
+    private void dogGo() throws GameActionException
     {
         Direction lastDir = Direction.NONE;
-        int count = 0;
         //go till out of site
-        while(dogInSight(dog, avoidTowers, isDrone) && !dog.equals(target))
+        while(dogInSight() && !dog.equals(target))
         {
-            if(count > Constants.maxDogSteps)
+            int bytecodes = Clock.getBytecodeNum();
+            if(lowBytecodes && Clock.getBytecodesLeft() < 1500)
             {
                 return;
             }
-            count++;
             //This is used so the dog knows if it is going around an object
             //prevents bugging around exterior of map
-            if(goingAround)
+            if(goingAround && buggingAroundBorder())
             {
-                Direction towardTarget = dog.directionTo(target);
-                if(goingLeft)
-                {
-                    if(rc.senseTerrainTile(dog.add(lastFacing.rotateRight().rotateRight())) == TerrainTile.OFF_MAP &&
-                       lastFacing != towardTarget && lastFacing.rotateRight() != towardTarget &&
-                       lastFacing.rotateLeft() != towardTarget)
-                    {
-                        goingLeft = !goingLeft;
-                        lastFacing = lastFacing.rotateRight().rotateRight().rotateRight().rotateRight();
-                    }
-                }
-                else
-                {
-                    if(rc.senseTerrainTile(dog.add(lastFacing.rotateLeft().rotateLeft())) == TerrainTile.OFF_MAP &&
-                       lastFacing != towardTarget && lastFacing.rotateRight() != towardTarget &&
-                       lastFacing.rotateLeft() != towardTarget &&
-                       lastFacing.rotateRight().rotateRight() != towardTarget &&
-                       lastFacing.rotateLeft().rotateLeft() != towardTarget)
-                    {
-                        goingLeft = !goingLeft;
-                        lastFacing = lastFacing.rotateRight().rotateRight().rotateRight().rotateRight();
-                    }
-                }
+                goingLeft = !goingLeft;
+                lastFacing = lastFacing.opposite();
             }
 
             //preventing it getting stuck in bowls
@@ -125,130 +110,32 @@ public class Navigator
 
             MapLocation nextSpot = dog.add(lastDir);
 
-            boolean nearTower = false;
-            if(avoidTowers)
+            if(badSpot(nextSpot))
             {
-                MapLocation[] towers = rc.senseEnemyTowerLocations();
-                for(int k = 0; k < towers.length; k++)
-                {
-                    if(nextSpot.distanceSquaredTo(towers[k]) <= 24)
-                    {
-                        nearTower = true;
-                    }
-                }
-                if(nextSpot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
-                {
-                    nearTower = true;
-                }
+                goingAround = true;
+            }
+            else if(lastDir == dog.directionTo(target))
+            {
+                goingAround = false;
             }
 
-            if(!isDrone)
+            //while way is blocked, rotate till free
+            while(badSpot(nextSpot))
             {
-                if((rc.canSenseLocation(nextSpot) &&
-                    !rc.senseTerrainTile(nextSpot).isTraversable() &&
-                    rc.senseTerrainTile(nextSpot) != TerrainTile.UNKNOWN) ||
-                   (rc.canSenseLocation(nextSpot) &&
-                    rc.senseRobotAtLocation(nextSpot) != null) ||
-                   (avoidTowers && nearTower))
+                if(goingLeft)
                 {
-                    goingAround = true;
+                    lastDir = lastDir.rotateLeft();
                 }
-                else if(lastDir == dog.directionTo(target))
+                else
                 {
-                    goingAround = false;
+                    lastDir = lastDir.rotateRight();
                 }
-
-                //while way is blocked, rotate till free
-                while((rc.canSenseLocation(nextSpot) &&
-                       !rc.senseTerrainTile(nextSpot).isTraversable() &&
-                       rc.senseTerrainTile(nextSpot) != TerrainTile.UNKNOWN) ||
-                      (rc.canSenseLocation(nextSpot) &&
-                       rc.senseRobotAtLocation(nextSpot) != null) ||
-                      (avoidTowers && nearTower))
-                {
-                    if(goingLeft)
-                    {
-                        lastDir = lastDir.rotateLeft();
-                    }
-                    else
-                    {
-                        lastDir = lastDir.rotateRight();
-                    }
-                    nextSpot = dog.add(lastDir);
-                    if(avoidTowers)
-                    {
-                        nearTower = false;
-                        MapLocation[] towers = rc.senseEnemyTowerLocations();
-                        for(int k = 0; k < towers.length; k++)
-                        {
-                            if(nextSpot.distanceSquaredTo(towers[k]) <= 24)
-                            {
-                                nearTower = true;
-                            }
-                        }
-                        if(nextSpot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
-                        {
-                            nearTower = true;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if((rc.canSenseLocation(nextSpot) &&
-                   (rc.senseTerrainTile(nextSpot) == TerrainTile.OFF_MAP ||
-                    rc.senseTerrainTile(nextSpot) == TerrainTile.UNKNOWN)) ||
-                   (rc.canSenseLocation(nextSpot) &&
-                    rc.senseRobotAtLocation(nextSpot) != null) ||
-                   (avoidTowers && nearTower))
-                {
-                    goingAround = true;
-                }
-                else if(lastDir == dog.directionTo(target))
-                {
-                    goingAround = false;
-                }
-
-                //while way is blocked, rotate till free
-                while((rc.canSenseLocation(nextSpot) &&
-                      (rc.senseTerrainTile(nextSpot) == TerrainTile.OFF_MAP ||
-                       rc.senseTerrainTile(nextSpot) == TerrainTile.UNKNOWN)) ||
-                      (rc.canSenseLocation(nextSpot) &&
-                       rc.senseRobotAtLocation(nextSpot) != null) ||
-                      (avoidTowers && nearTower))
-                {
-                    if(goingLeft)
-                    {
-                        lastDir = lastDir.rotateLeft();
-                    }
-                    else
-                    {
-                        lastDir = lastDir.rotateRight();
-                    }
-                    nextSpot = dog.add(lastDir);
-                    if(avoidTowers)
-                    {
-                        nearTower = false;
-                        MapLocation[] towers = rc.senseEnemyTowerLocations();
-                        for(int k = 0; k < towers.length; k++)
-                        {
-                            if(nextSpot.distanceSquaredTo(towers[k]) <= 24)
-                            {
-                                nearTower = true;
-                            }
-                        }
-                        if(nextSpot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
-                        {
-                            nearTower = true;
-                        }
-                    }
-                }
-
+                nextSpot = dog.add(lastDir);
             }
 
             lastFacing = lastDir;
-            //move dog
             dog = dog.add(lastDir);
+            rc.setIndicatorString(2, "" + (Clock.getBytecodeNum() - bytecodes));
         }
 
         //now go back one so in sight if not at target
@@ -259,50 +146,124 @@ public class Navigator
     }
 
     //returns true if dog is in sight of human
-    private boolean dogInSight(MapLocation dog, boolean avoidTowers, boolean isDrone) throws GameActionException
+    private boolean dogInSight() throws GameActionException
     {
         //start one closer to dog's location since we can get to where we are
         MapLocation currentLocation = rc.getLocation().add(rc.getLocation().directionTo(dog));
-        boolean done = false;
-        //go through each spot
-        while(!done)
+        //loop through until it either reaches the goal or finds a bad spot
+        while(true)
         {
-            TerrainTile tile = rc.senseTerrainTile(currentLocation);
-            if((!isDrone && !tile.isTraversable()) ||
-               tile == TerrainTile.UNKNOWN)
+            if(badSpot(currentLocation))
             {
                 return false;
-            }
-            else if(rc.canSenseLocation(currentLocation) &&
-                    !currentLocation.equals(rc.getLocation()) &&
-                    rc.senseRobotAtLocation(currentLocation) != null)
-            {
-                return false;
-            }
-            if(avoidTowers)
-            {
-                MapLocation[] towers = rc.senseEnemyTowerLocations();
-                for(int k = 0; k < towers.length; k++)
-                {
-                    if(currentLocation.distanceSquaredTo(towers[k]) <= 24)
-                    {
-                        return false;
-                    }
-                }
-                if(currentLocation.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
-                {
-                    return false;
-                }
             }
             if(currentLocation.equals(dog))
             {
-                done = true;
+                return true;
             }
             currentLocation = currentLocation.add(currentLocation.directionTo(dog));
         }
+    }
 
-        //if no where is blocked, move on
-        return true;
+    private boolean buggingAroundBorder()
+    {
+
+        Direction towardTarget = dog.directionTo(target);
+        if(goingLeft)
+        {
+            if(rc.senseTerrainTile(dog.add(lastFacing.rotateRight().rotateRight())) == TerrainTile.OFF_MAP &&
+               lastFacing != towardTarget && lastFacing.rotateRight() != towardTarget &&
+               lastFacing.rotateLeft() != towardTarget &&
+               lastFacing.rotateRight().rotateRight() != towardTarget &&
+               lastFacing.rotateLeft().rotateLeft() != towardTarget)
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if(rc.senseTerrainTile(dog.add(lastFacing.rotateLeft().rotateLeft())) == TerrainTile.OFF_MAP &&
+               lastFacing != towardTarget && lastFacing.rotateRight() != towardTarget &&
+               lastFacing.rotateLeft() != towardTarget &&
+               lastFacing.rotateRight().rotateRight() != towardTarget &&
+               lastFacing.rotateLeft().rotateLeft() != towardTarget)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean checkEnemyMainStructures(MapLocation spot)
+    {
+        boolean nearEnemy = false;
+        if(avoidTowers)
+        {
+            MapLocation[] towers = rc.senseEnemyTowerLocations();
+            for(int k = 0; k < towers.length; k++)
+            {
+                if(spot.distanceSquaredTo(towers[k]) <= 24)
+                {
+                    nearEnemy = true;
+                }
+            }
+        }
+        if(avoidHQ)
+        {
+            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
+            {
+                nearEnemy = true;
+            }
+        }
+
+        return nearEnemy;
+    }
+
+    private boolean badSpot(MapLocation spot) throws GameActionException
+    {
+        boolean bad = false;
+
+        if(checkEnemyMainStructures(spot))
+        {
+            bad = true;
+        }
+
+        if(rc.canSenseLocation(spot))
+        {
+            TerrainTile tile = rc.senseTerrainTile(spot);
+            if(tile == TerrainTile.UNKNOWN || tile == TerrainTile.OFF_MAP)
+            {
+                bad = true;
+            }
+            if(!ignoreVoids && tile == TerrainTile.VOID)
+            {
+                bad = true;
+            }
+
+            RobotInfo bot = rc.senseRobotAtLocation(spot);
+            if(bot != null && rc.getID() != bot.ID)
+            {
+                bad = true;
+            }
+        }
+
+        return bad;
+    }
+
+    public void setAvoidTowers(boolean avoidTowers)
+    {
+        this.avoidTowers = avoidTowers;
+    }
+
+    public void setAvoidHQ(boolean avoidHQ)
+    {
+        this.avoidHQ = avoidHQ;
+    }
+
+    public void setLowBytecodes(boolean lowBytecodes)
+    {
+        this.lowBytecodes = lowBytecodes;
     }
 
     public boolean badMovement(MapLocation target) throws GameActionException

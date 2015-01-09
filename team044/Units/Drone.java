@@ -17,6 +17,8 @@ public class Drone extends Unit
     public Drone(RobotController rc)
     {
         super(rc);
+        nav.setAvoidHQ(true);
+        nav.setAvoidTowers(true);
     }
 
     public void collectData() throws GameActionException
@@ -30,7 +32,7 @@ public class Drone extends Unit
         {
             return false;
         }
-        return nav.takeNextStep(target, true, true);
+        return nav.takeNextStep(target);
         //return nav.badMovement(target);
     }
 

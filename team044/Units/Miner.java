@@ -1,9 +1,11 @@
 package team044.Units;
 
-import battlecode.world.Util;
-import team044.*;
-
-import battlecode.common.*;
+import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
+import battlecode.common.RobotController;
+import team044.Messaging;
+import team044.Unit;
+import team044.Utilities;
 
 public class Miner extends Unit
 {
@@ -13,6 +15,8 @@ public class Miner extends Unit
     public Miner(RobotController rc)
     {
         super(rc);
+        nav.setAvoidHQ(true);
+        nav.setAvoidTowers(true);
 
         rc.setIndicatorString(0, "Miner to our HQ");
         if (rc.getID() % 4 == 0)
@@ -66,7 +70,7 @@ public class Miner extends Unit
             return false;
         }
 
-        return nav.takeNextStep(target, true, false);
+        return nav.takeNextStep(target);
         //return nav.badMovement(target);
     }
 
