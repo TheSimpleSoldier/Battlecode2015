@@ -21,6 +21,8 @@ public class Soldier extends Unit
     public Soldier(RobotController rc)
     {
         super(rc);
+
+        rc.setIndicatorString(0, "Base Soldier");
     }
 
     public void collectData() throws GameActionException

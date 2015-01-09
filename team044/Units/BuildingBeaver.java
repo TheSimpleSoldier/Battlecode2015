@@ -79,6 +79,17 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
         }
+
+        if (target != null && rc.canSenseLocation(target) && rc.getLocation().distanceSquaredTo(target) < 24)
+        {
+            rc.setIndicatorString(1, "can sense Spot");
+            if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID)
+            {
+                rc.setIndicatorString(1, "build = true");
+                target = rc.getLocation();
+                build = true;
+            }
+        }
     }
 
     public boolean fight() throws GameActionException
@@ -103,7 +114,7 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (rc.getLocation().distanceSquaredTo(buildingSpot) < 15)
+        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 15)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
@@ -117,6 +128,7 @@ public class BuildingBeaver extends Beaver
                 {
                     target = null;
                     building = null;
+                    build = false;
                     return true;
                 }
             }
