@@ -263,7 +263,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 2 && Clock.getRoundNum() > 500)
+        else if (numbOfBeavers < 1)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
