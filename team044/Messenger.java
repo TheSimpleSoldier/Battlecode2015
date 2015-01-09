@@ -53,7 +53,7 @@ public class Messenger
         tankStrat[0] = BuildOrderMessaging.BuildTank;
 
         droneStrat = new BuildOrderMessaging[1];
-        droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
+        droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
     }
 
     /**

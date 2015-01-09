@@ -210,6 +210,10 @@ public class RobotPlayer
         {
             return  new SupplyDrone(rc);
         }
+        else if (type == BuildOrderMessaging.BuildSearchAndDestroyDrone.ordinal())
+        {
+            return new SearchAndDestroyDrone(rc);
+        }
 
         // default Drone
         return new Drone(rc);

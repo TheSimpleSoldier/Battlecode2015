@@ -6,6 +6,6 @@ import team044.Structure;
 public class TechnologyInstitute extends Structure {
     public TechnologyInstitute(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
     }
 }
