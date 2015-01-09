@@ -29,10 +29,7 @@ public class HQ extends Structure
 
     public HQ(RobotController rc) throws GameActionException
     {
-        this.rc = rc;
-        range = rc.getType().attackRadiusSquared;
-        us = rc.getTeam();
-        opponent = us.opponent();
+        super(rc);
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
         strat = new BuildOrderMessaging[23];

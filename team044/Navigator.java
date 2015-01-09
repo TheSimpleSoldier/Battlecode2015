@@ -9,7 +9,7 @@ public class Navigator
     private RobotController rc;
     private MapLocation dog, target;
     private Random rand;
-    private boolean goingLeft, goingAround;
+    private boolean goingLeft, goingAround, dogSit;
     private Direction lastFacing;
 
     public Navigator(RobotController rc)
@@ -21,6 +21,7 @@ public class Navigator
         goingLeft = rand.nextBoolean();
         goingAround = false;
         lastFacing = Direction.NONE;
+        dogSit = false;
     }
 
     public boolean takeNextStep(MapLocation target) throws GameActionException
@@ -47,10 +48,7 @@ public class Navigator
         }
 
         //if dog is at owner's location, it runs to its next spot
-        if(rc.getLocation().equals(dog))
-        {
-            dogGo(avoidTowers, isDrone);
-        }
+        dogGo(avoidTowers, isDrone);
 
         //if you can move towards the dog, do
         if(rc.canMove(rc.getLocation().directionTo(dog)) && rc.isCoreReady())
@@ -71,9 +69,19 @@ public class Navigator
     private void dogGo(boolean avoidTowers, boolean isDrone) throws GameActionException
     {
         Direction lastDir = Direction.NONE;
+        int count = 0;
         //go till out of site
         while(dogInSight(dog, avoidTowers, isDrone) && !dog.equals(target))
         {
+            if(!goingAround && count > 1)
+            {
+                return;
+            }
+            if(count > Constants.maxDogSteps)
+            {
+                return;
+            }
+            count++;
             //This is used so the dog knows if it is going around an object
             //prevents bugging around exterior of map
             if(goingAround)
@@ -260,8 +268,9 @@ public class Navigator
     {
         //start one closer to dog's location since we can get to where we are
         MapLocation currentLocation = rc.getLocation().add(rc.getLocation().directionTo(dog));
-        //go through each spot until the dog
-        while(!currentLocation.equals(dog))
+        boolean done = false;
+        //go through each spot
+        while(!done)
         {
             TerrainTile tile = rc.senseTerrainTile(currentLocation);
             if((!isDrone && !tile.isTraversable()) ||
@@ -290,36 +299,11 @@ public class Navigator
                     return false;
                 }
             }
+            if(currentLocation.equals(dog))
+            {
+                done = true;
+            }
             currentLocation = currentLocation.add(currentLocation.directionTo(dog));
-        }
-
-        //this checks the dog's location
-        TerrainTile tile = rc.senseTerrainTile(currentLocation);
-        if((!isDrone && !tile.isTraversable()) ||
-           tile == TerrainTile.UNKNOWN)
-        {
-            return false;
-        }
-        else if(rc.canSenseLocation(currentLocation) &&
-                !currentLocation.equals(rc.getLocation()) &&
-                rc.senseRobotAtLocation(currentLocation) != null)
-        {
-            return false;
-        }
-        if(avoidTowers)
-        {
-            MapLocation[] towers = rc.senseEnemyTowerLocations();
-            for(int k = 0; k < towers.length; k++)
-            {
-                if(currentLocation.distanceSquaredTo(towers[k]) <= 24)
-                {
-                    return false;
-                }
-            }
-            if(currentLocation.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
-            {
-                return false;
-            }
         }
 
         //if no where is blocked, move on

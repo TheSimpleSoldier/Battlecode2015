@@ -14,6 +14,7 @@ public abstract class Unit
     public RobotInfo[] nearByAllies;
     public FightMicro fighter;
     public Navigator nav;
+    public EnemyMinerTracker tracker;
 
     public Unit()
     {
@@ -28,6 +29,7 @@ public abstract class Unit
         range = rc.getType().attackRadiusSquared;
         nav = new Navigator(rc);
         fighter = new FightMicro(rc);
+        tracker = new EnemyMinerTracker(rc);
         ourHQ = rc.senseHQLocation();
         enemyHQ = rc.senseEnemyHQLocation();
     }
@@ -36,6 +38,10 @@ public abstract class Unit
     {
         nearByEnemies = rc.senseNearbyRobots(range, opponent);
         nearByAllies = rc.senseNearbyRobots(range, us);
+        if(nearByEnemies != null)
+        {
+            tracker.record(nearByEnemies);
+        }
     }
 
     public void handleMessages() throws GameActionException
