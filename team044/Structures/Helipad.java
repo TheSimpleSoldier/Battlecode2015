@@ -10,7 +10,7 @@ public class Helipad extends Structure
     int numbOfDrones;
     public Helipad(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
     }
 
     public void collectData() throws GameActionException

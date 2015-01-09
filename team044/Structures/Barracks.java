@@ -11,7 +11,7 @@ public class Barracks extends Structure
     int numbOfSoldiers = 0;
     public Barracks(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
         if (rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 35)
         {
             basher = false;

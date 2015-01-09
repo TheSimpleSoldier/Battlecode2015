@@ -7,6 +7,22 @@ import battlecode.common.*;
  */
 public abstract class Structure extends Unit
 {
+    public Structure()
+    {
+        //do nothing
+    }
+
+    public Structure(RobotController rc)
+    {
+        this.rc = rc;
+        us = rc.getTeam();
+        opponent = us.opponent();
+        range = rc.getType().attackRadiusSquared;
+        tracker = new EnemyMinerTracker(rc);
+        ourHQ = rc.senseHQLocation();
+        enemyHQ = rc.senseEnemyHQLocation();
+    }
+
     public void collectData() throws GameActionException
     {
         // collect our data

@@ -9,9 +9,10 @@ public class MinerFactory extends Structure
 {
     private int numbOfMiners;
     private int actualMiners = 0;
+
     public MinerFactory(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
     }
 
 

@@ -14,11 +14,8 @@ public class Tower extends Structure
     RobotInfo[] nearByAllies;
     public Tower(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
         fighter = new FightMicro(rc);
-        us = rc.getTeam();
-        opponent = us.opponent();
-        range = rc.getType().attackRadiusSquared;
     }
 
     public void handleMessages() throws GameActionException

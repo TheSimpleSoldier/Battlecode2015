@@ -8,7 +8,7 @@ public class AerospaceLab extends Structure
 {
     public AerospaceLab(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
     }
 
     // any code to override base structure methods goes here
