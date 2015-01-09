@@ -3,6 +3,7 @@ package team044.Units.Rushers;
 import battlecode.common.*;
 import team044.Unit;
 import team044.Units.Miner;
+import team044.Utilities;
 
 public class MinerRusher extends Miner {
     public MinerRusher(RobotController rc)
@@ -14,7 +15,7 @@ public class MinerRusher extends Miner {
     {
         super.collectData();
 
-        target = rc.senseEnemyHQLocation();
+        target = Utilities.getRushLocation(rc);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

@@ -3,6 +3,7 @@ package team044.Units.Rushers;
 import battlecode.common.*;
 import team044.Unit;
 import team044.Units.Soldier;
+import team044.Utilities;
 
 public class SoldierRusher extends Soldier
 {
@@ -15,7 +16,7 @@ public class SoldierRusher extends Soldier
     {
         super.collectData();
 
-        target = rc.senseEnemyHQLocation();
+        target = Utilities.getRushLocation(rc);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

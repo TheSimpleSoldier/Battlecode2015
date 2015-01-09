@@ -3,6 +3,7 @@ package team044.Units.Rushers;
 import battlecode.common.*;
 import team044.Unit;
 import team044.Units.Beaver;
+import team044.Utilities;
 
 /**
  * Created by fred on 1/8/15.
@@ -18,7 +19,7 @@ public class BeaverRusher extends Beaver
     {
         super.collectData();
 
-        target = rc.senseEnemyHQLocation();
+        target = Utilities.getRushLocation(rc);
     }
 
     public boolean carryOutAbility() throws GameActionException

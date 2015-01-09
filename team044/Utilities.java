@@ -810,4 +810,30 @@ public class Utilities
         rc.setIndicatorString(0, "Barracks: " + numbOfBarracks + ", MinerFactory: " + numbOfMinerFactories + ", Tank Factory: " + ", Helipads: " + numbOfHelipads);
         return numbOfTankFactories + numbOfBarracks + numbOfHelipads + numbOfMinerFactories + numbOfAerospacelab + numbOfSupplyDepots + numbOfTechnologyInstitutes + numbOfTrainingfields;
     }
+
+    /**
+     * This method returns the rush location
+     */
+    public static MapLocation getRushLocation(RobotController rc)
+    {
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+
+        if (towers.length == 0)
+        {
+            return rc.senseEnemyHQLocation();
+        }
+
+        int bestDist = 99999;
+        MapLocation best = null;
+        for (int i = towers.length; --i>=0; )
+        {
+            int dist = towers[i].distanceSquaredTo(rc.senseHQLocation());
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = towers[i];
+            }
+        }
+        return best;
+    }
 }

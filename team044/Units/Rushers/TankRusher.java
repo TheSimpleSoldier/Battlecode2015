@@ -4,6 +4,7 @@ import battlecode.common.*;
 
 import team044.Unit;
 import team044.Units.Tank;
+import team044.Utilities;
 
 public class TankRusher extends Tank
 {
@@ -16,7 +17,7 @@ public class TankRusher extends Tank
     {
         super.collectData();
 
-        target = rc.senseEnemyHQLocation();
+        target = Utilities.getRushLocation(rc);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
