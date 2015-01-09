@@ -9,7 +9,7 @@ public class Navigator
     private RobotController rc;
     private MapLocation dog, target;
     private Random rand;
-    private boolean goingLeft, goingAround, dogSit;
+    private boolean goingLeft, goingAround;
     private Direction lastFacing;
 
     public Navigator(RobotController rc)
@@ -21,7 +21,6 @@ public class Navigator
         goingLeft = rand.nextBoolean();
         goingAround = false;
         lastFacing = Direction.NONE;
-        dogSit = false;
     }
 
     public boolean takeNextStep(MapLocation target) throws GameActionException
@@ -73,10 +72,6 @@ public class Navigator
         //go till out of site
         while(dogInSight(dog, avoidTowers, isDrone) && !dog.equals(target))
         {
-            if(!goingAround && count > 1)
-            {
-                return;
-            }
             if(count > Constants.maxDogSteps)
             {
                 return;
