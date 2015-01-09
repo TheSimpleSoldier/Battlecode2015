@@ -65,6 +65,8 @@ public class BuildingBeaver extends Beaver
                 target = Utilities.findLocationForBuilding(rc, numb, building);
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
+                rc.setIndicatorString(0, "Numb: " + numb);
+                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
             else
             {
