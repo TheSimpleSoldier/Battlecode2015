@@ -1,9 +1,9 @@
-package team044.Structures;
+package _teamfightMicro.Structures;
 
 import battlecode.common.*;
-import team044.Messaging;
-import team044.Structure;
-import team044.Utilities;
+import _teamfightMicro.Messaging;
+import _teamfightMicro.Structure;
+import _teamfightMicro.Utilities;
 
 public class Helipad extends Structure
 {
@@ -23,7 +23,7 @@ public class Helipad extends Structure
     public boolean carryOutAbility() throws GameActionException
     {
         // start by only keeping up at most one drone at a time
-        if (Utilities.spawnUnit(RobotType.DRONE, rc))
+        if (numbOfDrones <= 0 && Utilities.spawnUnit(RobotType.DRONE, rc))
         {
             return true;
         }

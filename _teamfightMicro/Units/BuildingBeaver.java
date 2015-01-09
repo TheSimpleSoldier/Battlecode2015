@@ -1,12 +1,11 @@
-package team044.Units;
+package _teamfightMicro.Units;
 
 import battlecode.common.*;
-import team044.BuildOrderMessaging;
-import team044.Messaging;
-import team044.Utilities;
-import team044.Unit;
+import _teamfightMicro.BuildOrderMessaging;
+import _teamfightMicro.Messaging;
+import _teamfightMicro.Utilities;
+import _teamfightMicro.Unit;
 
-import java.awt.*;
 import java.util.Random;
 
 public class BuildingBeaver extends Beaver
@@ -14,7 +13,6 @@ public class BuildingBeaver extends Beaver
     MapLocation nextBuildSpot;
     Boolean build;
     RobotType building = null;
-    RobotType building2 = null;
     Direction dir;
     static Random rand;
     Direction[] dirs;
@@ -28,7 +26,7 @@ public class BuildingBeaver extends Beaver
         rc.setIndicatorString(1, "BuildingBeaver");
         build = false;
         dirs = Direction.values();
-
+        target = rc.senseTowerLocations()[0];
         becomeMiner = false;
         numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
     }
@@ -57,14 +55,26 @@ public class BuildingBeaver extends Beaver
             }
             else if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal())
             {
-                rc.setIndicatorString(1, "Build Mining Baracks");
-                building = RobotType.MINERFACTORY;
-                building2 = RobotType.BARRACKS;
-                numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
+                RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
-                target = Utilities.findLocationForBuilding(rc, numb, building);
-                buildingSpot = target;
-                target = target.add(target.directionTo(rc.getLocation()));
+                target = null;
+                for (int i = 0; i < allies.length; i++)
+                {
+                    if (allies[i].type == RobotType.MINERFACTORY)
+                    {
+                        target = allies[i].location;
+                        break;
+                    }
+                }
+
+                if (target != null)
+                {
+                    target = target.add(target.directionTo(rc.getLocation()));
+                }
+                else
+                {
+                    building = null;
+                }
             }
             else
             {
@@ -105,20 +115,10 @@ public class BuildingBeaver extends Beaver
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
-                if (building2 != null)
-                {
-                    building = building2;
-                    building2 = null;
-                    return true;
-                }
-                else
-                {
-                    target = null;
-                    building = null;
-                    return true;
-                }
+                target = null;
+                building = null;
+                return true;
             }
-            // if we don't have a requirement then build it.
             else if (rc.getTeamOre() > building.oreCost && !rc.hasBuildRequirements(building))
             {
                 rc.setIndicatorString(1, "Building requirement");

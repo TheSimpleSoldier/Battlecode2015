@@ -1,9 +1,9 @@
-package team044.Units;
+package _teamfightMicro.Units;
 
-import team044.*;
+import _teamfightMicro.*;
 
 import battlecode.common.*;
-import team044.Units.Rushers.TankRusher;
+import _teamfightMicro.Units.Rushers.TankRusher;
 
 public class Tank extends Unit
 {
@@ -60,7 +60,7 @@ public class Tank extends Unit
         roundNumb = Clock.getRoundNum() - roundNumb;
         if (roundNumb > 0)
         {
-            //System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
+            System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
         }
         return move;
     }

@@ -38,10 +38,11 @@ public class HQ extends Structure
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
         strat[2] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[3] = BuildOrderMessaging.BuildMiningBaracks;
-        strat[4] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[3] = BuildOrderMessaging.BuildMinerFactory;
+        strat[4] = BuildOrderMessaging.BuildMinerFactory;
+        strat[5] = BuildOrderMessaging.BuildMiningBaracks;
         strat[6] = BuildOrderMessaging.BuildHelipad;
-        strat[7] = BuildOrderMessaging.BuildBaracks;
+        strat[7] = BuildOrderMessaging.BuildMiningBaracks;
         strat[8] = BuildOrderMessaging.BuildTankFactory;
         strat[9] = BuildOrderMessaging.BuildTankFactory;
         strat[10] = BuildOrderMessaging.BuildTankFactory;
@@ -139,8 +140,8 @@ public class HQ extends Structure
         rc.broadcast(Messaging.NumbOfSoldiers.ordinal(), numbOfSoldiers);
         rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);
 
-        rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + numbOfSoldiers + ", Tanks: " + numbOfTanks);
-        //numbOfBuildings = Utilities.test(rc);
+        //rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + numbOfSoldiers + ", Tanks: " + numbOfTanks);
+        numbOfBuildings = Utilities.test(rc);
 
         if (currentUnit < strat.length)
         {
@@ -169,7 +170,7 @@ public class HQ extends Structure
             if (rc.readBroadcast(Messaging.BuildOrder.ordinal()) == -1)
             {
                 // wait to give orders for next building until current building is started
-                if (true) //numbOfBuildings > lastNumbOfBuildings || rc.getTeamOre() > 600)
+                if (numbOfBuildings > lastNumbOfBuildings || rc.getTeamOre() > 600)
                 {
                     lastNumbOfBuildings = numbOfBuildings;
 
@@ -182,23 +183,23 @@ public class HQ extends Structure
                             rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
                         }
                     }
+
+                    if (currentUnit >= strat.length)
+                    {
+                        return;
+                    }
+
+                    // something is messed up
+                    if (strat[currentUnit] == null)
+                    {
+                        return;
+                    }
+
+                    // state which building we want built next
+                    rc.setIndicatorString(1, ""+strat[currentUnit]);
+                    rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
                 }
             }
-
-            if (currentUnit >= strat.length)
-            {
-                return;
-            }
-
-            // something is messed up
-            if (strat[currentUnit] == null)
-            {
-                return;
-            }
-
-            // state which building we want built next
-            rc.setIndicatorString(1, ""+strat[currentUnit]);
-            rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
         }
 
         if (nearByEnemies.length > 0)

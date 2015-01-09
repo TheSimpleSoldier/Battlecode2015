@@ -1,4 +1,4 @@
-package team044;
+package _teamfightMicro;
 
 import battlecode.common.*;
 
@@ -62,15 +62,6 @@ public class Messenger
      */
     public void giveUnitOrders() throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 2)
-        {
-            droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
-        }
-        else
-        {
-            droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
-        }
-
         int message;
         if (rc.readBroadcast(Messaging.BasherType.ordinal()) == -1)
         {
@@ -97,7 +88,7 @@ public class Messenger
         {
             message = minerStrat[numbOfMiners].ordinal();
             rc.broadcast(Messaging.MinerType.ordinal(), message);
-            numbOfMiners = (numbOfMiners + 1) % minerStrat.length;
+            numbOfMiners++;
         }
 
         if (rc.readBroadcast(Messaging.SoldierType.ordinal()) == -1)

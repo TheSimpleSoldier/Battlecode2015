@@ -1,20 +1,18 @@
 package team044.Units;
 
+
 import team044.*;
 
 import battlecode.common.*;
-import team044.Units.Rushers.TankRusher;
+import team044.Units.Rushers.BasherRusher;
 
-public class Tank extends Unit
+import javax.rmi.CORBA.Util;
+
+public class Basher extends Unit
 {
     public MapLocation target;
 
-    public Tank()
-    {
-        // Houston we have a problem
-    }
-
-    public Tank(RobotController rc)
+    public Basher(RobotController rc)
     {
         super(rc);
         target = Utilities.getTowerClosestToEnemyHQ(rc);
@@ -23,7 +21,7 @@ public class Tank extends Unit
     public void collectData() throws GameActionException
     {
         super.collectData();
-
+        // collect our data
         MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
         if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
         {
@@ -33,49 +31,30 @@ public class Tank extends Unit
         {
             target = rc.senseEnemyHQLocation();
         }
-
-        if (target == null)
-        {
-            target = rc.senseEnemyHQLocation();
-        }
     }
 
     public void handleMessages() throws GameActionException
     {
         super.handleMessages();
 
-        Utilities.handleMessageCounter(rc, Messaging.NumbOfTanksOdd.ordinal(), Messaging.NumbOfTanksEven.ordinal());
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfBashersOdd.ordinal(), Messaging.NumbOfBashersEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException
     {
-        if (nearByEnemies.length > 0)
-        {
-            return false;
-        }
-        int byteCodes = Clock.getBytecodeNum();
-        int roundNumb = Clock.getRoundNum();
-        boolean move = nav.takeNextStep(target);
-        byteCodes = Clock.getBytecodeNum() - byteCodes;
-        roundNumb = Clock.getRoundNum() - roundNumb;
-        if (roundNumb > 0)
-        {
-            //System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
-        }
-        return move;
+        return nav.takeNextStep(target);
     }
 
     public boolean fight() throws GameActionException
     {
-        return fighter.advancedFightMicro(nearByEnemies);
-        //return fighter.basicFightMicro(nearByEnemies);
+        return false;
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
         if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
         {
-            return new TankRusher(rc);
+            return new BasherRusher(rc);
         }
         return current;
     }
