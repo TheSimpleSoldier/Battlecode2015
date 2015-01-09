@@ -54,6 +54,13 @@ public abstract class Structure extends Unit
             return;
         }
 
+        int byteCodeLimit = 1500;
+
+        if (rc.getType() == RobotType.HQ)
+        {
+            byteCodeLimit = 9000;
+        }
+
         if (rc == null)
         {
             System.out.println("Houston we have a serious problem");
@@ -73,7 +80,7 @@ public abstract class Structure extends Unit
         // first give all supply to Drones
         for (int i = 0; i < closeAllies.length; i++)
         {
-            if (Clock.getBytecodeNum() > 1500)
+            if (Clock.getBytecodeNum() > byteCodeLimit)
             {
                 break;
             }
@@ -87,7 +94,7 @@ public abstract class Structure extends Unit
 
         for (int i = 0; i < closeAllies.length; i++)
         {
-            if (Clock.getBytecodeNum() > 1500)
+            if (Clock.getBytecodeNum() > byteCodeLimit)
             {
                 break;
             }
