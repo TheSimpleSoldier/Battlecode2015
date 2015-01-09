@@ -75,6 +75,11 @@ public class SearchAndDestroyDrone extends Drone
         {
             toReturn = tracker.getRandomMiner();
         }
+        if(toReturn.equals(rc.getLocation()))
+        {
+            toReturn = rc.senseEnemyHQLocation();
+        }
+
         return toReturn;
     }
 
