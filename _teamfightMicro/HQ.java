@@ -1,4 +1,4 @@
-package team044;
+package _teamfightMicro;
 
 import battlecode.common.*;
 
@@ -183,23 +183,23 @@ public class HQ extends Structure
                             rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
                         }
                     }
-
-                    if (currentUnit >= strat.length)
-                    {
-                        return;
-                    }
-
-                    // something is messed up
-                    if (strat[currentUnit] == null)
-                    {
-                        return;
-                    }
-
-                    // state which building we want built next
-                    rc.setIndicatorString(1, ""+strat[currentUnit]);
-                    rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
                 }
             }
+
+            if (currentUnit >= strat.length)
+            {
+                return;
+            }
+
+            // something is messed up
+            if (strat[currentUnit] == null)
+            {
+                return;
+            }
+
+            // state which building we want built next
+            rc.setIndicatorString(1, ""+strat[currentUnit]);
+            rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
         }
 
         if (nearByEnemies.length > 0)
