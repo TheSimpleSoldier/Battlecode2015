@@ -1,4 +1,4 @@
-package team044;
+package _teamfightMicro;
 
 import battlecode.common.*;
 
@@ -70,7 +70,7 @@ public class HQ extends Structure
         rc.setIndicatorString(0, "after give unit orders");
 
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
-        if (Clock.getRoundNum() > 1800)
+        if (Clock.getRoundNum() > 1700)
         {
             rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
             rc.setIndicatorString(2, "Rushing enemy");
