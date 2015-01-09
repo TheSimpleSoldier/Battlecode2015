@@ -5,9 +5,6 @@ import team044.Unit;
 import team044.Units.Beaver;
 import team044.Utilities;
 
-/**
- * Created by fred on 1/8/15.
- */
 public class BeaverRusher extends Beaver
 {
     public BeaverRusher(RobotController rc)

@@ -62,7 +62,7 @@ public class Messenger
      */
     public void giveUnitOrders() throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 2)
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 0)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
         }

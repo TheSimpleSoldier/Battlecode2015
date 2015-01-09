@@ -3,6 +3,7 @@ package team044.Units;
 import team044.*;
 import battlecode.common.*;
 import team044.Units.Rushers.BasherRusher;
+import team044.Units.Rushers.BeaverRusher;
 
 public class Beaver extends Unit
 {
@@ -52,7 +53,7 @@ public class Beaver extends Unit
     {
         if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
         {
-            return new BasherRusher(rc);
+            return new BeaverRusher(rc);
         }
         return current;
     }

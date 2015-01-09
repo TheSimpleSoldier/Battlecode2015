@@ -156,31 +156,23 @@ public class HQ extends Structure
         else if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverBuilder)
         {
             rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
-            lastNumbOfBuildings--;
         }
         else if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverMiner)
         {
             rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverMiner.ordinal());
-            lastNumbOfBuildings--;
         }
         else
         {
             // if a beaver has taken up a job then we go ahead and post the next building
             if (rc.readBroadcast(Messaging.BuildOrder.ordinal()) == -1)
             {
-                // wait to give orders for next building until current building is started
-                if (true) //numbOfBuildings > lastNumbOfBuildings || rc.getTeamOre() > 600)
+                currentUnit++;
+                if(currentUnit < strat.length)
                 {
-                    lastNumbOfBuildings = numbOfBuildings;
-
-                    currentUnit++;
-                    if(currentUnit < strat.length)
+                    if(currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
                     {
-                        if(currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
-                        {
-                            numberOfMinerFactories++;
-                            rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
-                        }
+                        numberOfMinerFactories++;
+                        rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
                     }
                 }
             }
