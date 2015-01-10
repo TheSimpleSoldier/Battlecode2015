@@ -92,11 +92,6 @@ public class BuildingBeaver extends Beaver
         }
     }
 
-    public boolean fight() throws GameActionException
-    {
-        return false;
-    }
-
     public boolean carryOutAbility() throws GameActionException
     {
         if (!rc.isCoreReady())
