@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Robot;
 
 public class FightMicro
 {
@@ -292,10 +293,9 @@ public class FightMicro
         return true;
     }
 
-    /*
     public boolean droneAttack(RobotInfo[] nearByEnemies) throws GameActionException
     {
-        Direction direction;
+        Direction direction = null;
         RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
         // if we can shoot
         if (rc.isWeaponReady())
@@ -303,6 +303,11 @@ public class FightMicro
             // there is no one to shoot
             if (nearByEnemies.length == 0)
             {
+                // if there is no one to shoot and we can't move the return false
+                if (!rc.isCoreReady())
+                {
+                    return false;
+                }
                 if (enemies.length == 0)
                 {
                     return false;
@@ -311,14 +316,14 @@ public class FightMicro
                 else
                 {
                     // if the enemy outranges us run away
-                    if ()
+                    if (FightMicroUtilities.enemyKitingUs(rc, enemies))
                     {
-
+                        direction = FightMicroUtilities.retreatDir(enemies, rc);
                     }
                     // otherwise advance
                     else
                     {
-
+                        direction = FightMicroUtilities.advanceDir(rc, enemies, false);
                     }
                 }
             }
@@ -327,15 +332,20 @@ public class FightMicro
             {
                 // if there is an enemy that out can shoot us
                 // shoot him and back up out of his range
-                if ()
+                if (FightMicroUtilities.enemyInRange(rc, enemies))
                 {
-
+                    direction = FightMicroUtilities.retreatDir(enemies, rc);
                 }
                 // otherwise just sit and blast him!
-                else
-                {
+            }
 
-                }
+            RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+
+            MapLocation enemySpot = enemy.location;
+
+            if (rc.canAttackLocation(enemySpot))
+            {
+                rc.attackLocation(enemySpot);
             }
         }
         // we can't shoot
@@ -349,19 +359,15 @@ public class FightMicro
             else
             {
                 // if we are in range of an enemy retreat
-                if ()
+                if (FightMicroUtilities.enemyInRange(rc, enemies))
                 {
-
+                    direction = FightMicroUtilities.retreatDir(enemies, rc);
                 }
                 // if there are no enemies in range of us
                 else if (nearByEnemies.length == 0)
                 {
                     // if we can advance to a location that is not in range of an enemy do so
-                    if ()
-                    {
-
-                    }
-                    // otherwise we sit and do nothing
+                    direction = FightMicroUtilities.advanceDir(rc, enemies, true);
                 }
             }
         }
@@ -373,8 +379,7 @@ public class FightMicro
             rc.move(direction);
         }
 
-
         return false;
-    }*/
+    }
 
 }
