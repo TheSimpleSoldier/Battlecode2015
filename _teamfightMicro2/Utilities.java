@@ -1,4 +1,4 @@
-package team044;
+package _teamfightMicro2;
 
 import battlecode.common.*;
 import battlecode.world.Robot;
@@ -737,7 +737,7 @@ public class Utilities
      */
     public static MapLocation closestTower(RobotController rc, MapLocation[] towers)
     {
-        int closestDist = 99999999;
+        int closestDist = 99999;
         MapLocation closest = null;
         MapLocation us = rc.getLocation();
 
@@ -838,23 +838,6 @@ public class Utilities
     }
 
     /**
-     * This method returns the if a location is within firing distance of a tower or enemy HQ
+     * This method gets our current number of
      */
-    public static boolean locInRangeOfEnemyTower(MapLocation spot, MapLocation[] towers, MapLocation enemyHQ)
-    {
-        for (int i = 0; i < towers.length; i++)
-        {
-            if (spot.distanceSquaredTo(towers[i]) <= 24)
-            {
-                return true;
-            }
-        }
-
-        if (spot.distanceSquaredTo(enemyHQ) <= 24)
-        {
-            return true;
-        }
-
-        return false;
-    }
 }

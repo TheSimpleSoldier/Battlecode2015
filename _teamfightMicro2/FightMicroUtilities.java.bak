@@ -266,6 +266,8 @@ public class FightMicroUtilities
      */
     public static boolean enemyKitingUs(RobotController rc, RobotInfo[] enemies)
     {
+        int byteCodes = Clock.getBytecodeNum();
+        int roundNumb = Clock.getRoundNum();
         MapLocation us = rc.getLocation();
         int range = rc.getType().attackRadiusSquared;
 
@@ -278,7 +280,6 @@ public class FightMicroUtilities
                 int theirRange = enemies[i].type.attackRadiusSquared;
                 if (theirRange >= dist)
                 {
-                    rc.setIndicatorString(2, "Enemy" + enemies[i].location);
                     return true;
                 }
             }
@@ -292,7 +293,7 @@ public class FightMicroUtilities
     /**
      * This function returns the best direction to retreat in
      */
-    public static Direction retreatDir(RobotInfo[] enemies, RobotController rc, MapLocation[] enemyTowers, MapLocation enemyHQ)
+    public static Direction retreatDir(RobotInfo[] enemies, RobotController rc)
     {
         Direction[] dirs = Direction.values();
         Direction best = null;
@@ -319,11 +320,7 @@ public class FightMicroUtilities
                 dirScore += enemies[j].location.distanceSquaredTo(next);
             }
 
-            if (Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
-            {
-                // if nxt move is in range of tower don't do it
-            }
-            else if (dirScore > score)
+            if (dirScore > score)
             {
                 score = dirScore;
                 best = dirs[i];
@@ -337,7 +334,7 @@ public class FightMicroUtilities
     /**
      * This function finds the best direction to advance in
      */
-    public static Direction advanceDir(RobotController rc, RobotInfo[] enemies, MapLocation[] enemyTowers, MapLocation enemyHQ, boolean safe)
+    public static Direction advanceDir(RobotController rc, RobotInfo[] enemies, boolean safe)
     {
         Direction best = null;
         Direction[] dirs = Direction.values();
@@ -357,9 +354,9 @@ public class FightMicroUtilities
                     score += 20;
                     j = 0;
                 }
-                if (enemies[j].type.attackRadiusSquared >= distToEnemy)
+                if (enemies[j].type.attackRadiusSquared < distToEnemy)
                 {
-                    if (safe)
+                    if (!safe)
                     {
                         score -= 100000;
                     }
@@ -367,11 +364,7 @@ public class FightMicroUtilities
                 }
             }
 
-            if (Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
-            {
-                // if nxt move is in range of tower don't do it
-            }
-            else if (score > bestScore)
+            if (score > bestScore)
             {
                 bestScore = score;
                 best = dirs[i];
@@ -391,16 +384,10 @@ public class FightMicroUtilities
         for (int i = enemies.length; --i>=0; )
         {
             int dist = us.distanceSquaredTo(enemies[i].location);
-            // bashers move then attack
-            if (enemies[i].type == RobotType.BASHER)
-            {
-                dist -= 11;
-            }
             if (dist <= enemies[i].type.attackRadiusSquared)
             {
                 return true;
             }
-
         }
         return false;
     }
