@@ -27,7 +27,7 @@ public abstract class Unit
         us = rc.getTeam();
         opponent = us.opponent();
         range = rc.getType().attackRadiusSquared;
-        nav = new Navigator(rc, false, false, true, false);
+        nav = new Navigator(rc, true, true, true, false);
         fighter = new FightMicro(rc);
         tracker = new EnemyMinerTracker(rc);
         ourHQ = rc.senseHQLocation();

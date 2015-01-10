@@ -15,8 +15,6 @@ public class Miner extends Unit
     public Miner(RobotController rc)
     {
         super(rc);
-        nav.setAvoidHQ(true);
-        nav.setAvoidTowers(true);
 
         rc.setIndicatorString(0, "Miner to our HQ");
         if (rc.getID() % 4 == 0)

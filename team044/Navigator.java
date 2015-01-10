@@ -53,14 +53,36 @@ public class Navigator
             this.target = target;
         }
 
-        //if dog is at owner's location, it runs to its next spot
+        //dog always tries to run ahead since it will sometimes be stopped early
         dogGo();
 
+        Direction dir = rc.getLocation().directionTo(dog);
+
         //if you can move towards the dog, do
-        if(rc.canMove(rc.getLocation().directionTo(dog)) && rc.isCoreReady())
+        if(rc.canMove(dir) && rc.isCoreReady())
         {
-            rc.move(rc.getLocation().directionTo(dog));
+            rc.move(dir);
             return true;
+        }
+        //if it is another unit, go around it
+        else if(isUnit(rc.getLocation().add(dir)) && rc.isCoreReady())
+        {
+            if(rc.canMove(dir.rotateRight()))
+            {
+                rc.move(dir.rotateRight());
+            }
+            else if(rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+            }
+            else if(rc.canMove(dir.rotateRight().rotateRight()))
+            {
+                rc.move(dir.rotateRight().rotateRight());
+            }
+            else if(rc.canMove(dir.rotateLeft().rotateLeft()))
+            {
+                rc.move(dir.rotateLeft().rotateLeft());
+            }
         }
         //otherwise, if you can move, something is in the way, so reroute
         else if(rc.isCoreReady())
@@ -78,7 +100,6 @@ public class Navigator
         //go till out of site
         while(dogInSight() && !dog.equals(target))
         {
-            int bytecodes = Clock.getBytecodeNum();
             if(lowBytecodes && Clock.getBytecodesLeft() < 1500)
             {
                 return;
@@ -135,7 +156,6 @@ public class Navigator
 
             lastFacing = lastDir;
             dog = dog.add(lastDir);
-            rc.setIndicatorString(2, "" + (Clock.getBytecodeNum() - bytecodes));
         }
 
         //now go back one so in sight if not at target
@@ -203,7 +223,7 @@ public class Navigator
             MapLocation[] towers = rc.senseEnemyTowerLocations();
             for(int k = 0; k < towers.length; k++)
             {
-                if(spot.distanceSquaredTo(towers[k]) <= 24)
+                if(spot.distanceSquaredTo(towers[k]) <= 25)
                 {
                     nearEnemy = true;
                 }
@@ -211,7 +231,7 @@ public class Navigator
         }
         if(avoidHQ)
         {
-            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 24)
+            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 25)
             {
                 nearEnemy = true;
             }
@@ -242,13 +262,31 @@ public class Navigator
             }
 
             RobotInfo bot = rc.senseRobotAtLocation(spot);
-            if(bot != null && rc.getID() != bot.ID)
+            if(bot != null && rc.getID() != bot.ID && !isUnit(spot))
             {
                 bad = true;
             }
         }
 
         return bad;
+    }
+
+    private boolean isUnit(MapLocation location) throws GameActionException
+    {
+        RobotInfo bot = rc.senseRobotAtLocation(location);
+
+        if(bot != null)
+        {
+            if(bot.type == RobotType.BASHER || bot.type == RobotType.BEAVER || bot.type == RobotType.COMMANDER ||
+               bot.type == RobotType.COMPUTER || bot.type == RobotType.DRONE || bot.type == RobotType.LAUNCHER ||
+               bot.type == RobotType.MISSILE || bot.type == RobotType.SOLDIER || bot.type == RobotType.MINER ||
+               bot.type == RobotType.TANK)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void setAvoidTowers(boolean avoidTowers)

@@ -17,8 +17,6 @@ public class Drone extends Unit
     public Drone(RobotController rc)
     {
         super(rc);
-        nav.setAvoidHQ(true);
-        nav.setAvoidTowers(true);
     }
 
     public void collectData() throws GameActionException

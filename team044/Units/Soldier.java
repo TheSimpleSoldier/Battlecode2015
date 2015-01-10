@@ -13,8 +13,6 @@ public class Soldier extends Unit
     public Soldier(RobotController rc)
     {
         super(rc);
-        nav.setAvoidHQ(true);
-        nav.setAvoidTowers(true);
     }
 
     public void collectData() throws GameActionException

@@ -11,8 +11,6 @@ public class Launcher extends Unit
     public Launcher(RobotController rc)
     {
         super(rc);
-        nav.setAvoidHQ(true);
-        nav.setAvoidTowers(true);
         // override supers range
         range = 24;
         target = rc.senseTowerLocations()[0];
