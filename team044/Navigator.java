@@ -57,7 +57,7 @@ public class Navigator
         Direction dir = rc.getLocation().directionTo(dog);
 
         //if you can move towards the dog, do
-        if (Clock.getBytecodeNum() < 4900 && rc.canMove(dir) && rc.isCoreReady())
+        if (rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
             return true;

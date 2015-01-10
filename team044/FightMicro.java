@@ -440,6 +440,7 @@ public class FightMicro
         if (enemies.length > 0)
         {
             Direction dir = FightMicroUtilities.bestBasherDir(rc, enemies);
+            rc.setIndicatorString(1, "Moving in basher dir: " + dir);
 
             if (dir != null && rc.canMove(dir))
             {
@@ -449,6 +450,7 @@ public class FightMicro
             else
             {
                 dir = FightMicroUtilities.basherDirSecond(rc, enemies);
+                rc.setIndicatorString(1, "Second basher dir: " + dir);
                 if (rc.canMove(dir))
                 {
                     rc.move(dir);
@@ -458,8 +460,9 @@ public class FightMicro
 
             return false;
         }
-        else if (closestTower != null && rc.getLocation().distanceSquaredTo(closestTower) <= 35)
+        else if (closestTower != null && rc.getLocation().distanceSquaredTo(closestTower) <= 49)
         {
+            rc.setIndicatorString(1, "going towards enemy tower: " + closestTower);
             Direction dir = rc.getLocation().directionTo(closestTower);
 
             if (rc.canMove(dir))

@@ -412,7 +412,7 @@ public class FightMicroUtilities
     {
         Direction[] dirs = Direction.values();
         int score;
-        int bestScore = -1;
+        int bestScore = 0;
         Direction best = null;
         MapLocation current;
         MapLocation us = rc.getLocation();
@@ -460,7 +460,7 @@ public class FightMicroUtilities
             {
                 for (int j = enemies.length; --j>=0; )
                 {
-                    score -= current.distanceSquaredTo(enemies[i].location);
+                    score -= current.distanceSquaredTo(enemies[j].location);
                 }
 
                 if (score > bestScore)
