@@ -53,7 +53,6 @@ public class Launcher extends Unit
         else
         {
             return nav.takeNextStep(target);
-            //return nav.badMovement(target);
         }
     }
 

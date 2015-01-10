@@ -1,10 +1,7 @@
 package team044.Units;
 
-import battlecode.world.Util;
 import team044.Messaging;
-import team044.Navigator;
 import team044.Unit;
-
 import battlecode.common.*;
 import team044.Units.Rushers.SoldierRusher;
 import team044.Utilities;
@@ -47,7 +44,7 @@ public class Soldier extends Unit
         {
             return false;
         }
-        return nav.takeNextStep(target, true, false);
+        return nav.takeNextStep(target);
     }
 
     public boolean fight() throws GameActionException
