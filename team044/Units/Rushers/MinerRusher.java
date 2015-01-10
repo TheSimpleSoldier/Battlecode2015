@@ -16,6 +16,8 @@ public class MinerRusher extends Miner {
         super.collectData();
 
         target = Utilities.getRushLocation(rc);
+
+        nav.setAvoidTowers(false);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
@@ -35,5 +37,11 @@ public class MinerRusher extends Miner {
             return false;
         }
         return nav.takeNextStep(target);
+    }
+
+    public boolean fight() throws GameActionException
+    {
+        return fighter.advancedFightMicro(nearByEnemies);
+        //return fighter.basicFightMicro(nearByEnemies);
     }
 }

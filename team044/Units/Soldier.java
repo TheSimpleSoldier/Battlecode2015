@@ -8,8 +8,6 @@ import team044.Utilities;
 
 public class Soldier extends Unit
 {
-    public MapLocation target;
-
     public Soldier()
     {
 

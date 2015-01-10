@@ -18,6 +18,7 @@ public abstract class Structure extends Unit
         us = rc.getTeam();
         opponent = us.opponent();
         range = rc.getType().attackRadiusSquared;
+        sightRange = rc.getType().sensorRadiusSquared;
         tracker = new EnemyMinerTracker(rc);
         ourHQ = rc.senseHQLocation();
         enemyHQ = rc.senseEnemyHQLocation();
@@ -27,12 +28,16 @@ public abstract class Structure extends Unit
     {
         // collect our data
         super.collectData();
+
+        enemies = rc.senseNearbyRobots(sightRange, opponent);
     }
 
     public void handleMessages() throws GameActionException
     {
-        if (nearByEnemies.length > 0)
+        rc.setIndicatorString(1, "Handle Messages");
+        if (enemies.length > 0)
         {
+            rc.setIndicatorString(2, "Enemies spoted");
             rc.broadcast(Messaging.BuildingInDistressX.ordinal(), rc.getLocation().x);
             rc.broadcast(Messaging.BuildingInDistressY.ordinal(), rc.getLocation().y);
         }

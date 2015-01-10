@@ -42,7 +42,6 @@ public class FightMicro
      */
     public boolean advancedFightMicro(RobotInfo[] nearByEnemies) throws GameActionException
     {
-        rc.setIndicatorString(0, "running fight micro");
         boolean move = true;
         // if we can't move then skip to shooting part
         if (!rc.isCoreReady())
@@ -50,7 +49,8 @@ public class FightMicro
             // guess we can't do much except maybe shoot
             move = false;
         }
-        else {
+        else
+        {
             MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
             // search for enemies in sight range
             RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
@@ -72,7 +72,7 @@ public class FightMicro
 
             if (dist > 24 && dist < 36)
             {
-                balance -= 3000;
+                balance -= 10000;
             }
 
             balance += rc.getHealth() * rc.getType().attackPower;
@@ -154,16 +154,6 @@ public class FightMicro
             {
                 rc.attackLocation(target);
             }
-        }
-        // if we can't shoot and didn't move when we could
-        else if (!rc.isWeaponReady() && rc.isCoreReady())
-        {
-            return false;
-        }
-        // if we couldn't move or shoot
-        else if (!move)
-        {
-            return false;
         }
 
         return true;

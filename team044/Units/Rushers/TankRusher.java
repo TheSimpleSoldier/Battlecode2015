@@ -18,6 +18,8 @@ public class TankRusher extends Tank
         super.collectData();
 
         target = Utilities.getRushLocation(rc);
+
+        nav.setAvoidTowers(false);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

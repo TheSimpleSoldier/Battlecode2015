@@ -8,7 +8,6 @@ import team044.Units.Rushers.LauncherRusher;
 
 public class Launcher extends Unit
 {
-    public MapLocation target;
     public Launcher(RobotController rc)
     {
         super(rc);

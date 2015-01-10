@@ -10,7 +10,6 @@ import team044.Units.Rushers.MinerRusher;
 
 public class Miner extends Unit
 {
-    public MapLocation target;
     boolean mineToOurHQ = true;
 
     public Miner(RobotController rc)
@@ -75,8 +74,8 @@ public class Miner extends Unit
 
     public boolean fight() throws GameActionException
     {
-        return fighter.advancedFightMicro(nearByEnemies);
-        //return fighter.basicFightMicro(nearByEnemies);
+        //return fighter.advancedFightMicro(nearByEnemies);
+        return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

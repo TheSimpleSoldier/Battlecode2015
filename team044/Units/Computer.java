@@ -8,8 +8,6 @@ import team044.Utilities;
 
 public class Computer extends Unit
 {
-    RobotController rc;
-
     public Computer(RobotController rc)
     {
         super(rc);
