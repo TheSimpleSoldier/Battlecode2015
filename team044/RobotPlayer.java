@@ -111,13 +111,18 @@ public class RobotPlayer
                         {
                             // run fight micro
                         }
-                        if (unit.carryOutAbility())
+                        else if (unit.carryOutAbility())
                         {
                             // execute ability
                         }
-                        if (unit.takeNextStep())
+                        else if (unit.takeNextStep())
                         {
                             // take one step forward
+                        }
+
+                        if (rc.getType() == RobotType.DRONE)
+                        {
+                            unit.takeNextStep();
                         }
 
                         unit = unit.getNewStrategy(unit);

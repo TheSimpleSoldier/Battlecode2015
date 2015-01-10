@@ -72,15 +72,32 @@ public class FightMicroUtilities {
     {
         int alliedHealth = 0;
         int enemyHealth = 0;
+        int attack;
 
         for (int i = allies.length; --i>=0; )
         {
-            alliedHealth += allies[i].health;
+            if (allies[i].type == RobotType.LAUNCHER)
+            {
+                attack = 60;
+            }
+            else
+            {
+                attack = (int) allies[i].type.attackPower;
+            }
+            alliedHealth += allies[i].health * attack;
         }
 
         for (int j = enemies.length; --j>=0; )
         {
-            enemyHealth += enemies[j].health;
+            if (enemies[j].type == RobotType.LAUNCHER)
+            {
+                attack = 60;
+            }
+            else
+            {
+                attack = (int) enemies[j].type.attackPower;
+            }
+            enemyHealth += enemies[j].health * attack;
         }
 
         return alliedHealth - enemyHealth;
