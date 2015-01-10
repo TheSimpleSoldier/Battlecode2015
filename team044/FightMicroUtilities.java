@@ -404,5 +404,73 @@ public class FightMicroUtilities
         }
         return false;
     }
+
+
+
+    //==================== Methods for Bashers ========================\\
+    public static Direction bestBasherDir(RobotController rc, RobotInfo[] enemies)
+    {
+        Direction[] dirs = Direction.values();
+        int score;
+        int bestScore = -1;
+        Direction best = null;
+        MapLocation current;
+        MapLocation us = rc.getLocation();
+
+        for (int i = 0; i < 8; i++)
+        {
+            current = us.add(dirs[i]);
+            score = 0;
+
+            if (rc.canMove(dirs[i]))
+            {
+                for (int j = enemies.length; --j>=0; )
+                {
+                    if (current.isAdjacentTo(enemies[j].location))
+                    {
+                        score++;
+                    }
+                }
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = dirs[i];
+                }
+            }
+        }
+        return best;
+    }
+
+    public static Direction basherDirSecond(RobotController rc, RobotInfo[] enemies)
+    {
+        Direction[] dirs = Direction.values();
+        int score;
+        int bestScore = -99999999;
+        Direction best = null;
+        MapLocation current;
+        MapLocation us = rc.getLocation();
+
+        for (int i = 0; i < 8; i++)
+        {
+            current = us.add(dirs[i]);
+            score = 0;
+
+            if (rc.canMove(dirs[i]))
+            {
+                for (int j = enemies.length; --j>=0; )
+                {
+                    score -= current.distanceSquaredTo(enemies[i].location);
+                }
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = dirs[i];
+                }
+            }
+        }
+        return best;
+    }
 }
 

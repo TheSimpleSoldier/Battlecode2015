@@ -406,7 +406,7 @@ public class FightMicro
                 if (!Utilities.locInRangeOfEnemyTower(rc.getLocation().add(direction), enemyTowers, enemyHQ))
                 {
                     rc.setIndicatorString(0, "Closest enemy Tower: " + closestTower);
-                    rc.setIndicatorString(2, "Dist: " + closestTower.distanceSquaredTo(rc.getLocation().add(direction)));
+                    //rc.setIndicatorString(2, "Dist: " + closestTower.distanceSquaredTo(rc.getLocation().add(direction)));
                     rc.move(direction);
                     return true;
                 }
@@ -421,4 +421,68 @@ public class FightMicro
         return true;
     }
 
+    /**
+     * In this implementation we are going to use bashers almost like suicide attackers
+     * where they never retreat just advance to the location that they can do the most
+     * damage
+     */
+    public boolean basherFightMicro() throws GameActionException
+    {
+        if (!rc.isCoreReady())
+        {
+            return false;
+        }
+
+        RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+        MapLocation closestTower = Utilities.closestTower(rc, towers);
+
+        if (enemies.length > 0)
+        {
+            Direction dir = FightMicroUtilities.bestBasherDir(rc, enemies);
+
+            if (dir != null && rc.canMove(dir))
+            {
+                rc.move(dir);
+                return true;
+            }
+            else
+            {
+                dir = FightMicroUtilities.basherDirSecond(rc, enemies);
+                if (rc.canMove(dir))
+                {
+                    rc.move(dir);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        else if (closestTower != null && rc.getLocation().distanceSquaredTo(closestTower) <= 35)
+        {
+            Direction dir = rc.getLocation().directionTo(closestTower);
+
+            if (rc.canMove(dir))
+            {
+                rc.move(dir);
+                return true;
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+                return true;
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                rc.move(dir.rotateRight());
+                return true;
+            }
+
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

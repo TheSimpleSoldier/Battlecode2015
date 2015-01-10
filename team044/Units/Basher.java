@@ -14,13 +14,14 @@ public class Basher extends Unit
 
     public Basher(RobotController rc)
     {
-        super(rc);
+        this.rc = rc;
+        nav = new Navigator(rc, true, true, true, false);
+        fighter = new FightMicro(rc);
         target = Utilities.getTowerClosestToEnemyHQ(rc);
     }
 
     public void collectData() throws GameActionException
     {
-        super.collectData();
         // collect our data
         MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
         if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
@@ -35,8 +36,6 @@ public class Basher extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        super.handleMessages();
-
         Utilities.handleMessageCounter(rc, Messaging.NumbOfBashersOdd.ordinal(), Messaging.NumbOfBashersEven.ordinal());
     }
 
@@ -47,7 +46,7 @@ public class Basher extends Unit
 
     public boolean fight() throws GameActionException
     {
-        return false;
+        return fighter.basherFightMicro();
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
