@@ -332,18 +332,19 @@ public class Utilities
                 int allyDist = nearByAllies[i].location.distanceSquaredTo(ourHQ);
                 if (allyDist > distToHQ)
                 {
+                    MapLocation allySpot = nearByAllies[i].location;
                     int allySupply = (int) nearByAllies[i].supplyLevel;
                     if (allySupply < rc.getSupplyLevel())
                     {
-                        if (Clock.getBytecodeNum() > 4500)
+                        if (Clock.getBytecodeNum() > 4000)
                         {
                             break;
                         }
-                        if (rc.isLocationOccupied(nearByAllies[i].location))
+                        if (rc.isLocationOccupied(allySpot) && allySpot.distanceSquaredTo(rc.getLocation()) < dist)
                         {
                             // transfer half of difference to them
                             int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
-                            rc.transferSupplies(amount, nearByAllies[i].location);
+                            rc.transferSupplies(amount, allySpot);
                         }
                     }
                 }
