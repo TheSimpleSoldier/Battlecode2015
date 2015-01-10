@@ -1,13 +1,16 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Robot;
 
 public class FightMicro
 {
     RobotController rc;
+    public MapLocation enemyHQ;
     public FightMicro(RobotController rc)
     {
         this.rc = rc;
+        enemyHQ = rc.senseEnemyHQLocation();
     }
     public static Direction[] dirs = Direction.values();
 
@@ -50,16 +53,35 @@ public class FightMicro
         else {
             MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
             // search for enemies in sight range
-            RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+            RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
+
+            // search for allies in sight range
+            RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
+
+            int balance = FightMicroUtilities.balanceOfPower(enemies, allies);
+            MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
+            int dist;
+            if (closestTower != null)
+            {
+                dist = rc.getLocation().distanceSquaredTo(closestTower);
+            }
+            else
+            {
+                dist = 9999;
+            }
+
+            if (dist > 24 && dist < 36)
+            {
+                balance -= 3000;
+            }
+
+            balance += rc.getHealth() * rc.getType().attackPower;
 
             // if their are no enemies we can't fight
             if (nearByEnemies.length == 0)
             {
                 if (FightMicroUtilities.enemyTowerClose(rc, enemyTowers))
                 {
-                    RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
-                    int balance = FightMicroUtilities.balanceOfPower(enemies, allies);
-
                     // if we have health advantage press forward
                     if (balance > 500)
                     {
@@ -97,68 +119,29 @@ public class FightMicro
                 return false;
             }
 
-            // search for allies in sight range
-            RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
+            // there are enemies in range of us
 
-            int balance = FightMicroUtilities.balanceOfPower(enemies, allies);
-            MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
-            int dist;
-            if (closestTower != null)
-            {
-                dist = rc.getLocation().distanceSquaredTo(closestTower);
-            }
-            else
-            {
-                dist = 9999;
-            }
-
-            if (dist > 24 && dist < 36)
-            {
-                balance -= 500;
-            }
-
+            // if enemy is significantly more powerful retreat
+            // unless we are near a tower in which we will die before we get out of range
             if (FightMicroUtilities.alliesEngaged(allies, enemies, enemyTowers))
             {
-                rc.setIndicatorString(1, "Allies Engaged");
-                FightMicroUtilities.attack(rc, enemies);
+                // stand your ground!!!
             }
-            else if (FightMicroUtilities.enemyKitingUs(rc, enemies))
-            {
-                rc.setIndicatorString(1, "enemy is kiting us");
-                FightMicroUtilities.attack(rc, enemies);
-            }
-            // if enemy is more powerful retreat
-            else if (balance < -50)
+            else if (balance < -500 && dist > 24)
             {
                 rc.setIndicatorString(1, "retreat!");
                 FightMicroUtilities.retreat(rc, enemies);
 
             }
-            // if we are against launchers just die
+            // if we are against launchers just die ;)
+            // we focus on killing the enemy launcher instead of shooting at missiles
             else if (FightMicroUtilities.enemyHasLaunchers(enemies))
             {
                 rc.setIndicatorString(1, "enemy launchers");
                 FightMicroUtilities.lockOntoLauncher(rc, enemies);
             }
-            // If we are evenly matched stand ground
-            else if (balance < 50)
-            {
-                rc.setIndicatorString(1, "Stand our ground");
-                // hold position shoot enemies that approach
-            }
-            // if we have the advantage Charge
-            else
-            {
-                rc.setIndicatorString(1, "Press our advantage");
-                if (nearByEnemies.length > 0)
-                {
-                    // hold ground and shoot
-                }
-                else
-                {
-                    FightMicroUtilities.attack(rc, enemies);
-                }
-            }
+
+            // otherwise we shoot
         }
 
         // if we don't have weapon delay and are in range Attack!!!
@@ -312,4 +295,197 @@ public class FightMicro
         return true;
     }
 
+    public boolean droneAttack(RobotInfo[] nearByEnemies) throws GameActionException
+    {
+        Direction direction = null;
+        RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
+
+        if (enemyHQ == null)
+        {
+            enemyHQ = rc.senseEnemyHQLocation();
+            System.out.println("enemyHQ null");
+        }
+
+        // if we can shoot
+        if (rc.isWeaponReady())
+        {
+            // there is no one to shoot
+            if (nearByEnemies.length == 0)
+            {
+                // if there is no one to shoot and we can't move the return false
+                if (!rc.isCoreReady())
+                {
+                    return false;
+                }
+                if (enemies.length == 0)
+                {
+                    return false;
+                }
+                // there is an enemy outside of shooting range that we can see
+                else
+                {
+                    // if the enemy outranges us run away
+                    if (FightMicroUtilities.enemyKitingUs(rc, enemies))
+                    {
+                        direction = FightMicroUtilities.retreatDir(enemies, rc, enemyTowers, enemyHQ);
+                        rc.setIndicatorString(1, "Enemy kiting us");
+                    }
+                    // otherwise advance
+                    else
+                    {
+                        direction = FightMicroUtilities.advanceDir(rc, enemies, enemyTowers, enemyHQ, true);
+                        rc.setIndicatorString(1, "No enemies in range so advance");
+
+                        if (direction == null)
+                        {
+                            rc.setIndicatorString(1, "Advancing in unsafe Direction");
+                            direction = FightMicroUtilities.advanceDir(rc, enemies, enemyTowers, enemyHQ, false);
+                        }
+                    }
+                }
+            }
+            // there are enemies in range of us
+            else
+            {
+                // if there is an enemy that out can shoot us
+                // shoot him and back up out of his range
+                if (FightMicroUtilities.enemyInRange(rc, enemies))
+                {
+                    direction = FightMicroUtilities.retreatDir(enemies, rc, enemyTowers, enemyHQ);
+                    rc.setIndicatorString(1, "Enemy in range retreat");
+                }
+                // otherwise just sit and blast him!
+                RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+
+                MapLocation enemySpot = enemy.location;
+
+                if (rc.canAttackLocation(enemySpot))
+                {
+                    rc.setIndicatorString(1, "Shooting at: " + enemySpot);
+                    rc.attackLocation(enemySpot);
+                }
+            }
+        }
+        // we can't shoot
+        else
+        {
+            // if we don't see any enemies then no fight micro
+            if (enemies.length == 0)
+            {
+                return false;
+            }
+            else
+            {
+                // if we are in range of an enemy retreat
+                if (FightMicroUtilities.enemyInRange(rc, enemies))
+                {
+                    direction = FightMicroUtilities.retreatDir(enemies, rc, enemyTowers, enemyHQ);
+                    rc.setIndicatorString(1, "We are in range of enemy");
+                }
+                // if there are no enemies in range of us
+                else if (nearByEnemies.length == 0)
+                {
+                    // if we can advance to a location that is not in range of an enemy do so
+                    direction = FightMicroUtilities.advanceDir(rc, enemies, enemyTowers, enemyHQ, true);
+                    rc.setIndicatorString(1, "We are advancing towards enemy");
+                }
+                else
+                {
+                    rc.setIndicatorString(1, "Wait for cool down to attack");
+                }
+            }
+        }
+
+        // if we can move then do so
+        if (rc.isCoreReady())
+        {
+            if (rc.canMove(direction))
+            {
+                if (!Utilities.locInRangeOfEnemyTower(rc.getLocation().add(direction), enemyTowers, enemyHQ))
+                {
+                    rc.setIndicatorString(0, "Closest enemy Tower: " + closestTower);
+                    //rc.setIndicatorString(2, "Dist: " + closestTower.distanceSquaredTo(rc.getLocation().add(direction)));
+                    rc.move(direction);
+                    return true;
+                }
+                else
+                {
+                    rc.setIndicatorString(2, "next location in range of enemy towers or HQ: " + rc.getLocation().add(direction));
+                }
+            }
+            return true;
+        }
+
+        return true;
+    }
+
+    /**
+     * In this implementation we are going to use bashers almost like suicide attackers
+     * where they never retreat just advance to the location that they can do the most
+     * damage
+     */
+    public boolean basherFightMicro() throws GameActionException
+    {
+        if (!rc.isCoreReady())
+        {
+            return false;
+        }
+
+        RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+        MapLocation closestTower = Utilities.closestTower(rc, towers);
+
+        if (enemies.length > 0)
+        {
+            Direction dir = FightMicroUtilities.bestBasherDir(rc, enemies);
+            rc.setIndicatorString(1, "Moving in basher dir: " + dir);
+
+            if (dir != null && rc.canMove(dir))
+            {
+                rc.move(dir);
+                return true;
+            }
+            else
+            {
+                dir = FightMicroUtilities.basherDirSecond(rc, enemies);
+                rc.setIndicatorString(1, "Second basher dir: " + dir);
+                if (rc.canMove(dir))
+                {
+                    rc.move(dir);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        else if (closestTower != null && rc.getLocation().distanceSquaredTo(closestTower) <= 49)
+        {
+            rc.setIndicatorString(1, "going towards enemy tower: " + closestTower);
+            Direction dir = rc.getLocation().directionTo(closestTower);
+
+            if (rc.canMove(dir))
+            {
+                rc.move(dir);
+                return true;
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+                return true;
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                rc.move(dir.rotateRight());
+                return true;
+            }
+
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

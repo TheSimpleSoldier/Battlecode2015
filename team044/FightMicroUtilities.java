@@ -2,7 +2,10 @@ package team044;
 
 import battlecode.common.*;
 
-public class FightMicroUtilities {
+public class FightMicroUtilities
+{
+
+    //===================== Shooting methods ===========================\\
 
     /**
      * This method returns the RobotInfo for the Robot with the lowest health
@@ -65,6 +68,10 @@ public class FightMicroUtilities {
         return weakest;
     }
 
+
+    //========================== Methods for standard units like tanks ==========================\\
+
+
     /**
      * This method determines if the enemy is more powerful than us
      */
@@ -72,15 +79,32 @@ public class FightMicroUtilities {
     {
         int alliedHealth = 0;
         int enemyHealth = 0;
+        int attack;
 
         for (int i = allies.length; --i>=0; )
         {
-            alliedHealth += allies[i].health;
+            if (allies[i].type == RobotType.LAUNCHER)
+            {
+                attack = 60;
+            }
+            else
+            {
+                attack = (int) allies[i].type.attackPower;
+            }
+            alliedHealth += allies[i].health * attack;
         }
 
         for (int j = enemies.length; --j>=0; )
         {
-            enemyHealth += enemies[j].health;
+            if (enemies[j].type == RobotType.LAUNCHER)
+            {
+                attack = 60;
+            }
+            else
+            {
+                attack = (int) enemies[j].type.attackPower;
+            }
+            enemyHealth += enemies[j].health * attack;
         }
 
         return alliedHealth - enemyHealth;
@@ -242,8 +266,6 @@ public class FightMicroUtilities {
      */
     public static boolean enemyKitingUs(RobotController rc, RobotInfo[] enemies)
     {
-        int byteCodes = Clock.getBytecodeNum();
-        int roundNumb = Clock.getRoundNum();
         MapLocation us = rc.getLocation();
         int range = rc.getType().attackRadiusSquared;
 
@@ -256,6 +278,7 @@ public class FightMicroUtilities {
                 int theirRange = enemies[i].type.attackRadiusSquared;
                 if (theirRange >= dist)
                 {
+                    rc.setIndicatorString(2, "Enemy" + enemies[i].location);
                     return true;
                 }
             }
@@ -263,4 +286,191 @@ public class FightMicroUtilities {
 
         return false;
     }
+
+    //============================ Drone micro methods ==============================\\
+
+    /**
+     * This function returns the best direction to retreat in
+     */
+    public static Direction retreatDir(RobotInfo[] enemies, RobotController rc, MapLocation[] enemyTowers, MapLocation enemyHQ)
+    {
+        Direction[] dirs = Direction.values();
+        Direction best = null;
+        MapLocation us = rc.getLocation();
+        int score = 0;
+
+        for (int a = enemies.length; --a>=0; )
+        {
+            score += enemies[a].location.distanceSquaredTo(us);
+        }
+
+        for (int i = 0; i < 8; i++)
+        {
+            if (!rc.canMove(dirs[i]))
+            {
+                continue;
+            }
+
+            MapLocation next = us.add(dirs[i]);
+            int dirScore = 0;
+
+            for (int j = enemies.length; --j>=0; )
+            {
+                dirScore += enemies[j].location.distanceSquaredTo(next);
+            }
+
+            if (Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                // if nxt move is in range of tower don't do it
+            }
+            else if (dirScore > score)
+            {
+                score = dirScore;
+                best = dirs[i];
+            }
+        }
+
+
+        return best;
+    }
+
+    /**
+     * This function finds the best direction to advance in
+     */
+    public static Direction advanceDir(RobotController rc, RobotInfo[] enemies, MapLocation[] enemyTowers, MapLocation enemyHQ, boolean safe)
+    {
+        Direction best = null;
+        Direction[] dirs = Direction.values();
+        MapLocation us = rc.getLocation();
+        int bestScore = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            MapLocation next = us.add(dirs[i]);
+            int score = 0;
+
+            for (int j = enemies.length; --j>=0; )
+            {
+                int distToEnemy = enemies[j].location.distanceSquaredTo(next);
+                if (score <= 0 && distToEnemy <= 10)
+                {
+                    score += 20;
+                    j = 0;
+                }
+                if (enemies[j].type.attackRadiusSquared >= distToEnemy)
+                {
+                    if (safe)
+                    {
+                        score -= 100000;
+                    }
+                    score--;
+                }
+            }
+
+            if (Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                // if nxt move is in range of tower don't do it
+            }
+            else if (score > bestScore)
+            {
+                bestScore = score;
+                best = dirs[i];
+            }
+        }
+
+        return best;
+    }
+
+    /**
+     * Checks if there is an enemy in range of us
+     */
+    public static boolean enemyInRange(RobotController rc, RobotInfo[] enemies)
+    {
+        MapLocation us = rc.getLocation();
+
+        for (int i = enemies.length; --i>=0; )
+        {
+            int dist = us.distanceSquaredTo(enemies[i].location);
+            // bashers move then attack
+            if (enemies[i].type == RobotType.BASHER)
+            {
+                dist -= 11;
+            }
+            if (dist <= enemies[i].type.attackRadiusSquared)
+            {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+
+
+    //==================== Methods for Bashers ========================\\
+    public static Direction bestBasherDir(RobotController rc, RobotInfo[] enemies)
+    {
+        Direction[] dirs = Direction.values();
+        int score;
+        int bestScore = 0;
+        Direction best = null;
+        MapLocation current;
+        MapLocation us = rc.getLocation();
+
+        for (int i = 0; i < 8; i++)
+        {
+            current = us.add(dirs[i]);
+            score = 0;
+
+            if (rc.canMove(dirs[i]))
+            {
+                for (int j = enemies.length; --j>=0; )
+                {
+                    if (current.isAdjacentTo(enemies[j].location))
+                    {
+                        score++;
+                    }
+                }
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = dirs[i];
+                }
+            }
+        }
+        return best;
+    }
+
+    public static Direction basherDirSecond(RobotController rc, RobotInfo[] enemies)
+    {
+        Direction[] dirs = Direction.values();
+        int score;
+        int bestScore = -99999999;
+        Direction best = null;
+        MapLocation current;
+        MapLocation us = rc.getLocation();
+
+        for (int i = 0; i < 8; i++)
+        {
+            current = us.add(dirs[i]);
+            score = 0;
+
+            if (rc.canMove(dirs[i]))
+            {
+                for (int j = enemies.length; --j>=0; )
+                {
+                    score -= current.distanceSquaredTo(enemies[j].location);
+                }
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = dirs[i];
+                }
+            }
+        }
+        return best;
+    }
 }
+

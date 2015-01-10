@@ -36,7 +36,8 @@ public class Drone extends Unit
 
     public boolean fight() throws GameActionException
     {
-        return fighter.basicFightMicro(nearByEnemies);
+        //return fighter.basicFightMicro(nearByEnemies);
+        return fighter.droneAttack(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

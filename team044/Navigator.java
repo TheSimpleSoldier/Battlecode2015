@@ -57,7 +57,7 @@ public class Navigator
         Direction dir = rc.getLocation().directionTo(dog);
 
         //if you can move towards the dog, do
-        if(rc.canMove(dir) && rc.isCoreReady())
+        if (rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
             return true;
@@ -271,7 +271,12 @@ public class Navigator
                 bad = true;
             }
 
-            RobotInfo bot = rc.senseRobotAtLocation(spot);
+            RobotInfo bot = null;
+            if (rc.canSenseLocation(spot))
+            {
+                bot = rc.senseRobotAtLocation(spot);
+            }
+
             if(bot != null && rc.getID() != bot.ID && !isUnit(spot))
             {
                 bad = true;
@@ -284,7 +289,12 @@ public class Navigator
     //returns true if bot is a mobile unit
     private boolean isUnit(MapLocation location) throws GameActionException
     {
-        RobotInfo bot = rc.senseRobotAtLocation(location);
+        RobotInfo bot = null;
+        if (rc.canSenseLocation(location))
+        {
+            bot = rc.senseRobotAtLocation(location);
+        }
+
 
         if(bot != null)
         {

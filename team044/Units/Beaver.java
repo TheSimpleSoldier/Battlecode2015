@@ -39,14 +39,14 @@ public class Beaver extends Unit
             return false;
         }
 
-        return nav.takeNextStep(target, true, false);
+        return nav.takeNextStep(target);
         //return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException
     {
-        //return fighter.advancedFightMicro(nearByEnemies);
-        return fighter.basicFightMicro(nearByEnemies);
+        return fighter.advancedFightMicro(nearByEnemies);
+        //return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
