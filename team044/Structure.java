@@ -33,8 +33,10 @@ public abstract class Structure extends Unit
 
     public void handleMessages() throws GameActionException
     {
+        rc.setIndicatorString(1, "Handle Messages");
         if (enemies.length > 0)
         {
+            rc.setIndicatorString(2, "Enemies spoted");
             rc.broadcast(Messaging.BuildingInDistressX.ordinal(), rc.getLocation().x);
             rc.broadcast(Messaging.BuildingInDistressY.ordinal(), rc.getLocation().y);
         }
