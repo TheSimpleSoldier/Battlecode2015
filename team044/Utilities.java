@@ -851,7 +851,7 @@ public class Utilities
             }
         }
 
-        if (spot.distanceSquaredTo(enemyHQ) <= 24)
+        if (spot.distanceSquaredTo(enemyHQ) <= 35)
         {
             return true;
         }

@@ -239,7 +239,7 @@ public class Navigator
         }
         if(avoidHQ)
         {
-            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 25)
+            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 35)
             {
                 nearEnemy = true;
             }
