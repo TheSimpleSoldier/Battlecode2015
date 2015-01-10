@@ -44,8 +44,6 @@ public class Navigator
     //The dog moves in a bug pattern, but the owner will cut corners.
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
-        rc.setIndicatorString(0, "target: " + target.toString());
-        rc.setIndicatorString(1, "dog: " + dog.toString());
         //if target changed, act like dog is next to owner
         if(!target.equals(this.target))
         {
@@ -87,6 +85,10 @@ public class Navigator
         //otherwise, if you can move, something is in the way, so reroute
         else if(rc.isCoreReady())
         {
+            if(cantGetCloser())
+            {
+                this.target = rc.getLocation();
+            }
             dog = rc.getLocation();
         }
 
@@ -133,7 +135,11 @@ public class Navigator
 
             if(badSpot(nextSpot))
             {
-                goingAround = true;
+                if(!goingAround)
+                {
+                    goingAround = true;
+                    goingLeft = goLeft(lastDir);
+                }
             }
             else if(lastDir == dog.directionTo(target))
             {
@@ -185,6 +191,7 @@ public class Navigator
         }
     }
 
+    //this is a simple check to make sure we do not try to bug around the entire map
     private boolean buggingAroundBorder()
     {
 
@@ -215,6 +222,7 @@ public class Navigator
         return false;
     }
 
+    //this takes into account flags to check if we are near enemy towers or hq
     private boolean checkEnemyMainStructures(MapLocation spot)
     {
         boolean nearEnemy = false;
@@ -240,6 +248,8 @@ public class Navigator
         return nearEnemy;
     }
 
+    //this returns true if the spot is bad for any reason
+    //such as void if not drone, unknown, off map, enemy towers/hq, or our own structures
     private boolean badSpot(MapLocation spot) throws GameActionException
     {
         boolean bad = false;
@@ -271,6 +281,7 @@ public class Navigator
         return bad;
     }
 
+    //returns true if bot is a mobile unit
     private boolean isUnit(MapLocation location) throws GameActionException
     {
         RobotInfo bot = rc.senseRobotAtLocation(location);
@@ -289,6 +300,59 @@ public class Navigator
         return false;
     }
 
+    //returns true if we should bug left around the roadblock, false means go right
+    private boolean goLeft(Direction lastDir) throws GameActionException
+    {
+        if(!badSpot(dog.add(lastDir.rotateLeft())))
+        {
+            return true;
+        }
+        else if(!badSpot(dog.add(lastDir.rotateRight())))
+        {
+            return false;
+        }
+        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft())))
+        {
+            return true;
+        }
+        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight())))
+        {
+            return false;
+        }
+        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft().rotateLeft())))
+        {
+            return true;
+        }
+        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight().rotateRight())))
+        {
+            return false;
+        }
+
+        //the only spot is behind us, so random's guess is as good as mine
+        return rand.nextBoolean();
+    }
+
+    //this checks if the target cannot be reached by the robot
+    private boolean cantGetCloser() throws GameActionException
+    {
+        if(!badSpot(target))
+        {
+            return false;
+        }
+        MapLocation currentLocation = rc.getLocation();
+        while(!currentLocation.equals(target))
+        {
+            if(!badSpot(currentLocation))
+            {
+                return false;
+            }
+            currentLocation = currentLocation.add(currentLocation.directionTo(target));
+        }
+
+        return true;
+    }
+
+    //setters to change flags mid game
     public void setAvoidTowers(boolean avoidTowers)
     {
         this.avoidTowers = avoidTowers;
@@ -304,6 +368,7 @@ public class Navigator
         this.lowBytecodes = lowBytecodes;
     }
 
+    //mainly for missiles. very bycode efficient, but also not very good
     public boolean badMovement(MapLocation target) throws GameActionException
     {
         if (!rc.isCoreReady())
