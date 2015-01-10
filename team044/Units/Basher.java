@@ -13,6 +13,8 @@ public class Basher extends Unit
     public Basher(RobotController rc)
     {
         super(rc);
+
+        nav.setAvoidTowers(false);
     }
 
     public void collectData() throws GameActionException

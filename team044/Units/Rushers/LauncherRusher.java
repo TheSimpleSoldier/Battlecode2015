@@ -17,6 +17,8 @@ public class LauncherRusher extends Launcher
         super.collectData();
 
         target = Utilities.getRushLocation(rc);
+
+        nav.setAvoidTowers(false);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

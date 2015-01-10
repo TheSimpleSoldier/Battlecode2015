@@ -11,6 +11,8 @@ public class BasherRusher extends Basher
     public BasherRusher(RobotController rc)
     {
         super(rc);
+
+        nav.setAvoidTowers(false);
     }
 
     public void collectData() throws GameActionException
