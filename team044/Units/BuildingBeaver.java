@@ -6,6 +6,7 @@ import team044.Messaging;
 import team044.Utilities;
 import team044.Unit;
 
+import java.awt.*;
 import java.util.Random;
 
 public class BuildingBeaver extends Beaver
@@ -13,6 +14,7 @@ public class BuildingBeaver extends Beaver
     MapLocation nextBuildSpot;
     Boolean build;
     RobotType building = null;
+    RobotType building2 = null;
     Direction dir;
     static Random rand;
     Direction[] dirs;
@@ -26,7 +28,7 @@ public class BuildingBeaver extends Beaver
         rc.setIndicatorString(1, "BuildingBeaver");
         build = false;
         dirs = Direction.values();
-        target = rc.senseTowerLocations()[0];
+
         becomeMiner = false;
         numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
     }
@@ -55,26 +57,16 @@ public class BuildingBeaver extends Beaver
             }
             else if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal())
             {
-                RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
+                rc.setIndicatorString(1, "Build Mining Baracks");
+                building = RobotType.MINERFACTORY;
+                building2 = RobotType.BARRACKS;
+                numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
-                target = null;
-                for (int i = 0; i < allies.length; i++)
-                {
-                    if (allies[i].type == RobotType.MINERFACTORY)
-                    {
-                        target = allies[i].location;
-                        break;
-                    }
-                }
-
-                if (target != null)
-                {
-                    target = target.add(target.directionTo(rc.getLocation()));
-                }
-                else
-                {
-                    building = null;
-                }
+                target = Utilities.findLocationForBuilding(rc, numb, building);
+                buildingSpot = target;
+                target = target.add(target.directionTo(rc.getLocation()));
+                rc.setIndicatorString(0, "Numb: " + numb);
+                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
             else
             {
@@ -87,6 +79,22 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
         }
+
+        if (target != null && rc.canSenseLocation(target) && rc.getLocation().distanceSquaredTo(target) < 24)
+        {
+            rc.setIndicatorString(1, "can sense Spot");
+            if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID)
+            {
+                rc.setIndicatorString(1, "build = true");
+                target = rc.getLocation();
+                build = true;
+            }
+        }
+    }
+
+    public boolean fight() throws GameActionException
+    {
+        return false;
     }
 
     public boolean carryOutAbility() throws GameActionException
@@ -106,13 +114,29 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (rc.getLocation().distanceSquaredTo(buildingSpot) < 15)
+        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 15)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
-                target = null;
-                building = null;
-                return true;
+                if (building2 != null)
+                {
+                    building = building2;
+                    building2 = null;
+                    return true;
+                }
+                else
+                {
+                    target = null;
+                    building = null;
+                    build = false;
+                    return true;
+                }
+            }
+            // if we don't have a requirement then build it.
+            else if (rc.getTeamOre() > building.oreCost && !rc.hasBuildRequirements(building))
+            {
+                rc.setIndicatorString(1, "Building requirement");
+                Utilities.buildRequirement(rc, buildingSpot, building);
             }
         }
 
