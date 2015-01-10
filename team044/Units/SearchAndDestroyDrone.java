@@ -57,7 +57,7 @@ public class SearchAndDestroyDrone extends Drone
             target = nearestDrone.add(Direction.NONE);
         }
 
-        return nav.takeNextStep(target, true, true);
+        return nav.takeNextStep(target);
     }
 
     private MapLocation findNextTarget() throws GameActionException

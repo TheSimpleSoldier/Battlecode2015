@@ -15,7 +15,7 @@ public class Missile extends Unit
         // to save bytecodes we don't use constructor supplied by Unit
         this.rc = rc;
         fighter = new FightMicro(rc);
-        nav = new Navigator(rc);
+        nav = new Navigator(rc, false, false, true, false);
     }
 
     public void collectData() throws GameActionException

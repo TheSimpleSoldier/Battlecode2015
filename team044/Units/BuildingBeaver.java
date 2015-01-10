@@ -25,7 +25,7 @@ public class BuildingBeaver extends Beaver
     public BuildingBeaver(RobotController rc) throws GameActionException
     {
         super(rc);
-        rc.setIndicatorString(1, "BuildingBeaver");
+        //rc.setIndicatorString(1, "BuildingBeaver");
         build = false;
         dirs = Direction.values();
 
@@ -75,8 +75,8 @@ public class BuildingBeaver extends Beaver
                 target = Utilities.findLocationForBuilding(rc, numb, building);
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
-                rc.setIndicatorString(0, "Numb: " + numb);
-                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
+                //rc.setIndicatorString(0, "Numb: " + numb);
+                //rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
         }
 
