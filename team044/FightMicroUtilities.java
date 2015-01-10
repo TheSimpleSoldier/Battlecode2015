@@ -317,7 +317,7 @@ public class FightMicroUtilities
 
             for (int j = enemies.length; --j>=0; )
             {
-                dirScore += enemies[i].location.distanceSquaredTo(next);
+                dirScore += enemies[j].location.distanceSquaredTo(next);
             }
 
             if (dirScore > score)
@@ -358,7 +358,7 @@ public class FightMicroUtilities
                 {
                     if (!safe)
                     {
-                        score -= 100;
+                        score -= 100000;
                     }
                     score--;
                 }

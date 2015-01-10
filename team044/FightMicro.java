@@ -319,11 +319,18 @@ public class FightMicro
                     if (FightMicroUtilities.enemyKitingUs(rc, enemies))
                     {
                         direction = FightMicroUtilities.retreatDir(enemies, rc);
+                        rc.setIndicatorString(1, "Enemy kiting us");
                     }
                     // otherwise advance
                     else
                     {
-                        direction = FightMicroUtilities.advanceDir(rc, enemies, false);
+                        direction = FightMicroUtilities.advanceDir(rc, enemies, true);
+                        rc.setIndicatorString(1, "No enemies in range so advance");
+
+                        if (direction == null)
+                        {
+                            direction = FightMicroUtilities.advanceDir(rc, enemies, false);
+                        }
                     }
                 }
             }
@@ -335,17 +342,18 @@ public class FightMicro
                 if (FightMicroUtilities.enemyInRange(rc, enemies))
                 {
                     direction = FightMicroUtilities.retreatDir(enemies, rc);
+                    rc.setIndicatorString(1, "Enemy in range retreat");
                 }
                 // otherwise just sit and blast him!
-            }
+                RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
 
-            RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+                MapLocation enemySpot = enemy.location;
 
-            MapLocation enemySpot = enemy.location;
-
-            if (rc.canAttackLocation(enemySpot))
-            {
-                rc.attackLocation(enemySpot);
+                if (rc.canAttackLocation(enemySpot))
+                {
+                    rc.setIndicatorString(1, "Shooting at: " + enemySpot);
+                    rc.attackLocation(enemySpot);
+                }
             }
         }
         // we can't shoot
@@ -362,21 +370,26 @@ public class FightMicro
                 if (FightMicroUtilities.enemyInRange(rc, enemies))
                 {
                     direction = FightMicroUtilities.retreatDir(enemies, rc);
+                    rc.setIndicatorString(1, "We are in range of enemy");
                 }
                 // if there are no enemies in range of us
                 else if (nearByEnemies.length == 0)
                 {
                     // if we can advance to a location that is not in range of an enemy do so
                     direction = FightMicroUtilities.advanceDir(rc, enemies, true);
+                    rc.setIndicatorString(1, "We are advancing towards enemy");
                 }
             }
         }
 
 
         // if we can move then do so
-        if (rc.canMove(direction))
+        if (rc.isCoreReady())
         {
-            rc.move(direction);
+            if (rc.canMove(direction))
+            {
+                rc.move(direction);
+            }
         }
 
         return false;
