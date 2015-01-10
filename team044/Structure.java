@@ -18,6 +18,7 @@ public abstract class Structure extends Unit
         us = rc.getTeam();
         opponent = us.opponent();
         range = rc.getType().attackRadiusSquared;
+        sightRange = rc.getType().sensorRadiusSquared;
         tracker = new EnemyMinerTracker(rc);
         ourHQ = rc.senseHQLocation();
         enemyHQ = rc.senseEnemyHQLocation();
