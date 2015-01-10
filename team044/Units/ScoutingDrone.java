@@ -42,7 +42,7 @@ public class ScoutingDrone extends Drone
 
         rc.setIndicatorString(1, "target: " + target.toString());
 
-        return nav.takeNextStep(target, true, true);
+        return nav.takeNextStep(target);
     }
 
     private MapLocation findNextTarget()

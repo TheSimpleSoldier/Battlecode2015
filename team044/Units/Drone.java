@@ -30,7 +30,7 @@ public class Drone extends Unit
         {
             return false;
         }
-        return nav.takeNextStep(target, true, true);
+        return nav.takeNextStep(target);
         //return nav.badMovement(target);
     }
 
