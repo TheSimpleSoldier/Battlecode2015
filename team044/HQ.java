@@ -7,8 +7,6 @@ public class HQ extends Structure
     RobotInfo[] enemies;
     RobotInfo[] allies;
     RobotInfo[] nearByAllies;
-    Team us;
-    Team opponent;
     int numberOfMinerFactories = -1;
     Direction[] dirs;
     FightMicro fighter;
@@ -204,7 +202,7 @@ public class HQ extends Structure
     public void collectData() throws GameActionException
     {
         enemies = rc.senseNearbyRobots(99999, opponent);
-        nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        nearByEnemies = rc.senseNearbyRobots(35, opponent);
         allies = rc.senseNearbyRobots(99999, us);
         nearByAllies = rc.senseNearbyRobots(range, us);
     }
