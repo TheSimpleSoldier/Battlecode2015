@@ -176,4 +176,88 @@ public class FightMicro
         return true;
     }
 
+
+    public boolean droneAttack(RobotInfo[] nearByEnemies) throws GameActionException
+    {
+        Direction direction;
+        RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
+        // if we can shoot
+        if (rc.isWeaponReady())
+        {
+            // there is no one to shoot
+            if (nearByEnemies.length == 0)
+            {
+                if (enemies.length == 0)
+                {
+                    return false;
+                }
+                // there is an enemy outside of shooting range that we can see
+                else
+                {
+                    // if the enemy outranges us run away
+                    if ()
+                    {
+
+                    }
+                    // otherwise advance
+                    else
+                    {
+
+                    }
+                }
+            }
+            // there are enemies in range of us
+            else
+            {
+                // if there is an enemy that out can shoot us
+                // shoot him and back up out of his range
+                if ()
+                {
+
+                }
+                // otherwise just sit and blast him!
+                else
+                {
+
+                }
+            }
+        }
+        // we can't shoot
+        else
+        {
+            // if we don't see any enemies then no fight micro
+            if (enemies.length == 0)
+            {
+                return false;
+            }
+            else
+            {
+                // if we are in range of an enemy retreat
+                if ()
+                {
+
+                }
+                // if there are no enemies in range of us
+                else if (nearByEnemies.length == 0)
+                {
+                    // if we can advance to a location that is not in range of an enemy do so
+                    if ()
+                    {
+
+                    }
+                    // otherwise we sit and do nothing
+                }
+            }
+        }
+
+
+        // if we can move then do so
+        if (rc.canMove(direction))
+        {
+            rc.move(direction);
+        }
+
+
+        return false;
+    }
 }
