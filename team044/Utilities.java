@@ -332,18 +332,19 @@ public class Utilities
                 int allyDist = nearByAllies[i].location.distanceSquaredTo(ourHQ);
                 if (allyDist > distToHQ)
                 {
+                    MapLocation allySpot = nearByAllies[i].location;
                     int allySupply = (int) nearByAllies[i].supplyLevel;
                     if (allySupply < rc.getSupplyLevel())
                     {
-                        if (Clock.getBytecodeNum() > 4500)
+                        if (Clock.getBytecodeNum() > 4000)
                         {
                             break;
                         }
-                        if (rc.isLocationOccupied(nearByAllies[i].location))
+                        if (rc.isLocationOccupied(allySpot) && allySpot.distanceSquaredTo(rc.getLocation()) < dist)
                         {
                             // transfer half of difference to them
                             int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
-                            rc.transferSupplies(amount, nearByAllies[i].location);
+                            rc.transferSupplies(amount, allySpot);
                         }
                     }
                 }
@@ -737,7 +738,7 @@ public class Utilities
      */
     public static MapLocation closestTower(RobotController rc, MapLocation[] towers)
     {
-        int closestDist = 99999;
+        int closestDist = 99999999;
         MapLocation closest = null;
         MapLocation us = rc.getLocation();
 
@@ -838,6 +839,23 @@ public class Utilities
     }
 
     /**
-     * This method gets our current number of
+     * This method returns the if a location is within firing distance of a tower or enemy HQ
      */
+    public static boolean locInRangeOfEnemyTower(MapLocation spot, MapLocation[] towers, MapLocation enemyHQ)
+    {
+        for (int i = 0; i < towers.length; i++)
+        {
+            if (spot.distanceSquaredTo(towers[i]) <= 24)
+            {
+                return true;
+            }
+        }
+
+        if (spot.distanceSquaredTo(enemyHQ) <= 24)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

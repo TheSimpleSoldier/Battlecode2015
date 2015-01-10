@@ -5,10 +5,8 @@ import battlecode.common.*;
 public class HQ extends Structure
 {
     RobotInfo[] enemies;
-    RobotInfo[] nearByEnemies;
     RobotInfo[] allies;
     RobotInfo[] nearByAllies;
-    int range;
     Team us;
     Team opponent;
     int numberOfMinerFactories = -1;
