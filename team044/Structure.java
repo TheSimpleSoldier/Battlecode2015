@@ -27,11 +27,13 @@ public abstract class Structure extends Unit
     {
         // collect our data
         super.collectData();
+
+        enemies = rc.senseNearbyRobots(sightRange, opponent);
     }
 
     public void handleMessages() throws GameActionException
     {
-        if (nearByEnemies.length > 0)
+        if (enemies.length > 0)
         {
             rc.broadcast(Messaging.BuildingInDistressX.ordinal(), rc.getLocation().x);
             rc.broadcast(Messaging.BuildingInDistressY.ordinal(), rc.getLocation().y);
