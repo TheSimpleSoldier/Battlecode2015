@@ -10,7 +10,6 @@ import team044.Units.Rushers.MinerRusher;
 
 public class Miner extends Unit
 {
-    public MapLocation target;
     boolean mineToOurHQ = true;
 
     public Miner(RobotController rc)

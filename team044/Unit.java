@@ -15,6 +15,8 @@ public abstract class Unit
     public FightMicro fighter;
     public Navigator nav;
     public EnemyMinerTracker tracker;
+    public MapLocation target;
+    public Direction[] dirs;
 
     public Unit()
     {
@@ -32,6 +34,7 @@ public abstract class Unit
         tracker = new EnemyMinerTracker(rc);
         ourHQ = rc.senseHQLocation();
         enemyHQ = rc.senseEnemyHQLocation();
+        dirs = Direction.values();
     }
 
     public void collectData() throws GameActionException

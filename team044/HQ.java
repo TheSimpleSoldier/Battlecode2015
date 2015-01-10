@@ -61,11 +61,24 @@ public class HQ extends Structure
         messenger.giveUnitOrders();
         rc.setIndicatorString(0, "after give unit orders");
 
+        // reset tower under attack channel every round
+        rc.broadcast(Messaging.TowerUnderAttack.ordinal(), 0);
+
+        // reset building under attack channels every round
+        rc.broadcast(Messaging.BuildingInDistressY.ordinal(), 0);
+        rc.broadcast(Messaging.BuildingInDistressX.ordinal(), 0);
+
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
         if (Clock.getRoundNum() > 1800)
         {
             rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
             rc.setIndicatorString(2, "Rushing enemy");
+        }
+        // currently we attack when we reach round 1000
+        // TODO: Smarter attack metrics
+        else if (Clock.getBytecodeNum() > 1000)
+        {
+            rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
 
         // even round so odd channel has data

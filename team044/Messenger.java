@@ -35,7 +35,7 @@ public class Messenger
 
         // initialize strategies
         basherStrat = new BuildOrderMessaging[1];
-        basherStrat[0] = BuildOrderMessaging.BuildBasher;
+        basherStrat[0] = BuildOrderMessaging.BuildDefensiveBasher;
 
         computerStrat = new BuildOrderMessaging[1];
         computerStrat[0] = BuildOrderMessaging.BuildComputer;
@@ -50,7 +50,7 @@ public class Messenger
         soldierStrat[0] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
-        tankStrat[0] = BuildOrderMessaging.BuildTank;
+        tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
 
         droneStrat = new BuildOrderMessaging[1];
         droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;

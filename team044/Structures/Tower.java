@@ -29,7 +29,7 @@ public class Tower extends Structure
             {
                 if (towers[i] == us)
                 {
-                    rc.broadcast(Messaging.TowerUnderAttack.ordinal(), i);
+                    rc.broadcast(Messaging.TowerUnderAttack.ordinal(), (i + 1));
                 }
             }
         }

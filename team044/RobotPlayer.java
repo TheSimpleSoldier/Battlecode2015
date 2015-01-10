@@ -3,6 +3,9 @@ package team044;
 import team044.Units.*;
 import team044.Structures.*;
 import battlecode.common.*;
+import team044.Units.Defenders.DefensiveBasher;
+import team044.Units.Defenders.DefensiveSoldiers;
+import team044.Units.Defenders.DefensiveTank;
 
 public class RobotPlayer
 {
@@ -192,6 +195,10 @@ public class RobotPlayer
         int type = rc.readBroadcast(Messaging.BasherType.ordinal());
         rc.broadcast(Messaging.BasherType.ordinal(), -1);
 
+        if (type == BuildOrderMessaging.BuildDefensiveBasher.ordinal())
+        {
+            return new DefensiveBasher(rc);
+        }
         // default Basher
         return new Basher(rc);
     }
@@ -201,6 +208,10 @@ public class RobotPlayer
         int type = rc.readBroadcast(Messaging.TankType.ordinal());
         rc.broadcast(Messaging.TankType.ordinal(), -1);
 
+        if (type == BuildOrderMessaging.BuildDefensiveTank.ordinal())
+        {
+            return new DefensiveTank(rc);
+        }
         // default Tank
         return new Tank(rc);
     }

@@ -8,7 +8,6 @@ import team044.Units.Rushers.BeaverRusher;
 public class Beaver extends Unit
 {
     int buildingType;
-    public MapLocation target;
 
     public Beaver()
     {

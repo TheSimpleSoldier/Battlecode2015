@@ -10,15 +10,9 @@ import javax.rmi.CORBA.Util;
 
 public class Basher extends Unit
 {
-    public MapLocation target;
-
     public Basher(RobotController rc)
     {
         super(rc);
-        /*this.rc = rc;
-        nav = new Navigator(rc, true, true, true, false);
-        fighter = new FightMicro(rc);*/
-        target = Utilities.getTowerClosestToEnemyHQ(rc);
     }
 
     public void collectData() throws GameActionException
@@ -27,11 +21,11 @@ public class Basher extends Unit
         
         // collect our data
         MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
-        if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
+        if (enemyTower.length > 0)
         {
             target = enemyTower[0];
         }
-        else if (Clock.getRoundNum() > 1500)
+        else
         {
             target = rc.senseEnemyHQLocation();
         }
