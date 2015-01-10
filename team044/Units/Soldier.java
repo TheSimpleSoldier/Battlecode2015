@@ -1,18 +1,25 @@
 package team044.Units;
 
-import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
-import battlecode.common.RobotController;
 import team044.Messaging;
 import team044.Unit;
+import battlecode.common.*;
+import team044.Units.Rushers.SoldierRusher;
 import team044.Utilities;
 
 public class Soldier extends Unit
 {
-    MapLocation target;
+    public MapLocation target;
+
+    public Soldier()
+    {
+
+    }
+
     public Soldier(RobotController rc)
     {
         super(rc);
+
+        rc.setIndicatorString(0, "Base Soldier");
     }
 
     public void collectData() throws GameActionException
@@ -42,11 +49,16 @@ public class Soldier extends Unit
 
     public boolean fight() throws GameActionException
     {
+        //return fighter.advancedFightMicro(nearByEnemies);
         return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new SoldierRusher(rc);
+        }
         return current;
     }
 

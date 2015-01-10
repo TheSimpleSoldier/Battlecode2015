@@ -1,15 +1,16 @@
 package team044.Units;
 
-import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
-import battlecode.common.RobotController;
+
 import team044.Messaging;
 import team044.Unit;
 import team044.Utilities;
 
+import battlecode.common.*;
+import team044.Units.Rushers.MinerRusher;
+
 public class Miner extends Unit
 {
-    MapLocation target;
+    public MapLocation target;
     boolean mineToOurHQ = true;
 
     public Miner(RobotController rc)
@@ -74,11 +75,16 @@ public class Miner extends Unit
 
     public boolean fight() throws GameActionException
     {
+        //return fighter.advancedFightMicro(nearByEnemies);
         return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new MinerRusher(rc);
+        }
         return current;
     }
 

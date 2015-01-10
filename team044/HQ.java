@@ -17,6 +17,8 @@ public class HQ extends Structure
     Messenger messenger;
     BuildOrderMessaging[] strat;
     int currentUnit = 0;
+    int numbOfBuildings = 0;
+    int lastNumbOfBuildings = 0;
 
     int numbOfBashers   = 0;
     int numbOfBeavers   = 0;
@@ -32,29 +34,27 @@ public class HQ extends Structure
         super(rc);
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
-        strat = new BuildOrderMessaging[23];
+        strat = new BuildOrderMessaging[21];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
         strat[2] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[3] = BuildOrderMessaging.BuildMinerFactory;
-        strat[4] = BuildOrderMessaging.BuildMinerFactory;
-        strat[5] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[3] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[4] = BuildOrderMessaging.BuildMiningBaracks;
         strat[6] = BuildOrderMessaging.BuildHelipad;
-        strat[7] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[7] = BuildOrderMessaging.BuildBaracks;
+        strat[8] = BuildOrderMessaging.BuildTankFactory;
         strat[9] = BuildOrderMessaging.BuildTankFactory;
         strat[10] = BuildOrderMessaging.BuildTankFactory;
         strat[11] = BuildOrderMessaging.BuildTankFactory;
         strat[12] = BuildOrderMessaging.BuildTankFactory;
         strat[13] = BuildOrderMessaging.BuildTankFactory;
-        strat[14] = BuildOrderMessaging.BuildHelipad;
-        strat[15] = BuildOrderMessaging.BuildTankFactory;
+        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[15] = BuildOrderMessaging.BuildSupplyDepot;
         strat[16] = BuildOrderMessaging.BuildSupplyDepot;
         strat[17] = BuildOrderMessaging.BuildSupplyDepot;
         strat[18] = BuildOrderMessaging.BuildSupplyDepot;
         strat[19] = BuildOrderMessaging.BuildSupplyDepot;
         strat[20] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[21] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[22] = BuildOrderMessaging.BuildSupplyDepot;
 
         rc.setIndicatorString(0, "HQ");
     }
@@ -64,6 +64,13 @@ public class HQ extends Structure
         rc.setIndicatorString(0, "Messaging");
         messenger.giveUnitOrders();
         rc.setIndicatorString(0, "after give unit orders");
+
+        // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
+        if (Clock.getRoundNum() > 1800)
+        {
+            rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
+            rc.setIndicatorString(2, "Rushing enemy");
+        }
 
         // even round so odd channel has data
         if (Clock.getRoundNum() % 2 == 0)
@@ -133,6 +140,8 @@ public class HQ extends Structure
         rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);
 
         rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + numbOfSoldiers + ", Tanks: " + numbOfTanks);
+        //numbOfBuildings = Utilities.test(rc);
+
         if (currentUnit < strat.length)
         {
             rc.setIndicatorString(1, ""+strat[currentUnit]);

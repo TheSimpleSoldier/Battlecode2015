@@ -15,6 +15,8 @@ public class SupplyDrone extends Drone
         {
             secondDrone = true;
         }
+
+        rc.setIndicatorString(0, "Supply Drone");
     }
 
     public void handleMessages() throws GameActionException
@@ -27,6 +29,7 @@ public class SupplyDrone extends Drone
     public void collectData() throws GameActionException
     {
         super.collectData();
+
         if (target == null || rc.getLocation().isAdjacentTo(ourHQ))
         {
             int x = rc.readBroadcast(Messaging.FirstNeedSupplyX.ordinal());
@@ -58,6 +61,11 @@ public class SupplyDrone extends Drone
             }
         }
 
+        if (target == null)
+        {
+            return;
+        }
+
         if (rc.getLocation().isAdjacentTo(target))
         {
             target = ourHQ;
@@ -75,20 +83,27 @@ public class SupplyDrone extends Drone
             }
         }
 
+
         if (rc.getSupplyLevel() < 1000)
         {
             target = ourHQ;
         }
 
         rc.setIndicatorString(1, "Target: " + target);
+
     }
 
     public void distributeSupply() throws GameActionException
     {
+        if (target == null)
+        {
+            return;
+        }
         if (target.equals(ourHQ) && rc.getLocation().distanceSquaredTo(ourHQ) > 100)
         {
             super.distributeSupply();
         }
+
 
         if (rc.getLocation().distanceSquaredTo(target) < 24)
         {

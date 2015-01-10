@@ -10,6 +10,7 @@ public class DefensiveSoldiers extends Soldier
     {
         super(rc);
         random = new Random(rc.getID());
+        rc.setIndicatorString(0, "Defensive Soldier");
     }
 
     public void collectData() throws GameActionException
@@ -30,8 +31,12 @@ public class DefensiveSoldiers extends Soldier
             }
             else
             {
-                target = rc.getLocation().add(dirs[random.nextInt(8)], 5);
+                do {
+                    target = rc.getLocation().add(dirs[random.nextInt(8)], 5);
+                } while (!rc.isPathable(RobotType.SOLDIER, target));
             }
         }
+
+        rc.setIndicatorString(1, "Target: " + target);
     }
 }

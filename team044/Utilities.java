@@ -3,6 +3,7 @@ package team044;
 import battlecode.common.*;
 import battlecode.world.Robot;
 
+import java.util.Map;
 import java.util.Random;
 
 public class Utilities
@@ -364,7 +365,7 @@ public class Utilities
             {
                 for (int i = 0; i < nearByAllies.length; i++)
                 {
-                    if (Clock.getBytecodeNum() > 4500)
+                    if (Clock.getBytecodeNum() > 4000)
                     {
                         break;
                     }
@@ -391,6 +392,10 @@ public class Utilities
 
         for (int i = 0; i < allies.length; i++)
         {
+            if (Clock.getBytecodeNum() > 4000)
+            {
+                break;
+            }
             // if building don't give it supply
             if (!allies[i].type.needsSupply())
             {
@@ -700,4 +705,139 @@ public class Utilities
             rc.broadcast(channelOdd, numb);
         }
     }
+
+    /**
+     * This method will build the requirement for a building
+     */
+    public static void buildRequirement(RobotController rc, MapLocation spot, RobotType type) throws GameActionException
+    {
+        // need to build barracks
+        if (type == RobotType.TANKFACTORY)
+        {
+            BuildStructure(rc, spot, RobotType.BARRACKS);
+        }
+        // need to build a helipad
+        else if (type == RobotType.AEROSPACELAB)
+        {
+            BuildStructure(rc, spot, RobotType.HELIPAD);
+        }
+        // need to build a technology institue
+        else if (type == RobotType.TRAININGFIELD)
+        {
+            BuildStructure(rc, spot, RobotType.TECHNOLOGYINSTITUTE);
+        }
+        else
+        {
+            System.out.println("Unknown building type");
+        }
+    }
+
+    /**
+     * This method returns the closest tower
+     */
+    public static MapLocation closestTower(RobotController rc, MapLocation[] towers)
+    {
+        int closestDist = 99999;
+        MapLocation closest = null;
+        MapLocation us = rc.getLocation();
+
+        for (int i = towers.length; --i>=0; )
+        {
+            int dist = towers[i].distanceSquaredTo(us);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = towers[i];
+            }
+        }
+
+        return closest;
+    }
+
+    /**
+     * This is a test
+     */
+    public static int test(RobotController rc) throws GameActionException
+    {
+        int numbOfMinerFactories = 0;
+        int numbOfTankFactories = 0;
+        int numbOfBarracks = 0;
+        int numbOfHelipads = 0;
+        int numbOfAerospacelab = 0;
+        int numbOfSupplyDepots = 0;
+        int numbOfTrainingfields = 0;
+        int numbOfTechnologyInstitutes = 0;
+
+        RobotInfo[] allies = rc.senseNearbyRobots(9999, rc.getTeam());
+
+        for (int i = allies.length; --i>=0; )
+        {
+            if (allies[i].type == RobotType.BARRACKS)
+            {
+                numbOfBarracks++;
+            }
+            else if (allies[i].type == RobotType.MINERFACTORY)
+            {
+                numbOfMinerFactories++;
+            }
+            else if (allies[i].type == RobotType.TANKFACTORY)
+            {
+                numbOfTankFactories++;
+            }
+            else if (allies[i].type == RobotType.HELIPAD)
+            {
+                numbOfHelipads++;
+            }
+            else if (allies[i].type == RobotType.AEROSPACELAB)
+            {
+                numbOfAerospacelab++;
+            }
+            else if (allies[i].type == RobotType.SUPPLYDEPOT)
+            {
+                numbOfSupplyDepots++;
+            }
+            else if (allies[i].type == RobotType.TRAININGFIELD)
+            {
+                numbOfTrainingfields++;
+            }
+            else if (allies[i].type == RobotType.TECHNOLOGYINSTITUTE)
+            {
+                numbOfTechnologyInstitutes++;
+            }
+
+        }
+
+        rc.setIndicatorString(0, "Barracks: " + numbOfBarracks + ", MinerFactory: " + numbOfMinerFactories + ", Tank Factory: " + ", Helipads: " + numbOfHelipads);
+        return numbOfTankFactories + numbOfBarracks + numbOfHelipads + numbOfMinerFactories + numbOfAerospacelab + numbOfSupplyDepots + numbOfTechnologyInstitutes + numbOfTrainingfields;
+    }
+
+    /**
+     * This method returns the rush location
+     */
+    public static MapLocation getRushLocation(RobotController rc)
+    {
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+
+        if (towers.length == 0)
+        {
+            return rc.senseEnemyHQLocation();
+        }
+
+        int bestDist = 99999;
+        MapLocation best = null;
+        for (int i = towers.length; --i>=0; )
+        {
+            int dist = towers[i].distanceSquaredTo(rc.senseHQLocation());
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = towers[i];
+            }
+        }
+        return best;
+    }
+
+    /**
+     * This method gets our current number of
+     */
 }
