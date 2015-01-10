@@ -20,7 +20,9 @@ public class Basher extends Unit
         super.collectData();
         
         // collect our data
-        MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
+        target = Utilities.getRushLocation(rc);
+        rc.setIndicatorString(1, "Target: " + target);
+        /*MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
         if (enemyTower.length > 0)
         {
             target = enemyTower[0];
@@ -28,7 +30,7 @@ public class Basher extends Unit
         else
         {
             target = rc.senseEnemyHQLocation();
-        }
+        }*/
     }
 
     public void handleMessages() throws GameActionException

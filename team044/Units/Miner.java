@@ -74,8 +74,8 @@ public class Miner extends Unit
 
     public boolean fight() throws GameActionException
     {
-        return fighter.advancedFightMicro(nearByEnemies);
-        //return fighter.basicFightMicro(nearByEnemies);
+        //return fighter.advancedFightMicro(nearByEnemies);
+        return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

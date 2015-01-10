@@ -10,6 +10,7 @@ public class DefensiveTank extends DefensiveUnits
     public DefensiveTank(RobotController rc)
     {
         super(rc);
+        rc.setIndicatorString(0, "Defensive Tank");
     }
 
     public void collectData2() throws GameActionException

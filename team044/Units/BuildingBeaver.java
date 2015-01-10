@@ -30,7 +30,7 @@ public class BuildingBeaver extends Beaver
         dirs = Direction.values();
 
         becomeMiner = false;
-        numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
+        numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
     }
 
     public void collectData() throws GameActionException
@@ -60,8 +60,9 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(1, "Build Mining Baracks");
                 building = RobotType.MINERFACTORY;
                 building2 = RobotType.BARRACKS;
-                numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
+                numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
+                rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
                 target = Utilities.findLocationForBuilding(rc, numb, building);
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
@@ -70,8 +71,12 @@ public class BuildingBeaver extends Beaver
             }
             else
             {
-                numb = rc.readBroadcast(Messaging.NumbOfBeavers.ordinal());
+                numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
+                if (building == RobotType.MINERFACTORY)
+                {
+                    rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
+                }
                 target = Utilities.findLocationForBuilding(rc, numb, building);
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));

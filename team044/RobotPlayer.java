@@ -208,12 +208,12 @@ public class RobotPlayer
         int type = rc.readBroadcast(Messaging.TankType.ordinal());
         rc.broadcast(Messaging.TankType.ordinal(), -1);
 
-        if (type == BuildOrderMessaging.BuildDefensiveTank.ordinal())
+        if (type == BuildOrderMessaging.BuildTank.ordinal())
         {
-            return new DefensiveTank(rc);
+            return new Tank(rc);
         }
-        // default Tank
-        return new Tank(rc);
+        // default to defensive Tank
+        return new DefensiveTank(rc);
     }
 
     private static Unit getDrone(RobotController rc) throws GameActionException

@@ -15,6 +15,10 @@ public class Tank extends Unit
     public Tank(RobotController rc)
     {
         super(rc);
+
+        nav.setAvoidTowers(false);
+
+        rc.setIndicatorString(0, "Standard Tank");
     }
 
     public void collectData() throws GameActionException
@@ -22,7 +26,9 @@ public class Tank extends Unit
         super.collectData();
 
         // TODO: Add code to smartly move forward so the entire army moves together
-        MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
+        target = Utilities.getRushLocation(rc);
+        rc.setIndicatorString(1, "Target: " + target);
+        /*MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
         if (enemyTower.length > 0)
         {
             target = enemyTower[0];
@@ -30,7 +36,7 @@ public class Tank extends Unit
         else
         {
             target = rc.senseEnemyHQLocation();
-        }
+        }*/
     }
 
     public void handleMessages() throws GameActionException

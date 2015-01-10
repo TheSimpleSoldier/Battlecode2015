@@ -76,7 +76,7 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getBytecodeNum() > 1000)
+        else if (Clock.getRoundNum() > 1000)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
@@ -176,14 +176,6 @@ public class HQ extends Structure
             if (rc.readBroadcast(Messaging.BuildOrder.ordinal()) == -1)
             {
                 currentUnit++;
-                if(currentUnit < strat.length)
-                {
-                    if(currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
-                    {
-                        numberOfMinerFactories++;
-                        rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
-                    }
-                }
             }
 
             if (currentUnit >= strat.length)
@@ -245,13 +237,6 @@ public class HQ extends Structure
                 if (currentUnit >= strat.length)
                 {
                     return true;
-                }
-
-                // state which building we want built next
-                if (strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
-                {
-                    numberOfMinerFactories++;
-                    rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
                 }
 
                 rc.setIndicatorString(1, "" + strat[currentUnit]);

@@ -36,4 +36,10 @@ public class MinerRusher extends Miner {
         }
         return nav.takeNextStep(target);
     }
+
+    public boolean fight() throws GameActionException
+    {
+        return fighter.advancedFightMicro(nearByEnemies);
+        //return fighter.basicFightMicro(nearByEnemies);
+    }
 }
