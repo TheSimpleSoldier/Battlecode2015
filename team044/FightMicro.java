@@ -313,6 +313,7 @@ public class FightMicro
     }
 
 
+    /*
     public boolean droneAttack(RobotInfo[] nearByEnemies) throws GameActionException
     {
         Direction direction;
@@ -395,5 +396,5 @@ public class FightMicro
 
 
         return false;
-    }
+    }*/
 }
