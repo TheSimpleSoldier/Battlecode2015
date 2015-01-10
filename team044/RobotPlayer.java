@@ -120,11 +120,6 @@ public class RobotPlayer
                             // take one step forward
                         }
 
-                        if (rc.getType() == RobotType.DRONE)
-                        {
-                            unit.takeNextStep();
-                        }
-
                         unit = unit.getNewStrategy(unit);
 
                         unit.distributeSupply();
