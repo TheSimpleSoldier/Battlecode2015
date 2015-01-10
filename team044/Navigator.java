@@ -65,19 +65,19 @@ public class Navigator
         //if it is another unit, go around it
         else if(isUnit(rc.getLocation().add(dir)) && rc.isCoreReady())
         {
-            if(rc.canMove(dir.rotateRight()))
+            if(!badSpot(rc.getLocation().add(dir.rotateRight())))
             {
                 rc.move(dir.rotateRight());
             }
-            else if(rc.canMove(dir.rotateLeft()))
+            else if(!badSpot(rc.getLocation().add(dir.rotateLeft())))
             {
                 rc.move(dir.rotateLeft());
             }
-            else if(rc.canMove(dir.rotateRight().rotateRight()))
+            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight())))
             {
                 rc.move(dir.rotateRight().rotateRight());
             }
-            else if(rc.canMove(dir.rotateLeft().rotateLeft()))
+            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft())))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
             }
