@@ -13,6 +13,7 @@ public class BasherRusher extends Basher
         super(rc);
 
         nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
 
     public void collectData() throws GameActionException

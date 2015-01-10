@@ -210,6 +210,15 @@ public class HQ extends Structure
         nearByEnemies = rc.senseNearbyRobots(35, opponent);
         allies = rc.senseNearbyRobots(99999, us);
         nearByAllies = rc.senseNearbyRobots(range, us);
+
+        if (currentUnit == strat.length)
+        {
+            if (rc.getTeamOre() > 1000)
+            {
+                currentUnit--;
+                strat[currentUnit] = BuildOrderMessaging.BuildTankFactory;
+            }
+        }
     }
 
     public boolean fight() throws GameActionException

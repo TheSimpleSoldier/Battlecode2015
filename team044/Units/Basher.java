@@ -15,6 +15,7 @@ public class Basher extends Unit
         super(rc);
 
         nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
 
     public void collectData() throws GameActionException

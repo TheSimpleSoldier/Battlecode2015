@@ -19,6 +19,7 @@ public class SoldierRusher extends Soldier
         target = Utilities.getRushLocation(rc);
 
         nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

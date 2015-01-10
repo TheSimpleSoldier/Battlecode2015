@@ -17,6 +17,7 @@ public class Tank extends Unit
         super(rc);
 
         nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
 
         rc.setIndicatorString(0, "Standard Tank");
     }
@@ -55,7 +56,7 @@ public class Tank extends Unit
         roundNumb = Clock.getRoundNum() - roundNumb;
         if (roundNumb > 0)
         {
-            System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
+            //System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
         }
         return move;
     }
