@@ -54,8 +54,6 @@ public class Navigator
         //dog always tries to run ahead since it will sometimes be stopped early
         dogGo();
 
-        rc.setIndicatorString(1, "Dog: " + dog);
-
         Direction dir = rc.getLocation().directionTo(dog);
 
         //if you can move towards the dog, do

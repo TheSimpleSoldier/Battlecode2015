@@ -16,7 +16,7 @@ public class SearchAndDestroyDrone extends Drone
     {
         super(rc);
         target = rc.getLocation();
-        rand = new Random();
+        rand = new Random(rc.getID());
     }
 
     public void collectData() throws GameActionException
