@@ -15,14 +15,17 @@ public class Utilities
     {
         Random rand = new Random(rc.getID() * Clock.getRoundNum());
         MapLocation location = rc.getLocation();
-        int k = 20;
+        int dist = (int) Math.sqrt((double) rc.senseEnemyHQLocation().distanceSquaredTo(rc.senseHQLocation()));
+        dist = dist / 3;
+        dist = dist * dist;
+        int k = 10;
         for(; --k >= 0;)
         {
             MapLocation nextLocation = location.add(Direction.values()[rand.nextInt(8)]);
 
             if(rc.canSenseLocation(location))
             {
-                if(rc.senseOre(nextLocation) >= rc.senseOre(location))
+                if(spotBetter(rc, location, nextLocation, dist))
                 {
                     location = nextLocation;
                 }
@@ -32,14 +35,14 @@ public class Utilities
         Direction[] dirs = Direction.values();
         //MapLocation location = rc.getLocation();
 
-        if(rc.senseOre(location) >= 40 && farFromHome(rc, rc.getTeam(), rc.getLocation()))
+        if(rc.senseOre(location) >= 20 && farFromHome(rc, dist, rc.getLocation()))
         {
             return location;
         }
 
         for(k = 0; k < 8; k++)
         {
-            if(rc.senseOre(location.add(dirs[k])) >= 40 && farFromHome(rc, rc.getTeam(), rc.getLocation()))
+            if(rc.senseOre(location.add(dirs[k])) >= 20 && farFromHome(rc, dist, rc.getLocation()))
             {
                 return location.add(dirs[k]);
             }
@@ -81,6 +84,8 @@ public class Utilities
 
         int startChannel = -1;
 
+
+/*
         //if far from us, but also not near enemy
         if(farFromHome(rc, rc.getTeam(), location) && farFromHome(rc, rc.getTeam().opponent(), location))
         {
@@ -90,7 +95,7 @@ public class Utilities
         else if(!farFromHome(rc, rc.getTeam(), location))
         {
             startChannel = startChannelMineSpots;
-        }
+        }*/
 
         //this looks at the current top spots and inserts the current spot if it is larger big enough
         if(startChannel != -1)
@@ -140,41 +145,86 @@ public class Utilities
         }
     }
 
-    //this will check if a spot is near the towers or hq of a particular team.
-    private static boolean farFromHome(RobotController rc, Team team, MapLocation location)
+    private static boolean spotBetter(RobotController rc, MapLocation oldSpot, MapLocation newSpot, int dist)
     {
-        int close = 50;
-
-        boolean opponent = false;
-        if(rc.getTeam() != team)
+        if (rc.senseOre(newSpot) < rc.senseOre(oldSpot))
         {
-            opponent = true;
+            return false;
         }
 
-        if(opponent)
+        int score = 0;
+
+        int oldDistToHQ = oldSpot.distanceSquaredTo(rc.senseHQLocation());
+        if (oldDistToHQ < dist)
         {
-            if(location.distanceSquaredTo(rc.senseEnemyHQLocation()) < close)
+            if (newSpot.distanceSquaredTo(rc.senseHQLocation()) >= oldDistToHQ)
             {
-                return false;
+                score++;
+            }
+            else
+            {
+                score--;
             }
         }
-        else
+
+        int oldDistToEnemyHQ = oldSpot.distanceSquaredTo(rc.senseEnemyHQLocation());
+        if (oldDistToEnemyHQ <= dist)
         {
-            if(location.distanceSquaredTo(rc.senseHQLocation()) < close)
+            if (newSpot.distanceSquaredTo(rc.senseEnemyHQLocation()) >= oldDistToEnemyHQ)
             {
-                return false;
+                score++;
+            }
+            else
+            {
+                score--;
             }
         }
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+        for (int i = enemyTowers.length; --i>=0; )
+        {
+            int oldDist = oldSpot.distanceSquaredTo(enemyTowers[i]);
+            if (oldDist <= dist)
+            {
+                if (newSpot.distanceSquaredTo(enemyTowers[i]) >= oldDist)
+                {
+                    score++;
+                }
+                else
+                {
+                    score--;
+                }
+            }
+        }
+
+        if (score >= 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    //this will check if a spot is near the towers or hq of a particular team.
+    private static boolean farFromHome(RobotController rc, int dist, MapLocation location)
+    {
+        int close = dist;
+
+        if(location.distanceSquaredTo(rc.senseEnemyHQLocation()) < close)
+        {
+            return false;
+        }
+
+        if(location.distanceSquaredTo(rc.senseHQLocation()) < close)
+        {
+            return false;
+        }
+
 
         MapLocation[] towers;
-        if(opponent)
-        {
-            towers = rc.senseEnemyTowerLocations();
-        }
-        else
-        {
-            towers = rc.senseTowerLocations();
-        }
+
+        // we are only concerned about being far away from enemy towers
+        towers = rc.senseEnemyTowerLocations();
 
         for(int k = towers.length; --k >= 0;)
         {

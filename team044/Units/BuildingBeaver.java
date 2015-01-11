@@ -45,6 +45,7 @@ public class BuildingBeaver extends Beaver
             MapLocation temp = Utilities.getBestSpotSimple(rc);
             if(!temp.equals(rc.getLocation()))
             {
+                rc.setIndicatorString(1, "Building in new spot: " + temp);
                 buildingSpot = temp;
                 target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
                 foundSpot = true;
