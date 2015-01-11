@@ -14,7 +14,7 @@ public class Launcher extends Unit
         // override supers range
         range = 24;
 
-        nav.setAvoidTowers(true);
+        nav.setAvoidTowers(false);
         nav.setAvoidHQ(false);
     }
 

@@ -237,6 +237,15 @@ public class FightMicro
 
         if (rc.getMissileCount() == 0)
         {
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+            for (int i = 0; i < enemyTowers.length; i++)
+            {
+                if (rc.getLocation().distanceSquaredTo(enemyTowers[i]) < 49)
+                {
+                    return true;
+                }
+            }
             return false;
         }
 
