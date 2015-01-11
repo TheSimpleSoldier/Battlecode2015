@@ -199,7 +199,8 @@ public class FightMicro
             nearByEnemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
             if (nearByEnemies.length == 0)
             {
-                nearByEnemies = rc.senseNearbyRobots(999, rc.getTeam().opponent());
+                MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+                return Utilities.closestTower(rc, enemyTowers);
             }
             return nearByEnemies[0].location;
         }
@@ -215,9 +216,13 @@ public class FightMicro
             nearByEnemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
             if (nearByEnemies.length == 0)
             {
-                nearByEnemies = rc.senseNearbyRobots(999, rc.getTeam().opponent());
+                MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+                return Utilities.closestTower(rc, enemyTowers);
             }
-            return nearByEnemies[0].location;
+            else
+            {
+                return nearByEnemies[0].location;
+            }
         }
         return rc.getLocation();
     }
@@ -266,20 +271,27 @@ public class FightMicro
         }
 
         Direction dir = rc.getLocation().directionTo(nearByEnemies[0].location);
-        /*int i = 0;
-        while (!rc.canMove(dir) && i < nearByEnemies.length)
-        {
-            dir = rc.getLocation().directionTo(nearByEnemies[i].location);
-        }*/
+
         if (rc.canMove(dir))
         {
             rc.launchMissile(dir);
         }
 
         dir = dir.opposite();
-        if (rc.canMove(dir) && rc.isCoreReady())
+        if (rc.isCoreReady())
         {
-            rc.move(dir);
+            if (rc.canMove(dir))
+            {
+                rc.move(dir);
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                rc.move(dir.rotateRight());
+            }
         }
 
         return true;

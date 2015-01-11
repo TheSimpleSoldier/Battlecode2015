@@ -234,8 +234,8 @@ public class RobotPlayer
             return new SearchAndDestroyDrone(rc);
         }
 
-        // default Drone
-        return new Drone(rc);
+        // default to Search and Destroy Drone
+        return new SearchAndDestroyDrone(rc);
     }
 
     private static Unit getLauncher(RobotController rc) throws GameActionException

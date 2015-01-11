@@ -232,7 +232,7 @@ public class Navigator
             MapLocation[] towers = rc.senseEnemyTowerLocations();
             for(int k = 0; k < towers.length; k++)
             {
-                if(spot.distanceSquaredTo(towers[k]) <= 25)
+                if(spot.distanceSquaredTo(towers[k]) <= 24)
                 {
                     nearEnemy = true;
                 }
@@ -240,7 +240,7 @@ public class Navigator
         }
         if(avoidHQ)
         {
-            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 35)
+            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 49)
             {
                 nearEnemy = true;
             }

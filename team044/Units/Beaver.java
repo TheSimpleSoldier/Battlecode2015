@@ -26,7 +26,7 @@ public class Beaver extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        super.handleMessages();
+        //super.handleMessages();
 
         Utilities.handleMessageCounter(rc, Messaging.NumbOfBeaverOdd.ordinal(), Messaging.NumbOfBeaverEven.ordinal());
     }

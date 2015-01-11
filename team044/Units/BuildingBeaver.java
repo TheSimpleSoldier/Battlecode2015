@@ -130,7 +130,7 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 5)
+        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 10)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {

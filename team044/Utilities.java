@@ -311,7 +311,13 @@ public class Utilities
      */
     public static void shareSupplies(RobotController rc) throws GameActionException
     {
-        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED - 1;
+        // no use transfering no supplies
+        if (rc.getSupplyLevel() <= 100)
+        {
+            return;
+        }
+
+        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED;
 
         RobotInfo[] nearByAllies = rc.senseNearbyRobots(dist, rc.getTeam());
         if (nearByAllies.length <= 0)
@@ -319,33 +325,56 @@ public class Utilities
             return;
         }
 
-        MapLocation ourHQ = rc.senseHQLocation();
-        int distToHQ = rc.getLocation().distanceSquaredTo(ourHQ);
+        int roundNumb = Clock.getRoundNum();
 
         if (shareAllSupplies(rc, nearByAllies))
         {
         }
         else
         {
+            int ourSupply = (int) rc.getSupplyLevel();
+            int totalSupply = ourSupply;
+            int index = 1;
+            RobotType ally;
+            for (int i = nearByAllies.length; --i>=0; )
+            {
+                ally = nearByAllies[i].type;
+                if (ally == RobotType.BEAVER || ally == RobotType.AEROSPACELAB || ally == RobotType.BARRACKS || ally == RobotType.HQ || ally == RobotType.MINERFACTORY || ally == RobotType.SUPPLYDEPOT || ally == RobotType.TANKFACTORY || ally == RobotType.TOWER)
+                {
+                    continue;
+                }
+                int allySupply = (int) nearByAllies[i].supplyLevel;
+                if (allySupply < ourSupply)
+                {
+                    totalSupply += allySupply;
+                    index++;
+                }
+            }
+
+            int averageSupply = totalSupply / index;
+
             for (int i = 0; i < nearByAllies.length; i++)
             {
-                int allyDist = nearByAllies[i].location.distanceSquaredTo(ourHQ);
-                if (allyDist > distToHQ)
+                ally = nearByAllies[i].type;
+                if (Clock.getBytecodesLeft() < 1000)
                 {
-                    MapLocation allySpot = nearByAllies[i].location;
-                    int allySupply = (int) nearByAllies[i].supplyLevel;
-                    if (allySupply < rc.getSupplyLevel())
+                    break;
+                }
+                if (roundNumb != Clock.getRoundNum())
+                {
+                    break;
+                }
+                if (ally == RobotType.BEAVER || ally == RobotType.AEROSPACELAB || ally == RobotType.BARRACKS || ally == RobotType.HQ || ally == RobotType.MINERFACTORY || ally == RobotType.SUPPLYDEPOT || ally == RobotType.TANKFACTORY || ally == RobotType.TOWER)
+                {
+                    continue;
+                }
+                int allySupply = (int) nearByAllies[i].supplyLevel;
+                if (allySupply < ourSupply)
+                {
+                    int supplyAmount = averageSupply - allySupply;
+                    if (supplyAmount > 0)
                     {
-                        if (Clock.getBytecodeNum() > 4000)
-                        {
-                            break;
-                        }
-                        if (rc.isLocationOccupied(allySpot) && allySpot.distanceSquaredTo(rc.getLocation()) < dist)
-                        {
-                            // transfer half of difference to them
-                            int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
-                            rc.transferSupplies(amount, allySpot);
-                        }
+                        rc.transferSupplies(supplyAmount, nearByAllies[i].location);
                     }
                 }
             }
@@ -357,6 +386,7 @@ public class Utilities
      */
     public static boolean shareAllSupplies(RobotController rc, RobotInfo[] nearByAllies) throws GameActionException
     {
+        /* TODO: Look into making a better Implementation of this
         if (rc.getHealth() < 20)
         {
             int totalSupplies = (int) rc.getSupplyLevel();
@@ -378,7 +408,7 @@ public class Utilities
             }
 
             return true;
-        }
+        }*/
         return false;
     }
 
@@ -851,7 +881,7 @@ public class Utilities
             }
         }
 
-        if (spot.distanceSquaredTo(enemyHQ) <= 35)
+        if (spot.distanceSquaredTo(enemyHQ) <= 49)
         {
             return true;
         }

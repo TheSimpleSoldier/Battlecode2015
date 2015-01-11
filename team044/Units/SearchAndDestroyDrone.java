@@ -2,7 +2,9 @@ package team044.Units;
 
 
 import battlecode.common.*;
+import team044.Messaging;
 import team044.Unit;
+import team044.Utilities;
 
 import java.util.Random;
 
@@ -17,6 +19,7 @@ public class SearchAndDestroyDrone extends Drone
         super(rc);
         target = rc.getLocation();
         rand = new Random(rc.getID());
+        rc.setIndicatorString(0, "Search and Destroy drone");
     }
 
     public void collectData() throws GameActionException
@@ -44,6 +47,13 @@ public class SearchAndDestroyDrone extends Drone
         {
             nearestDrone = rc.getLocation();
         }
+    }
+
+    public void handleMessages() throws GameActionException
+    {
+        super.handleMessages();
+
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfDronesOdd.ordinal(), Messaging.NumbOfDronesEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException
@@ -79,7 +89,7 @@ public class SearchAndDestroyDrone extends Drone
         {
             MapLocation[] towers = rc.senseEnemyTowerLocations();
             int decision = rand.nextInt(towers.length + 1);
-            if(rand.nextInt(towers.length + 1) == towers.length)
+            if (decision == towers.length)
             {
                 toReturn = rc.senseEnemyHQLocation();
             }

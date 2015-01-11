@@ -14,7 +14,7 @@ public class Launcher extends Unit
         // override supers range
         range = 24;
 
-        nav.setAvoidTowers(false);
+        nav.setAvoidTowers(true);
         nav.setAvoidHQ(false);
     }
 
@@ -36,7 +36,13 @@ public class Launcher extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        super.handleMessages();
+        // if we are getting low on supply and are near other robots send out request
+        if (rc.getSupplyLevel() < 40 && nearByAllies.length > 1)
+        {
+            MapLocation mySpot = rc.getLocation();
+            rc.broadcast(Messaging.FirstNeedSupplyX.ordinal(), mySpot.x);
+            rc.broadcast(Messaging.FirstNeedSupplyY.ordinal(), mySpot.y);
+        }
 
         Utilities.handleMessageCounter(rc, Messaging.NumbOfLaunchersOdd.ordinal(), Messaging.NumbOfLaunchersEven.ordinal());
     }

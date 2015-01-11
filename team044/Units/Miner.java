@@ -29,7 +29,7 @@ public class Miner extends Unit
         // collect our data
         super.collectData();
 
-        if (rc.senseOre(rc.getLocation()) < 5)
+        if (rc.senseOre(rc.getLocation()) < 2)
         {
             //target = Utilities.getBestMiningSpot(rc);
             target = Utilities.greedyBestMiningSpot(rc);
@@ -89,7 +89,7 @@ public class Miner extends Unit
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 1)
+        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
         {
             rc.mine();
             return true;

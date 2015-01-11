@@ -31,21 +31,36 @@ public class HQ extends Structure
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
         strat = new BuildOrderMessaging[28];
+        /*strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[1] = BuildOrderMessaging.BuildHelipad;
+        strat[2] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[3] = BuildOrderMessaging.BuildBeaverMiner;
+        strat[4] = BuildOrderMessaging.BuildMinerFactory;
+        strat[5] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[6] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[7] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[8] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[9] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[10] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[11] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[12] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[13] = BuildOrderMessaging.DoneBuilding;*/
+
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
         strat[2] = BuildOrderMessaging.BuildHelipad;
-        strat[3] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[4] = BuildOrderMessaging.BuildMiningBaracks;
-        strat[5] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[6] = BuildOrderMessaging.BuildMiningBaracks;
-        strat[7] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[8] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[3] = BuildOrderMessaging.BuildHelipad;
+        strat[4] = BuildOrderMessaging.BuildHelipad;
+        strat[5] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[6] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[7] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[8] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[9] = BuildOrderMessaging.BuildAerospaceLab;
         strat[10] = BuildOrderMessaging.BuildSupplyDepot;
         strat[11] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[12] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[12] = BuildOrderMessaging.BuildTankFactory;
         strat[13] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[14] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
         strat[15] = BuildOrderMessaging.BuildSupplyDepot;
         strat[16] = BuildOrderMessaging.BuildSupplyDepot;
         strat[17] = BuildOrderMessaging.BuildSupplyDepot;
@@ -60,7 +75,8 @@ public class HQ extends Structure
         strat[26] = BuildOrderMessaging.BuildSupplyDepot;
         strat[27] = BuildOrderMessaging.BuildSupplyDepot;
 
-        rc.setIndicatorString(0, "HQ");
+
+        rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
     public void handleMessages() throws GameActionException
@@ -86,7 +102,7 @@ public class HQ extends Structure
         // TODO: Smarter attack metrics
         else if (Clock.getRoundNum() > 1000)
         {
-            rc.broadcast(Messaging.Attack.ordinal(), 1);
+            //rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
 
         // even round so odd channel has data
@@ -214,6 +230,13 @@ public class HQ extends Structure
 
     public void collectData() throws GameActionException
     {
+        MapLocation[] towers = rc.senseTowerLocations();
+
+        if (towers.length >= 2)
+        {
+            range = 35;
+        }
+
         enemies = rc.senseNearbyRobots(99999, opponent);
         nearByEnemies = rc.senseNearbyRobots(35, opponent);
         allies = rc.senseNearbyRobots(99999, us);
@@ -236,11 +259,6 @@ public class HQ extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (nearByEnemies.length > 0)
-        {
-            System.out.println("Near by enemies length to great");
-            return false;
-        }
         if (currentUnit >= strat.length)
         {
             return false;

@@ -62,6 +62,7 @@ public class Messenger
      */
     public void giveUnitOrders() throws GameActionException
     {
+        /*
         if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 0)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
@@ -69,7 +70,7 @@ public class Messenger
         else
         {
             droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
-        }
+        }*/
 
         int message;
         if (rc.readBroadcast(Messaging.BasherType.ordinal()) == -1)
