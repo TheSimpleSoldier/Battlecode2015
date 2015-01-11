@@ -54,8 +54,6 @@ public class Navigator
         //dog always tries to run ahead since it will sometimes be stopped early
         dogGo();
 
-        rc.setIndicatorString(1, "Dog: " + dog);
-
         Direction dir = rc.getLocation().directionTo(dog);
 
         //if you can move towards the dog, do
@@ -100,12 +98,12 @@ public class Navigator
     //This is the method that moves the dog along till it is almost out of sight
     private void dogGo() throws GameActionException
     {
+        int round = Clock.getRoundNum();
         Direction lastDir = Direction.NONE;
-        int roundNumb = Clock.getRoundNum();
         //go till out of site
         while(dogInSight() && !dog.equals(target))
         {
-            if(lowBytecodes && /*roundNumb < Clock.getRoundNum()) //*/Clock.getBytecodesLeft() < 1500)
+            if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
             {
                 return;
             }
@@ -379,6 +377,11 @@ public class Navigator
     public void setLowBytecodes(boolean lowBytecodes)
     {
         this.lowBytecodes = lowBytecodes;
+    }
+
+    public MapLocation getTarget()
+    {
+        return target;
     }
 
     //mainly for missiles. very bycode efficient, but also not very good

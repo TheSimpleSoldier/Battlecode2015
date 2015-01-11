@@ -16,7 +16,7 @@ public class SearchAndDestroyDrone extends Drone
     {
         super(rc);
         target = rc.getLocation();
-        rand = new Random();
+        rand = new Random(rc.getID());
     }
 
     public void collectData() throws GameActionException
@@ -48,7 +48,7 @@ public class SearchAndDestroyDrone extends Drone
 
     public boolean takeNextStep() throws GameActionException
     {
-        if(rc.getLocation().equals(target))
+        if(rc.getLocation().equals(nav.getTarget()))
         {
             target = findNextTarget();
         }
@@ -70,14 +70,23 @@ public class SearchAndDestroyDrone extends Drone
         {
             toReturn = tracker.getRandomMinerFactory();
         }
-        //40% chance or no factories found for looking for miner
+        //30% chance or no factories found for looking for miner
         if(toReturn.equals(rc.getLocation()))
         {
             toReturn = tracker.getRandomMiner();
         }
         if(toReturn.equals(rc.getLocation()))
         {
-            toReturn = rc.senseEnemyHQLocation();
+            MapLocation[] towers = rc.senseEnemyTowerLocations();
+            int decision = rand.nextInt(towers.length + 1);
+            if(rand.nextInt(towers.length + 1) == towers.length)
+            {
+                toReturn = rc.senseEnemyHQLocation();
+            }
+            else
+            {
+                toReturn = towers[decision];
+            }
         }
 
         return toReturn;
