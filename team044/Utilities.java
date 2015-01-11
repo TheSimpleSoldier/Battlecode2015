@@ -1,9 +1,7 @@
 package team044;
 
 import battlecode.common.*;
-import battlecode.world.Robot;
 
-import java.util.Map;
 import java.util.Random;
 
 public class Utilities
@@ -12,6 +10,43 @@ public class Utilities
     // location for methods that can be used across multiple domains
 
     private static int startChannelMineSpots = 100;
+
+    public static MapLocation getBestSpotSimple(RobotController rc) throws GameActionException
+    {
+        Random rand = new Random(rc.getID() * Clock.getRoundNum());
+        MapLocation location = rc.getLocation();
+        int k = 20;
+        for(; --k >= 0;)
+        {
+            MapLocation nextLocation = location.add(Direction.values()[rand.nextInt(8)]);
+
+            if(rc.canSenseLocation(location))
+            {
+                if(rc.senseOre(nextLocation) >= rc.senseOre(location))
+                {
+                    location = nextLocation;
+                }
+            }
+        }
+
+        Direction[] dirs = Direction.values();
+        //MapLocation location = rc.getLocation();
+
+        if(rc.senseOre(location) >= 40 && farFromHome(rc, rc.getTeam(), rc.getLocation()))
+        {
+            return location;
+        }
+
+        for(k = 0; k < 8; k++)
+        {
+            if(rc.senseOre(location.add(dirs[k])) >= 40 && farFromHome(rc, rc.getTeam(), rc.getLocation()))
+            {
+                return location.add(dirs[k]);
+            }
+        }
+
+        return rc.getLocation();
+    }
 
     public static MapLocation getBestSpot(RobotController rc, boolean lightWeight) throws GameActionException
     {
@@ -108,7 +143,7 @@ public class Utilities
     //this will check if a spot is near the towers or hq of a particular team.
     private static boolean farFromHome(RobotController rc, Team team, MapLocation location)
     {
-        int close = 10;
+        int close = 50;
 
         boolean opponent = false;
         if(rc.getTeam() != team)
