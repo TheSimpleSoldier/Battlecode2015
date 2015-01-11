@@ -3,10 +3,9 @@ package team044.Units;
 import battlecode.common.*;
 import team044.BuildOrderMessaging;
 import team044.Messaging;
-import team044.Utilities;
 import team044.Unit;
+import team044.Utilities;
 
-import java.awt.*;
 import java.util.Random;
 
 public class BuildingBeaver extends Beaver
@@ -21,6 +20,8 @@ public class BuildingBeaver extends Beaver
     boolean becomeMiner;
     int numb;
     MapLocation buildingSpot;
+    int type;
+    boolean foundSpot;
 
     public BuildingBeaver(RobotController rc) throws GameActionException
     {
@@ -32,14 +33,29 @@ public class BuildingBeaver extends Beaver
         becomeMiner = false;
         numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
         rand = new Random(rc.getID());
+        type = -1;
+        foundSpot = false;
     }
 
     public void collectData() throws GameActionException
     {
         super.collectData();
+
+        if(type == BuildOrderMessaging.BuildMiningBaracks.ordinal() && !foundSpot)
+        {
+            MapLocation temp = Utilities.getBestSpotSimple(rc);
+            if(!temp.equals(rc.getLocation()))
+            {
+                rc.setIndicatorString(1, "Building in new spot: " + temp);
+                buildingSpot = temp;
+                target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
+                foundSpot = true;
+            }
+        }
+
         if (building == null && rc.isCoreReady())
         {
-            int type = rc.readBroadcast(Messaging.BuildOrder.ordinal());
+            type = rc.readBroadcast(Messaging.BuildOrder.ordinal());
 
             building = Utilities.getTypeForInt(type);
 
