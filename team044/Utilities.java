@@ -542,7 +542,7 @@ public class Utilities
 
         target = target.add(dirs[dir], 2);
 
-        while (rc.isLocationOccupied(target))
+        while (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))
         {
             dir = random.nextInt(8);
 
@@ -563,7 +563,7 @@ public class Utilities
 
         if (numb == 0)//< towers.length)
         {
-            target = getTowerClosestToEnemyHQ(rc);
+            target = rc.senseHQLocation();  //getTowerClosestToEnemyHQ(rc);
         }
         else
         {
@@ -626,7 +626,7 @@ public class Utilities
 
         target = target.add(dirs[dir], 2);
 
-        while (rc.isLocationOccupied(target))
+        while (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))
         {
             dir = random.nextInt(8);
 

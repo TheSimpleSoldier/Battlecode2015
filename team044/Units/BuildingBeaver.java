@@ -77,7 +77,15 @@ public class BuildingBeaver extends Beaver
                 {
                     rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
                 }
-                target = Utilities.findLocationForBuilding(rc, numb, building);
+                if (target != null && target.distanceSquaredTo(ourHQ) < 100)
+                {
+                    target = target.add(target.directionTo(enemyHQ));
+                }
+                else
+                {
+                    target = Utilities.findLocationForBuilding(rc, numb, building);
+                }
+
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
                 //rc.setIndicatorString(0, "Numb: " + numb);
@@ -114,7 +122,7 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 15)
+        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 4)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
