@@ -7,8 +7,6 @@ import team044.Units.Rushers.TankRusher;
 
 public class Tank extends Unit
 {
-    public MapLocation target;
-
     public Tank()
     {
         // Houston we have a problem
@@ -17,27 +15,28 @@ public class Tank extends Unit
     public Tank(RobotController rc)
     {
         super(rc);
-        target = Utilities.getTowerClosestToEnemyHQ(rc);
+
+        nav.setAvoidTowers(false);
+
+        rc.setIndicatorString(0, "Standard Tank");
     }
 
     public void collectData() throws GameActionException
     {
         super.collectData();
 
-        MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
-        if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
+        // TODO: Add code to smartly move forward so the entire army moves together
+        target = Utilities.getRushLocation(rc);
+        rc.setIndicatorString(1, "Target: " + target);
+        /*MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
+        if (enemyTower.length > 0)
         {
             target = enemyTower[0];
         }
-        else if (Clock.getRoundNum() > 1500)
+        else
         {
             target = rc.senseEnemyHQLocation();
-        }
-
-        if (target == null)
-        {
-            target = rc.senseEnemyHQLocation();
-        }
+        }*/
     }
 
     public void handleMessages() throws GameActionException
@@ -49,10 +48,6 @@ public class Tank extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
-        if (nearByEnemies.length > 0)
-        {
-            return false;
-        }
         int byteCodes = Clock.getBytecodeNum();
         int roundNumb = Clock.getRoundNum();
         boolean move = nav.takeNextStep(target);
@@ -60,7 +55,7 @@ public class Tank extends Unit
         roundNumb = Clock.getRoundNum() - roundNumb;
         if (roundNumb > 0)
         {
-            //System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
+            System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
         }
         return move;
     }
@@ -68,7 +63,6 @@ public class Tank extends Unit
     public boolean fight() throws GameActionException
     {
         return fighter.advancedFightMicro(nearByEnemies);
-        //return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

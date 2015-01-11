@@ -5,9 +5,6 @@ import team044.Unit;
 import team044.Units.Drone;
 import team044.Utilities;
 
-/**
- * Created by fred on 1/8/15.
- */
 public class DroneRusher extends Drone {
     public DroneRusher(RobotController rc)
     {
@@ -19,6 +16,8 @@ public class DroneRusher extends Drone {
         super.collectData();
 
         target = Utilities.getRushLocation(rc);
+
+        nav.setAvoidTowers(false);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

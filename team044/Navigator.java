@@ -54,6 +54,8 @@ public class Navigator
         //dog always tries to run ahead since it will sometimes be stopped early
         dogGo();
 
+        rc.setIndicatorString(1, "Dog: " + dog);
+
         Direction dir = rc.getLocation().directionTo(dog);
 
         //if you can move towards the dog, do
@@ -65,19 +67,19 @@ public class Navigator
         //if it is another unit, go around it
         else if(isUnit(rc.getLocation().add(dir)) && rc.isCoreReady())
         {
-            if(!badSpot(rc.getLocation().add(dir.rotateRight())))
+            if(!badSpot(rc.getLocation().add(dir.rotateRight())) && rc.canMove(dir.rotateRight()))
             {
                 rc.move(dir.rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft())))
+            else if(!badSpot(rc.getLocation().add(dir.rotateLeft())) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight())))
+            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight())) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft())))
+            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft())) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
             }

@@ -7,8 +7,6 @@ import battlecode.common.*;
 
 public class Commander extends Unit
 {
-    RobotController rc;
-
     public Commander(RobotController rc)
     {
         super(rc);

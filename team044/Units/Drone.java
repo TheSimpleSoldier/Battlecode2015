@@ -8,7 +8,6 @@ import team044.Unit;
 
 public class Drone extends Unit
 {
-    public MapLocation target;
     public Drone()
     {
         //default constructor

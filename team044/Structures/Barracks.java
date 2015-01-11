@@ -16,6 +16,7 @@ public class Barracks extends Structure
         {
             basher = false;
         }
+        rc.setIndicatorString(0, "Barracks");
     }
 
     // overridden methods go here

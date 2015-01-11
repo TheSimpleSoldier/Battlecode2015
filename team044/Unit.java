@@ -6,15 +6,19 @@ public abstract class Unit
 {
     public RobotController rc;
     public int range;
+    public int sightRange;
     public Team us;
     public Team opponent;
     public MapLocation ourHQ;
     public MapLocation enemyHQ;
     public RobotInfo[] nearByEnemies;
     public RobotInfo[] nearByAllies;
+    public RobotInfo[] enemies;
     public FightMicro fighter;
     public Navigator nav;
     public EnemyMinerTracker tracker;
+    public MapLocation target;
+    public Direction[] dirs;
 
     public Unit()
     {
@@ -32,6 +36,8 @@ public abstract class Unit
         tracker = new EnemyMinerTracker(rc);
         ourHQ = rc.senseHQLocation();
         enemyHQ = rc.senseEnemyHQLocation();
+        dirs = Direction.values();
+        sightRange = rc.getType().sensorRadiusSquared;
     }
 
     public void collectData() throws GameActionException
