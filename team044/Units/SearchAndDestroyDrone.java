@@ -47,6 +47,8 @@ public class SearchAndDestroyDrone extends Drone
         {
             nearestDrone = rc.getLocation();
         }
+
+        rc.setIndicatorString(1, "Target" + target);
     }
 
     public void handleMessages() throws GameActionException
@@ -58,14 +60,14 @@ public class SearchAndDestroyDrone extends Drone
 
     public boolean takeNextStep() throws GameActionException
     {
-        if(rc.getLocation().equals(nav.getTarget()))
+        if(rc.getLocation().distanceSquaredTo(target) <= 35)
         {
             target = findNextTarget();
         }
-        if(!nearestDrone.equals(rc.getLocation()))
+        /*if(!nearestDrone.equals(rc.getLocation()))
         {
             target = nearestDrone.add(Direction.NONE);
-        }
+        }*/
 
         return nav.takeNextStep(target);
     }
@@ -100,11 +102,6 @@ public class SearchAndDestroyDrone extends Drone
         }
 
         return toReturn;
-    }
-
-    public Unit getNewStrategy(Unit current) throws GameActionException
-    {
-        return current;
     }
 
     public boolean carryOutAbility() throws GameActionException

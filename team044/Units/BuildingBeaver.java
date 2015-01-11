@@ -110,6 +110,12 @@ public class BuildingBeaver extends Beaver
                     target = Utilities.findLocationForBuilding(rc, numb, building);
                 }
 
+                if (target == null)
+                {
+                    rc.setIndicatorString(1, "Target was null");
+                    target = rc.getLocation().add(rc.getLocation().directionTo(rc.senseEnemyHQLocation()));
+                }
+
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
                 rc.setIndicatorString(0, "Numb: " + numb);
@@ -125,6 +131,10 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(2, "build = true");
                 target = rc.getLocation();
                 build = true;
+            }
+            while (rc.isLocationOccupied(target))
+            {
+                target = target.add(dirs[rand.nextInt(8)]);
             }
         }
     }
@@ -146,7 +156,7 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 5)
+        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 3)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {

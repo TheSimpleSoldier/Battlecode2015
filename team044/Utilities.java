@@ -215,7 +215,8 @@ public class Utilities
             return false;
         }
 
-        if(location.distanceSquaredTo(rc.senseHQLocation()) < close)
+        // building close to our HQ is pointless and gets in the way
+        if(location.distanceSquaredTo(rc.senseHQLocation()) < (close * 2))
         {
             return false;
         }
@@ -657,11 +658,11 @@ public class Utilities
 
         target = target.add(dirs[dir], 2);
 
-        while (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))
+        while (!rc.isPathable(rc.getType(), target))
         {
             dir = random.nextInt(8);
 
-            target = target.add(dirs[dir], 2);
+            target = target.add(dirs[dir]);
         }
 
         return target;
@@ -741,11 +742,12 @@ public class Utilities
 
         target = target.add(dirs[dir], 2);
 
-        while (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))
+        while (!rc.isPathable(rc.getType(), target))
         {
             dir = random.nextInt(8);
 
-            target = target.add(dirs[dir], 2);
+            target = target.add(dirs[dir]);
+
         }
 
         return target;

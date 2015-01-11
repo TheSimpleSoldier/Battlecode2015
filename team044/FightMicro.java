@@ -171,6 +171,26 @@ public class FightMicro
         }
         if (nearByEnemies.length < 1)
         {
+            if (rc.getType() == RobotType.HQ)
+            {
+                RobotInfo[] enemies = rc.senseNearbyRobots(52, rc.getTeam().opponent());
+
+                if (enemies.length > 0)
+                {
+                    MapLocation enemy;
+                    MapLocation us = rc.getLocation();
+                    for (int i = enemies.length; --i>=0; )
+                    {
+                        enemy = enemies[i].location;
+                        enemy = enemy.add(enemy.directionTo(us));
+
+                        if (!rc.isLocationOccupied(enemy) && rc.canAttackLocation(enemy))
+                        {
+                            rc.attackLocation(enemy);
+                        }
+                    }
+                }
+            }
             return false;
         }
         RobotInfo enemyToAttack = FightMicroUtilities.findWeakestEnemy(nearByEnemies);
@@ -316,7 +336,7 @@ public class FightMicro
         if (enemyHQ == null)
         {
             enemyHQ = rc.senseEnemyHQLocation();
-            System.out.println("enemyHQ null");
+            //System.out.println("enemyHQ null");
         }
 
         // if we can shoot
@@ -341,17 +361,17 @@ public class FightMicro
                     if (FightMicroUtilities.enemyKitingUs(rc, enemies))
                     {
                         direction = FightMicroUtilities.retreatDir(enemies, rc, enemyTowers, enemyHQ);
-                        rc.setIndicatorString(1, "Enemy kiting us");
+            //            rc.setIndicatorString(1, "Enemy kiting us");
                     }
                     // otherwise advance
                     else
                     {
                         direction = FightMicroUtilities.advanceDir(rc, enemies, enemyTowers, enemyHQ, true);
-                        rc.setIndicatorString(1, "No enemies in range so advance");
+            //            rc.setIndicatorString(1, "No enemies in range so advance");
 
                         if (direction == null)
                         {
-                            rc.setIndicatorString(1, "Advancing in unsafe Direction");
+            //                rc.setIndicatorString(1, "Advancing in unsafe Direction");
                             direction = FightMicroUtilities.advanceDir(rc, enemies, enemyTowers, enemyHQ, false);
                         }
                     }
@@ -365,7 +385,7 @@ public class FightMicro
                 if (FightMicroUtilities.enemyInRange(rc, enemies))
                 {
                     direction = FightMicroUtilities.retreatDir(enemies, rc, enemyTowers, enemyHQ);
-                    rc.setIndicatorString(1, "Enemy in range retreat");
+            //        rc.setIndicatorString(1, "Enemy in range retreat");
                 }
                 // otherwise just sit and blast him!
                 RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
@@ -374,7 +394,7 @@ public class FightMicro
 
                 if (rc.canAttackLocation(enemySpot))
                 {
-                    rc.setIndicatorString(1, "Shooting at: " + enemySpot);
+            //        rc.setIndicatorString(1, "Shooting at: " + enemySpot);
                     rc.attackLocation(enemySpot);
                 }
             }
@@ -393,18 +413,18 @@ public class FightMicro
                 if (FightMicroUtilities.enemyInRange(rc, enemies))
                 {
                     direction = FightMicroUtilities.retreatDir(enemies, rc, enemyTowers, enemyHQ);
-                    rc.setIndicatorString(1, "We are in range of enemy");
+            //        rc.setIndicatorString(1, "We are in range of enemy");
                 }
                 // if there are no enemies in range of us
                 else if (nearByEnemies.length == 0)
                 {
                     // if we can advance to a location that is not in range of an enemy do so
                     direction = FightMicroUtilities.advanceDir(rc, enemies, enemyTowers, enemyHQ, true);
-                    rc.setIndicatorString(1, "We are advancing towards enemy");
+            //        rc.setIndicatorString(1, "We are advancing towards enemy");
                 }
                 else
                 {
-                    rc.setIndicatorString(1, "Wait for cool down to attack");
+            //        rc.setIndicatorString(1, "Wait for cool down to attack");
                 }
             }
         }
@@ -416,14 +436,14 @@ public class FightMicro
             {
                 if (!Utilities.locInRangeOfEnemyTower(rc.getLocation().add(direction), enemyTowers, enemyHQ))
                 {
-                    rc.setIndicatorString(0, "Closest enemy Tower: " + closestTower);
+            //        rc.setIndicatorString(0, "Closest enemy Tower: " + closestTower);
                     //rc.setIndicatorString(2, "Dist: " + closestTower.distanceSquaredTo(rc.getLocation().add(direction)));
                     rc.move(direction);
                     return true;
                 }
                 else
                 {
-                    rc.setIndicatorString(2, "next location in range of enemy towers or HQ: " + rc.getLocation().add(direction));
+            //        rc.setIndicatorString(2, "next location in range of enemy towers or HQ: " + rc.getLocation().add(direction));
                 }
             }
             return true;

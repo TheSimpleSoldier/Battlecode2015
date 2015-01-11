@@ -236,6 +236,10 @@ public class HQ extends Structure
         {
             range = 35;
         }
+        else
+        {
+            range = 24;
+        }
 
         enemies = rc.senseNearbyRobots(99999, opponent);
         nearByEnemies = rc.senseNearbyRobots(35, opponent);
@@ -280,7 +284,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 1)
+        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 50)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
