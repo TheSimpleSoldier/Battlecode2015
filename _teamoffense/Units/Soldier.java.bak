@@ -1,22 +1,23 @@
 package team044.Units;
 
-import team044.*;
+import team044.Messaging;
+import team044.Unit;
 import battlecode.common.*;
-import team044.Units.Rushers.BasherRusher;
-import team044.Units.Rushers.BeaverRusher;
+import team044.Units.Rushers.SoldierRusher;
+import team044.Utilities;
 
-public class Beaver extends Unit
+public class Soldier extends Unit
 {
-    int buildingType;
-
-    public Beaver()
+    public Soldier()
     {
-        // we are in trouble
+
     }
 
-    public Beaver(RobotController rc)
+    public Soldier(RobotController rc)
     {
         super(rc);
+
+        rc.setIndicatorString(0, "Base Soldier");
     }
 
     public void collectData() throws GameActionException
@@ -28,7 +29,7 @@ public class Beaver extends Unit
     {
         super.handleMessages();
 
-        Utilities.handleMessageCounter(rc, Messaging.NumbOfBeaverOdd.ordinal(), Messaging.NumbOfBeaverEven.ordinal());
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfSoldiersOdd.ordinal(), Messaging.NumbOfSoldiersEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException
@@ -37,13 +38,16 @@ public class Beaver extends Unit
         {
             return false;
         }
-        rc.setIndicatorString(0, "In navigation: " + target);
+        else if (nearByEnemies.length > 0)
+        {
+            return false;
+        }
         return nav.takeNextStep(target);
     }
 
     public boolean fight() throws GameActionException
     {
-        return fighter.basicFightMicro(nearByEnemies);
+        return fighter.advancedFightMicro(nearByEnemies);
         //return fighter.basicFightMicro(nearByEnemies);
     }
 
@@ -51,19 +55,13 @@ public class Beaver extends Unit
     {
         if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
         {
-            return new BeaverRusher(rc);
+            return new SoldierRusher(rc);
         }
         return current;
     }
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
-        {
-            rc.mine();
-            return true;
-        }
-
         return false;
     }
 }

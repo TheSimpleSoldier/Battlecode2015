@@ -1,18 +1,18 @@
-package team044.Units;
+package _teamoffense.Units;
 
 
-import team044.*;
+import _teamoffense.*;
 
 import battlecode.common.*;
-import team044.Units.Rushers.LauncherRusher;
+import _teamoffense.Units.Rushers.BasherRusher;
 
-public class Launcher extends Unit
+import javax.rmi.CORBA.Util;
+
+public class Basher extends Unit
 {
-    public Launcher(RobotController rc)
+    public Basher(RobotController rc)
     {
         super(rc);
-        // override supers range
-        range = 24;
 
         nav.setAvoidTowers(false);
         nav.setAvoidHQ(false);
@@ -21,9 +21,11 @@ public class Launcher extends Unit
     public void collectData() throws GameActionException
     {
         super.collectData();
+        
         // collect our data
-        nearByEnemies = rc.senseNearbyRobots(range, opponent);
-        MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
+        target = Utilities.getRushLocation(rc);
+        rc.setIndicatorString(1, "Target: " + target);
+        /*MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
         if (enemyTower.length > 0)
         {
             target = enemyTower[0];
@@ -31,42 +33,31 @@ public class Launcher extends Unit
         else
         {
             target = rc.senseEnemyHQLocation();
-        }
+        }*/
     }
 
     public void handleMessages() throws GameActionException
     {
         super.handleMessages();
 
-        Utilities.handleMessageCounter(rc, Messaging.NumbOfLaunchersOdd.ordinal(), Messaging.NumbOfLaunchersEven.ordinal());
+        Utilities.handleMessageCounter(rc, Messaging.NumbOfBashersOdd.ordinal(), Messaging.NumbOfBashersEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException
     {
-        if (nearByEnemies.length > 0)
-        {
-            return false;
-        }
-        else if (Utilities.nearEnemyTower(rc))
-        {
-            return false;
-        }
-        else
-        {
-            return nav.takeNextStep(target);
-        }
+        return nav.takeNextStep(target);
     }
 
     public boolean fight() throws GameActionException
     {
-        return fighter.launcherAttack(nearByEnemies);
+        return fighter.basherFightMicro();
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
         if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
         {
-            return new LauncherRusher(rc);
+            return new BasherRusher(rc);
         }
         return current;
     }

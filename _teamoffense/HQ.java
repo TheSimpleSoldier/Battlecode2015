@@ -1,4 +1,4 @@
-package team044;
+package _teamoffense;
 
 import battlecode.common.*;
 
@@ -30,35 +30,27 @@ public class HQ extends Structure
         super(rc);
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
-        strat = new BuildOrderMessaging[28];
+        strat = new BuildOrderMessaging[21];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        strat[2] = BuildOrderMessaging.BuildHelipad;
+        strat[2] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[3] = BuildOrderMessaging.BuildMiningBaracks;
-        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[5] = BuildOrderMessaging.BuildMiningBaracks;
-        strat[6] = BuildOrderMessaging.BuildTankFactory;
-        strat[7] = BuildOrderMessaging.BuildTankFactory;
-        strat[8] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[4] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[6] = BuildOrderMessaging.BuildHelipad;
+        strat[7] = BuildOrderMessaging.BuildBaracks;
+        strat[8] = BuildOrderMessaging.BuildTankFactory;
         strat[9] = BuildOrderMessaging.BuildTankFactory;
-        strat[10] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[10] = BuildOrderMessaging.BuildTankFactory;
         strat[11] = BuildOrderMessaging.BuildTankFactory;
-        strat[12] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[12] = BuildOrderMessaging.BuildTankFactory;
         strat[13] = BuildOrderMessaging.BuildTankFactory;
-        strat[14] = BuildOrderMessaging.BuildTankFactory;
+        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
         strat[15] = BuildOrderMessaging.BuildSupplyDepot;
         strat[16] = BuildOrderMessaging.BuildSupplyDepot;
         strat[17] = BuildOrderMessaging.BuildSupplyDepot;
         strat[18] = BuildOrderMessaging.BuildSupplyDepot;
         strat[19] = BuildOrderMessaging.BuildSupplyDepot;
         strat[20] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[21] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[22] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[23] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[24] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[25] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[26] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[27] = BuildOrderMessaging.BuildSupplyDepot;
 
         rc.setIndicatorString(0, "HQ");
     }

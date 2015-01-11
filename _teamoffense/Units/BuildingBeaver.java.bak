@@ -31,7 +31,6 @@ public class BuildingBeaver extends Beaver
 
         becomeMiner = false;
         numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
-        rand = new Random(rc.getID());
     }
 
     public void collectData() throws GameActionException
@@ -42,8 +41,6 @@ public class BuildingBeaver extends Beaver
             int type = rc.readBroadcast(Messaging.BuildOrder.ordinal());
 
             building = Utilities.getTypeForInt(type);
-
-            rc.setIndicatorString(2, "Building: " + building + ", target: " + target);
 
             if (type == BuildOrderMessaging.DoneBuilding.ordinal())
             {
@@ -74,7 +71,6 @@ public class BuildingBeaver extends Beaver
             }
             else
             {
-                rc.setIndicatorString(0, " In else: " + target);
                 numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
                 if (building == RobotType.MINERFACTORY)
@@ -84,10 +80,6 @@ public class BuildingBeaver extends Beaver
                 if (target != null && target.distanceSquaredTo(ourHQ) < 100)
                 {
                     target = target.add(target.directionTo(enemyHQ));
-                    while (rc.canSenseLocation(target) && rc.isLocationOccupied(target))
-                    {
-                        target = target.add(dirs[rand.nextInt(8)]);
-                    }
                 }
                 else
                 {
@@ -96,8 +88,8 @@ public class BuildingBeaver extends Beaver
 
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
-                rc.setIndicatorString(0, "Numb: " + numb);
-                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot + ", target: " + target);
+                //rc.setIndicatorString(0, "Numb: " + numb);
+                //rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
         }
 
@@ -106,7 +98,7 @@ public class BuildingBeaver extends Beaver
             rc.setIndicatorString(1, "can sense Spot");
             if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID)
             {
-                rc.setIndicatorString(2, "build = true");
+                rc.setIndicatorString(1, "build = true");
                 target = rc.getLocation();
                 build = true;
             }
@@ -130,7 +122,7 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 5)
+        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 4)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {

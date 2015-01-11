@@ -1,9 +1,9 @@
-package team044.Units;
+package _teamoffense.Units;
 
-import team044.*;
+import _teamoffense.*;
 import battlecode.common.*;
-import team044.Units.Rushers.BasherRusher;
-import team044.Units.Rushers.BeaverRusher;
+import _teamoffense.Units.Rushers.BasherRusher;
+import _teamoffense.Units.Rushers.BeaverRusher;
 
 public class Beaver extends Unit
 {
@@ -37,8 +37,9 @@ public class Beaver extends Unit
         {
             return false;
         }
-        rc.setIndicatorString(0, "In navigation: " + target);
+
         return nav.takeNextStep(target);
+        //return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException

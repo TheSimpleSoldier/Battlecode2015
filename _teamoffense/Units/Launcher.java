@@ -1,10 +1,10 @@
-package team044.Units;
+package _teamoffense.Units;
 
 
-import team044.*;
+import _teamoffense.*;
 
 import battlecode.common.*;
-import team044.Units.Rushers.LauncherRusher;
+import _teamoffense.Units.Rushers.LauncherRusher;
 
 public class Launcher extends Unit
 {
@@ -13,9 +13,7 @@ public class Launcher extends Unit
         super(rc);
         // override supers range
         range = 24;
-
-        nav.setAvoidTowers(false);
-        nav.setAvoidHQ(false);
+        target = rc.senseTowerLocations()[0];
     }
 
     public void collectData() throws GameActionException

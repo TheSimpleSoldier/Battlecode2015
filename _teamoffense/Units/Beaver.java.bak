@@ -37,8 +37,9 @@ public class Beaver extends Unit
         {
             return false;
         }
-        rc.setIndicatorString(0, "In navigation: " + target);
+
         return nav.takeNextStep(target);
+        //return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException

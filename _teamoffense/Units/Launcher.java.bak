@@ -13,9 +13,7 @@ public class Launcher extends Unit
         super(rc);
         // override supers range
         range = 24;
-
-        nav.setAvoidTowers(false);
-        nav.setAvoidHQ(false);
+        target = rc.senseTowerLocations()[0];
     }
 
     public void collectData() throws GameActionException
