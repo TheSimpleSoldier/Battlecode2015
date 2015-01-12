@@ -109,7 +109,7 @@ public class Missile
                     {
                         if (target == null)
                         {
-                            RobotInfo[] nearByAllies = rc.senseNearbyRobots(10, rc.getTeam());
+                            RobotInfo[] nearByAllies = rc.senseNearbyRobots(15, rc.getTeam());
 
                             for (int i = nearByAllies.length; --i>=0; )
                             {

@@ -8,21 +8,17 @@ import team044.Messaging;
 import team044.Unit;
 import team044.Units.Rushers.DroneRusher;
 
-public class Drone extends Unit
+public class Drone extends DefensiveUnits
 {
-    public Drone()
-    {
-        //default constructor
-    }
 
     public Drone(RobotController rc)
     {
         super(rc);
     }
 
-    public void collectData() throws GameActionException
+    public void collectData2() throws GameActionException
     {
-        super.collectData();
+        // nothing special
     }
 
     public boolean takeNextStep() throws GameActionException

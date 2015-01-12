@@ -1011,6 +1011,17 @@ public class Utilities
      */
     public static boolean locInRangeOfEnemyTower(MapLocation spot, MapLocation[] towers, MapLocation enemyHQ)
     {
+        int HQRange = 24;
+
+        if (towers.length >= 5)
+        {
+            HQRange = 52;
+        }
+        else if (towers.length >= 2)
+        {
+            HQRange = 35;
+        }
+
         for (int i = 0; i < towers.length; i++)
         {
             if (spot.distanceSquaredTo(towers[i]) <= 24)
@@ -1019,11 +1030,47 @@ public class Utilities
             }
         }
 
-        if (spot.distanceSquaredTo(enemyHQ) <= 51)
+        if (spot.distanceSquaredTo(enemyHQ) <= HQRange)
         {
             return true;
         }
 
+        return false;
+    }
+
+    /**
+     * This method determines if we are surrounded and need to cut all prod except for launchers
+     */
+    public static boolean cutProd(RobotController rc)
+    {
+        // this function doesn't apply in early game
+        if (Clock.getRoundNum() > 500 && rc.getTeamOre() < 600)
+        {
+            RobotInfo[] allies = rc.senseNearbyRobots(99999, rc.getTeam());
+
+            boolean haveAerospaceLab = false;
+            int numbOfMiners = 0;
+            RobotType ally;
+
+            for (int i = allies.length; --i>=0; )
+            {
+                ally = allies[i].type;
+                if (ally == RobotType.AEROSPACELAB)
+                {
+                    haveAerospaceLab = true;
+                }
+                else if (ally == RobotType.MINER)
+                {
+                    numbOfMiners++;
+                }
+            }
+
+            // if we have an aerospace lab and not economy then just mass launchers
+            if (haveAerospaceLab && numbOfMiners < 6)
+            {
+                return true;
+            }
+        }
         return false;
     }
 }

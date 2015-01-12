@@ -92,6 +92,10 @@ public class HQ extends Structure
         rc.broadcast(Messaging.BuildingInDistressY.ordinal(), 0);
         rc.broadcast(Messaging.BuildingInDistressX.ordinal(), 0);
 
+        // reset Launcher in need of help channel
+        rc.broadcast(Messaging.LauncherAttackX.ordinal(), 0);
+        rc.broadcast(Messaging.LauncherAttackY.ordinal(), 0);
+
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
         if (Clock.getRoundNum() > 1800)
         {

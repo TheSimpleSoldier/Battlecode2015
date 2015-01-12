@@ -342,7 +342,8 @@ public class FightMicroUtilities
         Direction best = null;
         Direction[] dirs = Direction.values();
         MapLocation us = rc.getLocation();
-        int bestScore = -1;
+        int bestScore = 0;
+        boolean enemyDrone = false;
 
         for (int i = 0; i < 8; i++)
         {
@@ -362,6 +363,7 @@ public class FightMicroUtilities
                     if (safe || enemies[j].type == RobotType.DRONE)
                     {
                         score -= 100000;
+                        enemyDrone = true;
                     }
                     score--;
                 }
@@ -372,6 +374,11 @@ public class FightMicroUtilities
                 // if nxt move is in range of tower don't do it
             }
             else if (score > bestScore)
+            {
+                bestScore = score;
+                best = dirs[i];
+            }
+            else if (!enemyDrone && score >= bestScore)
             {
                 bestScore = score;
                 best = dirs[i];

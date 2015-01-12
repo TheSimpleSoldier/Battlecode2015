@@ -24,9 +24,8 @@ public class SearchAndDestroyDrone extends Drone
         roundNumb = Clock.getRoundNum();
     }
 
-    public void collectData() throws GameActionException
+    public void collectData2() throws GameActionException
     {
-        super.collectData();
         int closest = -1;
         double nearestDist = Math.sqrt(Math.pow(GameConstants.MAP_MAX_HEIGHT, 2) +
                                        Math.pow(GameConstants.MAP_MAX_WIDTH, 2));
@@ -62,12 +61,12 @@ public class SearchAndDestroyDrone extends Drone
 
     public boolean takeNextStep() throws GameActionException
     {
-        if(rc.getLocation().distanceSquaredTo(target) <= 35 || (roundNumb + 50) < Clock.getRoundNum())
+        if (rc.getLocation().distanceSquaredTo(target) <= 35 || (roundNumb + 100) < Clock.getRoundNum())
         {
             target = findNextTarget();
             roundNumb = Clock.getRoundNum();
         }
-        if(!nearestDrone.equals(rc.getLocation()))
+        if (nearestDrone != null && !nearestDrone.equals(rc.getLocation()))
         {
             target = nearestDrone;
             roundNumb = Clock.getRoundNum();
@@ -95,8 +94,9 @@ public class SearchAndDestroyDrone extends Drone
         if(toReturn.equals(rc.getLocation()))
         {
             MapLocation[] towers = rc.senseEnemyTowerLocations();
-            int decision = rand.nextInt(towers.length + 1);
-            if (decision == towers.length)
+            // go the enemy HQ most of the time
+            int decision = rand.nextInt(towers.length + 10);
+            if (decision >= towers.length)
             {
                 toReturn = rc.senseEnemyHQLocation();
             }

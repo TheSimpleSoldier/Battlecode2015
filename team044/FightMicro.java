@@ -6,10 +6,26 @@ public class FightMicro
 {
     RobotController rc;
     public MapLocation enemyHQ;
+    private int HQRange = 24;
     public FightMicro(RobotController rc)
     {
         this.rc = rc;
         enemyHQ = rc.senseEnemyHQLocation();
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+        if (enemyTowers.length >= 5)
+        {
+            HQRange = 52;
+        }
+        else if (enemyTowers.length >= 2)
+        {
+            HQRange = 35;
+        }
+        else
+        {
+            HQRange = 24;
+        }
     }
     public static Direction[] dirs = Direction.values();
 
@@ -168,11 +184,11 @@ public class FightMicro
         {
             return false;
         }
-        if (nearByEnemies.length < 1)
+        if (nearByEnemies.length < 1 && HQRange > 35)
         {
             if (rc.getType() == RobotType.HQ)
             {
-                RobotInfo[] enemies = rc.senseNearbyRobots(52, rc.getTeam().opponent());
+                RobotInfo[] enemies = rc.senseNearbyRobots(HQRange, rc.getTeam().opponent());
 
                 if (enemies.length > 0)
                 {
@@ -261,6 +277,9 @@ public class FightMicro
         if (dir != null && rc.canLaunch(dir))
         {
             rc.launchMissile(dir);
+            MapLocation rallyPoint = rc.getLocation().add(dir, 7);
+            rc.broadcast(Messaging.LauncherAttackX.ordinal(), rallyPoint.x);
+            rc.broadcast(Messaging.LauncherAttackY.ordinal(), rallyPoint.y);
         }
 
         if (dir != null)
@@ -279,6 +298,49 @@ public class FightMicro
                 else if (rc.canMove(dir.rotateRight()))
                 {
                     rc.move(dir.rotateRight());
+                }
+            }
+        }
+        // if we can see a drone ahead run to the closest tower or HQ
+        else
+        {
+            RobotInfo[] enemies = rc.senseNearbyRobots(90, rc.getTeam().opponent());
+            boolean enemyDrone = false;
+
+            for (int i = enemies.length; --i>=0;)
+            {
+                if (enemies[i].type == RobotType.DRONE)
+                {
+                    enemyDrone = true;
+                    break;
+                }
+            }
+
+            if (enemyDrone)
+            {
+                MapLocation[] towers = rc.senseTowerLocations();
+                MapLocation closestTower = Utilities.closestTower(rc, towers);
+
+                if (closestTower == null)
+                {
+                    closestTower = rc.senseHQLocation();
+                }
+
+                dir = rc.getLocation().directionTo(closestTower);
+                if (rc.isCoreReady())
+                {
+                    if (rc.canMove(dir))
+                    {
+                        rc.move(dir);
+                    }
+                    else if (rc.canMove(dir.rotateLeft()))
+                    {
+                        rc.move(dir.rotateLeft());
+                    }
+                    else if (rc.canMove(dir.rotateRight()))
+                    {
+                        rc.move(dir.rotateRight());
+                    }
                 }
             }
         }
