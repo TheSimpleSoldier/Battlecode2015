@@ -69,6 +69,11 @@ public class HQ extends Structure
         rc.setIndicatorString(0, "Messaging");
         messenger.giveUnitOrders();
         rc.setIndicatorString(0, "after give unit orders");
+        if (currentUnit < strat.length)
+        {
+            rc.setIndicatorString(1, "Next unit: " + strat[currentUnit]);
+        }
+
 
         // reset tower under attack channel every round
         rc.broadcast(Messaging.TowerUnderAttack.ordinal(), 0);

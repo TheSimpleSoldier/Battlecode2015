@@ -305,7 +305,6 @@ public class FightMicro
                     if (rc.canMove(dir))
                     {
                         // broadcast location for missiles
-                        System.out.println("TowerX: " + Constants.towerX);
                         rc.broadcast(Constants.towerX, enemyTowers[i].x);
                         rc.broadcast(Constants.towerY, enemyTowers[i].y);
                         rc.launchMissile(dir);
