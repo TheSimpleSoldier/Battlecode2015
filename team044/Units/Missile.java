@@ -113,10 +113,14 @@ public class Missile
 
                             for (int i = nearByAllies.length; --i>=0; )
                             {
-                                if (nearByAllies[i].type != RobotType.MISSILE)
+                                if (nearByAllies[i].type == RobotType.LAUNCHER)
                                 {
                                     dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
                                     break;
+                                }
+                                else if (dir != null && nearByAllies[i].type != RobotType.MISSILE)
+                                {
+                                    dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
                                 }
                             }
 

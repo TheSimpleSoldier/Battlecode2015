@@ -202,19 +202,23 @@ public class FightMicro
                         if (!rc.isLocationOccupied(enemy) && rc.canAttackLocation(enemy))
                         {
                             rc.attackLocation(enemy);
+                            return true;
                         }
                     }
                 }
             }
             return false;
         }
-        RobotInfo enemyToAttack = FightMicroUtilities.findWeakestEnemy(nearByEnemies);
-        MapLocation target = enemyToAttack.location;
-
-        if (rc.canAttackLocation(target))
+        else if (nearByEnemies.length > 0)
         {
-            rc.attackLocation(target);
-            return true;
+            RobotInfo enemyToAttack = FightMicroUtilities.findWeakestEnemy(nearByEnemies);
+            MapLocation target = enemyToAttack.location;
+
+            if (rc.canAttackLocation(target))
+            {
+                rc.attackLocation(target);
+                return true;
+            }
         }
         return false;
     }
@@ -351,7 +355,7 @@ public class FightMicro
     public boolean droneAttack(RobotInfo[] nearByEnemies) throws GameActionException
     {
         Direction direction = null;
-        RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+        RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
         MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
 
