@@ -25,7 +25,11 @@ public class MinerFactory extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (numbOfMiners > 12 && actualMiners < 20 && Utilities.spawnUnit(RobotType.MINER, rc))
+        if (Utilities.cutProd(rc))
+        {
+            return false;
+        }
+        else if (numbOfMiners > 12 && actualMiners < 20 && Utilities.spawnUnit(RobotType.MINER, rc))
         {
             return true;
         }

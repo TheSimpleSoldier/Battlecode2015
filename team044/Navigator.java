@@ -12,6 +12,7 @@ public class Navigator
     private boolean goingLeft, goingAround;
     private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog;
     private Direction lastFacing;
+    private int HQRange = 24;
 
     public Navigator(RobotController rc, boolean avoidTowers, boolean avoidHQ,
                      boolean lowBytecodes, boolean badDog)
@@ -35,6 +36,21 @@ public class Navigator
         else
         {
             ignoreVoids = false;
+        }
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+        if (enemyTowers.length >= 5)
+        {
+            HQRange = 52;
+        }
+        else if (enemyTowers.length >= 2)
+        {
+            HQRange = 35;
+        }
+        else
+        {
+            HQRange = 24;
         }
     }
 
@@ -244,7 +260,7 @@ public class Navigator
         }
         if(avoidHQ)
         {
-            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 51)
+            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= HQRange)
             {
                 return true;
             }
