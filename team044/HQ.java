@@ -30,36 +30,15 @@ public class HQ extends Structure
         super(rc);
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
-        strat = new BuildOrderMessaging[21];
-        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        strat[2] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[3] = BuildOrderMessaging.BuildMiningBaracks;
-        strat[4] = BuildOrderMessaging.BuildMiningBaracks;
-        strat[6] = BuildOrderMessaging.BuildHelipad;
-        strat[7] = BuildOrderMessaging.BuildBaracks;
-        strat[8] = BuildOrderMessaging.BuildTankFactory;
-        strat[9] = BuildOrderMessaging.BuildTankFactory;
-        strat[10] = BuildOrderMessaging.BuildTankFactory;
-        strat[11] = BuildOrderMessaging.BuildTankFactory;
-        strat[12] = BuildOrderMessaging.BuildTankFactory;
-        strat[13] = BuildOrderMessaging.BuildTankFactory;
-        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[15] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[16] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[17] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[18] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[19] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[20] = BuildOrderMessaging.BuildSupplyDepot;
+        strat = Strategy.initialStrategy(rc);
 
-        rc.setIndicatorString(0, "HQ");
     }
 
     public void handleMessages() throws GameActionException
     {
-        rc.setIndicatorString(0, "Messaging");
+        //rc.setIndicatorString(0, "Messaging");
         messenger.giveUnitOrders();
-        rc.setIndicatorString(0, "after give unit orders");
+        //rc.setIndicatorString(0, "after give unit orders");
 
         // reset tower under attack channel every round
         rc.broadcast(Messaging.TowerUnderAttack.ordinal(), 0);
@@ -148,7 +127,7 @@ public class HQ extends Structure
         rc.broadcast(Messaging.NumbOfSoldiers.ordinal(), numbOfSoldiers);
         rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);
 
-        rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + numbOfSoldiers + ", Tanks: " + numbOfTanks);
+        //rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + ", Tanks: " + numbOfTanks);
         //numbOfBuildings = Utilities.test(rc);
 
         if (currentUnit < strat.length)
@@ -160,7 +139,7 @@ public class HQ extends Structure
         if (currentUnit >= strat.length)
         {
             // we are done excecuting build order
-            rc.setIndicatorString(1, "currentUnit >= strat.length ");
+            //rc.setIndicatorString(1, "currentUnit >= strat.length ");
         }
         else if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverBuilder)
         {
@@ -190,13 +169,91 @@ public class HQ extends Structure
             }
 
             // state which building we want built next
-            rc.setIndicatorString(1, ""+strat[currentUnit]);
+            //rc.setIndicatorString(1, ""+strat[currentUnit]);
             rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
         }
 
         if (nearByEnemies.length > 0)
         {
             rc.broadcast(Messaging.HQUnderAttack.ordinal(), 1);
+            if (rc.readBroadcast(Messaging.AttackOccurred.ordinal()) == 0 && rc.getHealth() < RobotType.HQ.maxHealth)
+            {
+               rc.setTeamMemory(TeamMemory.AttackTiming.ordinal(), Clock.getRoundNum());
+               rc.broadcast(Messaging.AttackOccurred.ordinal(), 1);
+                int[] enemyType = new int[5];
+                int enemyCountMax = -1;
+                int mostUnits = -1;
+                int secondMost = 0;
+                for (int j = 0; j < nearByEnemies.length; j++)
+                {
+                    RobotType typeCheck = nearByEnemies[j].type;
+                    // Drone counter
+                    if (typeCheck.equals(RobotType.DRONE))
+                    {
+                        enemyType[0]++;
+                        if (enemyType[0] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[0];
+                            secondMost = mostUnits;
+                            mostUnits = 1;
+                        }
+                    }
+                    // Missile/Launcher counter
+                    else if (typeCheck.equals(RobotType.MISSILE) || typeCheck.equals(RobotType.LAUNCHER))
+                    {
+                        enemyType[1]++;
+                        if (enemyType[1] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[1];
+                            secondMost = mostUnits;
+                            mostUnits = 2;
+                        }
+                    }
+                    // Tank counter
+                    else if (typeCheck.equals(RobotType.TANK))
+                    {
+                        enemyType[2]++;
+                        if (enemyType[2] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[2];
+                            secondMost = mostUnits;
+                            mostUnits = 3;
+                        }
+                    }
+                    // Basher counter
+                    else if (typeCheck.equals(RobotType.BASHER))
+                    {
+                        enemyType[3]++;
+                        if (enemyType[3] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[3];
+                            secondMost = mostUnits;
+                            mostUnits = 4;
+                        }
+                    }
+                    // Soldier counter
+                    else if (typeCheck.equals(RobotType.SOLDIER))
+                    {
+                        enemyType[4]++;
+                        if (enemyType[4] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[4];
+                            secondMost = mostUnits;
+                            mostUnits = 5;
+                        }
+                    }
+                }
+                // At least one offensive unit attacked the structure
+                if (mostUnits > 0)
+                {
+                    secondMost = secondMost << 4;   // Retrieve this with: long secondMost = memoryArray[AttackTiming.ordinal()] >>> 16;
+                    mostUnits += secondMost;
+                    mostUnits = mostUnits << 12;    // Retrieve this with: long mostUnits = (memoryArray[AttackTiming.ordinal()] >>> 12) & 15;
+                    int timing = Clock.getRoundNum();
+                    timing += mostUnits;            // Retrieve this with: long timing = memoryArray[AttackTiming.ordinal()] & 4095;
+                    rc.setTeamMemory(TeamMemory.AttackTiming.ordinal(), timing);
+                }
+            }
         }
         else
         {
@@ -239,7 +296,14 @@ public class HQ extends Structure
                     return true;
                 }
 
-                rc.setIndicatorString(1, "" + strat[currentUnit]);
+                // state which building we want built next
+                if (strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
+                {
+                    numberOfMinerFactories++;
+                    rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
+                }
+
+                //rc.setIndicatorString(1, "" + strat[currentUnit]);
                 rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
                 return true;
             }

@@ -51,6 +51,7 @@ public enum Messaging {
     NumbOfCompsOdd,
     NumbOfCompsEven,
     NumbOfComps,
+    AttackOccurred,
     NumbOfFactories,
     RushEnemyBase,
     Attack,
