@@ -1,12 +1,12 @@
-package team044.Units;
+package miningTest.Units;
 
 
-import team044.Messaging;
-import team044.Unit;
-import team044.Utilities;
+import miningTest.Messaging;
+import miningTest.Unit;
+import miningTest.Utilities;
 
 import battlecode.common.*;
-import team044.Units.Rushers.MinerRusher;
+import miningTest.Units.Rushers.MinerRusher;
 
 public class Miner extends Unit
 {
@@ -29,7 +29,7 @@ public class Miner extends Unit
         // collect our data
         super.collectData();
 
-        if (rc.senseOre(rc.getLocation()) < 12)
+        if (rc.senseOre(rc.getLocation()) < 2)
         {
             //target = Utilities.getBestMiningSpot(rc);
             target = Utilities.greedyBestMiningSpot(rc);
@@ -51,11 +51,6 @@ public class Miner extends Unit
             {
                 mineToOurHQ = false;
             }
-        }
-        else
-        {
-            target = Utilities.getBestSpotSimple(rc);
-            //System.out.println("getBestSpotSimple Bytecodes remaining: " + Clock.getBytecodesLeft());
         }
 
     }
@@ -95,7 +90,7 @@ public class Miner extends Unit
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 6)
+        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
         {
             rc.mine();
             return true;
