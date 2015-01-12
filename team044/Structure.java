@@ -69,49 +69,5 @@ public abstract class Structure extends Unit
     public void distributeSupply() throws  GameActionException
     {
         Utilities.shareSupplies(rc);
-        /*int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED;
-
-        if (rc.getSupplyLevel() == 0)
-        {
-            return;
-        }
-
-        if (rc == null)
-        {
-            System.out.println("Houston we have a serious problem");
-        }
-        rc.setIndicatorString(1, "");
-        rc.setIndicatorString(2, "");
-
-        RobotInfo[] closeAllies = rc.senseNearbyRobots(dist, us);
-        if (closeAllies.length <= 0)
-        {
-            return;
-        }
-
-        int supplies = (int) (rc.getSupplyLevel() / closeAllies.length);
-
-        for (int i = 0; i < closeAllies.length; i++)
-        {
-            if (Clock.getBytecodeNum() < 1000)
-            {
-                break;
-            }
-            if (closeAllies[i].type == RobotType.BEAVER)
-            {
-                continue;
-            }
-            if (closeAllies[i].type == RobotType.DRONE)
-            {
-                int totalSupplies = (int) rc.getSupplyLevel() / 2;
-                rc.transferSupplies(totalSupplies, closeAllies[i].location);
-                continue;
-            }
-            MapLocation ally = closeAllies[i].location;
-            if (rc.isLocationOccupied(ally) && rc.getLocation().distanceSquaredTo(ally) < dist)
-            {
-                rc.transferSupplies(supplies, ally);
-            }
-        }*/
     }
 }

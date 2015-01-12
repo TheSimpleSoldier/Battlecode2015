@@ -205,11 +205,6 @@ public class FightMicro
 
     public boolean launcherAttack(RobotInfo[] nearByEnemies) throws GameActionException
     {
-        /*if (!rc.isWeaponReady())
-        {
-            return false;
-        }*/
-
         if (rc.getMissileCount() == 0)
         {
             MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();

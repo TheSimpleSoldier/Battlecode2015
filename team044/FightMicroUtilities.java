@@ -342,7 +342,7 @@ public class FightMicroUtilities
         Direction best = null;
         Direction[] dirs = Direction.values();
         MapLocation us = rc.getLocation();
-        int bestScore = 0;
+        int bestScore = -1;
 
         for (int i = 0; i < 8; i++)
         {

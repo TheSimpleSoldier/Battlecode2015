@@ -391,42 +391,4 @@ public class Navigator
         return target;
     }
 
-    //only for missiles. very bycode efficient, but also not very good
-    public boolean badMovement(MapLocation target) throws GameActionException
-    {
-        if (!rc.isCoreReady())
-        {
-            rc.setIndicatorString(1, "Core isn't ready");
-            return false;
-        }
-
-        rc.setIndicatorString(1, "Core is ready");
-        Direction dir = rc.getLocation().directionTo(target);
-        if (rc.canMove(dir))
-        {
-            rc.move(dir);
-            return true;
-        }
-        else if (rc.canMove(dir.rotateLeft()))
-        {
-            rc.move(dir.rotateLeft());
-            return true;
-        }
-        else if (rc.canMove(dir.rotateRight()))
-        {
-            rc.move(dir.rotateRight());
-            return true;
-        }
-        else if (rc.canMove(dir.rotateLeft().rotateLeft()))
-        {
-            rc.move(dir.rotateLeft().rotateLeft());
-            return true;
-        }
-        else if (rc.canMove(dir.rotateRight().rotateRight()))
-        {
-            rc.move(dir.rotateRight().rotateRight());
-            return true;
-        }
-        return false;
-    }
 }

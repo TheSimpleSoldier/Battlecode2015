@@ -62,15 +62,15 @@ public class Messenger
      */
     public void giveUnitOrders() throws GameActionException
     {
-        /*
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 0)
+        // we want to give a little time before we start managing supply distribution
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 10)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
         }
         else
         {
             droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
-        }*/
+        }
 
         int message;
         if (rc.readBroadcast(Messaging.BasherType.ordinal()) == -1)

@@ -95,6 +95,10 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(0, "Numb: " + numb);
                 rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
+            else if (type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal())
+            {
+
+            }
             else
             {
                 rc.setIndicatorString(0, " In else: " + target);
@@ -104,18 +108,9 @@ public class BuildingBeaver extends Beaver
                 {
                     rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
                 }
-                /*if (target != null && target.distanceSquaredTo(ourHQ) < 100)
-                {
-                    target = target.add(target.directionTo(enemyHQ));
-                    while (rc.canSenseLocation(target) && rc.isLocationOccupied(target))
-                    {
-                        target = target.add(dirs[rand.nextInt(8)]);
-                    }
-                }
-                else
-                {*/
-                    target = Utilities.findLocationForBuilding(rc, numb, building);
-                //}
+
+                target = Utilities.findLocationForBuilding(rc, numb, building);
+
 
                 if (target == null)
                 {
