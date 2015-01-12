@@ -13,6 +13,7 @@ public class SearchAndDestroyDrone extends Drone
     MapLocation target;
     Random rand;
     MapLocation nearestDrone;
+    int roundNumb;
 
     public SearchAndDestroyDrone(RobotController rc)
     {
@@ -20,6 +21,7 @@ public class SearchAndDestroyDrone extends Drone
         target = rc.getLocation();
         rand = new Random(rc.getID());
         rc.setIndicatorString(0, "Search and Destroy drone");
+        roundNumb = Clock.getRoundNum();
     }
 
     public void collectData() throws GameActionException
@@ -60,15 +62,18 @@ public class SearchAndDestroyDrone extends Drone
 
     public boolean takeNextStep() throws GameActionException
     {
-        if(rc.getLocation().distanceSquaredTo(target) <= 35)
+        if(rc.getLocation().distanceSquaredTo(target) <= 35 || (roundNumb + 50) < Clock.getRoundNum())
         {
             target = findNextTarget();
+            roundNumb = Clock.getRoundNum();
         }
-        /*if(!nearestDrone.equals(rc.getLocation()))
+        if(!nearestDrone.equals(rc.getLocation()))
         {
-            target = nearestDrone.add(Direction.NONE);
-        }*/
+            target = nearestDrone;
+            roundNumb = Clock.getRoundNum();
+        }
 
+        rc.setIndicatorString(1, "In Navigator");
         return nav.takeNextStep(target);
     }
 

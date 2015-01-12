@@ -31,27 +31,12 @@ public class HQ extends Structure
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
         strat = new BuildOrderMessaging[28];
-        /*strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildHelipad;
-        strat[2] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[3] = BuildOrderMessaging.BuildBeaverMiner;
-        strat[4] = BuildOrderMessaging.BuildMinerFactory;
-        strat[5] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[6] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[7] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[8] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[9] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[10] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[11] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[12] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[13] = BuildOrderMessaging.DoneBuilding;*/
-
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
         strat[2] = BuildOrderMessaging.BuildHelipad;
-        strat[3] = BuildOrderMessaging.BuildHelipad;
-        strat[4] = BuildOrderMessaging.BuildMiningBaracks;
-        strat[5] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[3] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[5] = BuildOrderMessaging.BuildMiningBaracks;
         strat[6] = BuildOrderMessaging.BuildMiningBaracks;
         strat[7] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[8] = BuildOrderMessaging.BuildAerospaceLab;
@@ -250,8 +235,9 @@ public class HQ extends Structure
         {
             if (rc.getTeamOre() > 1000)
             {
+                rc.setIndicatorString(1, "Adding AeroSpaceLab");
                 currentUnit--;
-                strat[currentUnit] = BuildOrderMessaging.BuildTankFactory;
+                strat[currentUnit] = BuildOrderMessaging.BuildAerospaceLab;
             }
         }
     }

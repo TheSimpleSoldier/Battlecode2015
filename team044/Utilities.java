@@ -636,7 +636,8 @@ public class Utilities
         // otherwise troop building
         else
         {
-            target = buildTrainingFacility(rc);
+            //target = buildTrainingFacility(rc);
+            target = buildSupplyDepot(rc);
         }
 
         return target;
@@ -647,22 +648,64 @@ public class Utilities
      */
     public static MapLocation buildSupplyDepot(RobotController rc) throws GameActionException
     {
-        MapLocation target = rc.senseHQLocation();
+        MapLocation ourHQ = rc.senseHQLocation();
+        MapLocation target = ourHQ;
 
-        // TODO: Implement supply depot creation currently is copy of building
+        Random rand = new Random(rc.getID() * Clock.getRoundNum());
+
+        int dirToTake = rand.nextInt(3);
         Direction[] dirs = Direction.values();
+        Direction dir = target.directionTo(rc.senseEnemyHQLocation());
+        MapLocation next;
 
-        random = new Random();
-
-        int dir = random.nextInt(8);
-
-        target = target.add(dirs[dir], 2);
-
-        while (!rc.isPathable(rc.getType(), target))
+        while (rc.canSenseLocation(target) && rc.isLocationOccupied(target))
         {
-            dir = random.nextInt(8);
+            for (int i = 1; i < 8; i+=2)
+            {
+                next = target.add(dirs[i]);
+                if (rc.canSenseLocation(next) && !rc.isLocationOccupied(next) && rc.senseTerrainTile(next) != TerrainTile.VOID && rc.senseTerrainTile(next) != TerrainTile.OFF_MAP)
+                {
+                    return next;
+                }
+                else if (!rc.canSenseLocation(next))
+                {
+                    return next;
+                }
+            }
 
-            target = target.add(dirs[dir]);
+            if (dirToTake == 0)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir);
+                }
+                else
+                {
+                    target = target.add(dir.rotateLeft());
+                }
+            }
+            else if (dirToTake == 1)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateRight(), 2);
+                }
+                else
+                {
+                    target = target.add(dir.rotateRight());
+                }
+            }
+            else
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateLeft(), 2);
+                }
+                else
+                {
+                    target = target.add(dir, 2);
+                }
+            }
         }
 
         return target;

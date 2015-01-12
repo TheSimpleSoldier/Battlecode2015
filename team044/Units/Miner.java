@@ -36,6 +36,7 @@ public class Miner extends Unit
 
             if (target == rc.getLocation())
             {
+                rc.setIndicatorString(1, "We can't sense a good spot");
                 if (mineToOurHQ)
                 {
                     target = ourHQ;
@@ -65,7 +66,7 @@ public class Miner extends Unit
     {
         if (target == null)
         {
-            return false;
+            target = enemyHQ;
         }
 
         return nav.takeNextStep(target);

@@ -17,7 +17,12 @@ public class RobotPlayer
             try
             {
                 // units
-                if (rc.getType() == RobotType.BEAVER)
+                if (rc.getType() == RobotType.MISSILE)
+                {
+                    // we are going to be as bytecode efficient as possible with missiles
+                    Missile.run(rc);
+                }
+                else if (rc.getType() == RobotType.BEAVER)
                 {
                     unit = getBeaver(rc);
                 }
@@ -90,10 +95,6 @@ public class RobotPlayer
                 {
                     unit = getTower(rc);
                     Utilities.getBestSpot(rc, false);
-                }
-                else if (rc.getType() == RobotType.MISSILE)
-                {
-                    unit = getMissile(rc);
                 }
                 else if (rc.getType() == RobotType.SUPPLYDEPOT)
                 {

@@ -61,6 +61,11 @@ public class BuildingBeaver extends Beaver
 
             rc.setIndicatorString(2, "Building: " + building + ", target: " + target);
 
+            if (building == null && Clock.getRoundNum() > 500)
+            {
+                building = RobotType.SUPPLYDEPOT;
+            }
+
             if (type == BuildOrderMessaging.DoneBuilding.ordinal())
             {
                 becomeMiner = true;
@@ -97,7 +102,7 @@ public class BuildingBeaver extends Beaver
                 {
                     rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
                 }
-                if (target != null && target.distanceSquaredTo(ourHQ) < 100)
+                /*if (target != null && target.distanceSquaredTo(ourHQ) < 100)
                 {
                     target = target.add(target.directionTo(enemyHQ));
                     while (rc.canSenseLocation(target) && rc.isLocationOccupied(target))
@@ -106,9 +111,9 @@ public class BuildingBeaver extends Beaver
                     }
                 }
                 else
-                {
+                {*/
                     target = Utilities.findLocationForBuilding(rc, numb, building);
-                }
+                //}
 
                 if (target == null)
                 {
@@ -126,16 +131,25 @@ public class BuildingBeaver extends Beaver
         if (target != null && rc.canSenseLocation(target) && rc.getLocation().distanceSquaredTo(target) < 24)
         {
             rc.setIndicatorString(1, "can sense Spot");
-            if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID)
+            if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID || rc.isLocationOccupied(target))
             {
-                rc.setIndicatorString(2, "build = true");
-                target = rc.getLocation();
-                build = true;
+                if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal())
+                {
+                    buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
+                    //target = target.add(buildingSpot.directionTo(rc.getLocation()));
+                }
+                else
+                {
+                    rc.setIndicatorString(2, "build = true");
+                    target = rc.getLocation();
+                    build = true;
+                }
             }
-            while (rc.isLocationOccupied(target))
-            {
-                target = target.add(dirs[rand.nextInt(8)]);
-            }
+        }
+        else if (buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.isLocationOccupied(buildingSpot))
+        {
+            buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
+            //target = target.add(buildingSpot.directionTo(rc.getLocation()));
         }
     }
 
