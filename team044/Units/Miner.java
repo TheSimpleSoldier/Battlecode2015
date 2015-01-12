@@ -52,11 +52,6 @@ public class Miner extends Unit
                 mineToOurHQ = false;
             }
         }
-        else
-        {
-            target = Utilities.getBestSpotSimple(rc);
-            //System.out.println("getBestSpotSimple Bytecodes remaining: " + Clock.getBytecodesLeft());
-        }
 
     }
 
