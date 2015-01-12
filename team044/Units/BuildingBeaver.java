@@ -108,7 +108,7 @@ public class BuildingBeaver extends Beaver
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
                 rc.setIndicatorString(0, "Numb: " + numb);
-                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
+                rc.setIndicatorString(2, "Aerospace Lab Building: " + building + ", Building Spot" + buildingSpot);
             }
             else
             {

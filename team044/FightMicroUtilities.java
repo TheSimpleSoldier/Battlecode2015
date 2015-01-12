@@ -473,5 +473,67 @@ public class FightMicroUtilities
         }
         return best;
     }
+
+
+    //======================== Methods for launchers ============================\\
+    public static Direction dirToShoot(RobotController rc, RobotInfo[] nearByEnemies, MapLocation enemyStructure)
+    {
+        Direction dir;
+        MapLocation us = rc.getLocation();
+        if (enemyStructure != null)
+        {
+            int dist = us.distanceSquaredTo(enemyStructure);
+            dir = us.directionTo(enemyStructure);
+
+            if (!rc.canLaunch(dir))
+            {
+
+            }
+            if (dist <= 24)
+            {
+                return dir;
+            }
+            else if (!alliesInPath(rc.senseNearbyRobots(35, rc.getTeam()), dir, us))
+            {
+                return dir;
+            }
+        }
+        else
+        {
+            RobotInfo[] allies = rc.senseNearbyRobots(35, rc.getTeam());
+            for (int i = nearByEnemies.length; --i>=0; )
+            {
+                if (nearByEnemies[i].type != RobotType.MISSILE)
+                {
+                    dir = us.directionTo(nearByEnemies[i].location);
+                    if (!rc.canLaunch(dir))
+                    {
+
+                    }
+                    else if (!alliesInPath(allies, dir, us))
+                    {
+                        return dir;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean alliesInPath(RobotInfo[] nearByAllies, Direction dir, MapLocation startingSpot)
+    {
+        for (int i = nearByAllies.length; --i>=0; )
+        {
+            if (nearByAllies[i].type != RobotType.MISSILE)
+            {
+                // if an ally is in the way
+                if (startingSpot.directionTo(nearByAllies[i].location) == dir)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
 

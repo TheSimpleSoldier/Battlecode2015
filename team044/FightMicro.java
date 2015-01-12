@@ -227,8 +227,8 @@ public class FightMicro
             {
                 if (rc.getLocation().distanceSquaredTo(enemyTowers[i]) < 49)
                 {
-                    Direction dir = rc.getLocation().directionTo(enemyTowers[i]);
-                    if (rc.canMove(dir))
+                    Direction dir = FightMicroUtilities.dirToShoot(rc, null, enemyTowers[i]);
+                    if (dir != null && rc.canLaunch(dir))
                     {
                         // broadcast location for missiles
                         rc.broadcast(Constants.towerX, enemyTowers[i].x);
@@ -241,8 +241,8 @@ public class FightMicro
 
             if (rc.getLocation().distanceSquaredTo(rc.senseEnemyHQLocation()) < 49)
             {
-                Direction dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
-                if (rc.canMove(dir))
+                Direction dir = FightMicroUtilities.dirToShoot(rc, null, rc.senseEnemyHQLocation());
+                if (dir != null && rc.canLaunch(dir))
                 {
                     rc.broadcast(Constants.towerX, rc.senseEnemyHQLocation().x);
                     rc.broadcast(Constants.towerY, rc.senseEnemyHQLocation().y);
@@ -254,41 +254,32 @@ public class FightMicro
             return false;
         }
 
-        Direction dir = rc.getLocation().directionTo(nearByEnemies[0].location);
+        Direction dir = FightMicroUtilities.dirToShoot(rc, nearByEnemies, null);
 
-        if (rc.canMove(dir))
+        rc.setIndicatorString(2, "Dir: " + dir);
+
+        if (dir != null && rc.canLaunch(dir))
         {
             rc.launchMissile(dir);
         }
-        else if (rc.canMove(dir.rotateRight()))
-        {
-            rc.launchMissile(dir.rotateRight());
-        }
-        else if (rc.canMove(dir.rotateLeft()))
-        {
-            rc.launchMissile(dir.rotateLeft());
-        }
 
-        MapLocation target = rc.getLocation().add(dir, 6);
-
-        // make sure missile heads out towards opponent
-        rc.broadcast(Constants.towerX, target.x);
-        rc.broadcast(Constants.towerY, target.y);
-
-        dir = dir.opposite();
-        if (rc.isCoreReady())
+        if (dir != null)
         {
-            if (rc.canMove(dir))
+            dir = dir.opposite();
+            if (rc.isCoreReady())
             {
-                rc.move(dir);
-            }
-            else if (rc.canMove(dir.rotateLeft()))
-            {
-                rc.move(dir.rotateLeft());
-            }
-            else if (rc.canMove(dir.rotateRight()))
-            {
-                rc.move(dir.rotateRight());
+                if (rc.canMove(dir))
+                {
+                    rc.move(dir);
+                }
+                else if (rc.canMove(dir.rotateLeft()))
+                {
+                    rc.move(dir.rotateLeft());
+                }
+                else if (rc.canMove(dir.rotateRight()))
+                {
+                    rc.move(dir.rotateRight());
+                }
             }
         }
 

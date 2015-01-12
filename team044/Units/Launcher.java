@@ -12,7 +12,7 @@ public class Launcher extends DefensiveUnits
     {
         super(rc);
         // override supers range as it is 0 but missiles can go a long ways
-        range = 51;
+        range = 35;
 
         nav.setAvoidTowers(false);
         nav.setAvoidHQ(false);

@@ -613,6 +613,10 @@ public class Utilities
         {
             return RobotType.BARRACKS;
         }
+        else if (type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal())
+        {
+            return RobotType.MINERFACTORY;
+        }
         return null;
     }
 
