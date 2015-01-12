@@ -14,6 +14,7 @@ public class BuildingBeaver extends Beaver
     Boolean build;
     RobotType building = null;
     RobotType building2 = null;
+    RobotType building3 = null;
     Direction dir;
     static Random rand;
     Direction[] dirs;
@@ -84,6 +85,7 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(1, "Build Mining Baracks");
                 building = RobotType.MINERFACTORY;
                 building2 = RobotType.BARRACKS;
+                building3 = RobotType.TANKFACTORY;
                 numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
                 rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
@@ -136,20 +138,22 @@ public class BuildingBeaver extends Beaver
                 if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal())
                 {
                     buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
-                    //target = target.add(buildingSpot.directionTo(rc.getLocation()));
+                    target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
                 }
                 else
                 {
-                    rc.setIndicatorString(2, "build = true");
+                    //rc.setIndicatorString(2, "build = true");
                     target = rc.getLocation();
                     build = true;
                 }
             }
         }
-        else if (buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.isLocationOccupied(buildingSpot))
+
+        if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal() && target != null && buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.isLocationOccupied(buildingSpot))
         {
             buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
-            //target = target.add(buildingSpot.directionTo(rc.getLocation()));
+            rc.setIndicatorString(2, "New Building Spot: " + buildingSpot + ", old Target");
+            target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
         }
     }
 
@@ -174,7 +178,14 @@ public class BuildingBeaver extends Beaver
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
-                if (building2 != null)
+                if (building3 != null)
+                {
+                    building = building2;
+                    building2 = building3;
+                    building3 = null;
+                    return true;
+                }
+                else if (building2 != null)
                 {
                     building = building2;
                     building2 = null;

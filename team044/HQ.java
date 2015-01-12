@@ -69,11 +69,6 @@ public class HQ extends Structure
         rc.setIndicatorString(0, "Messaging");
         messenger.giveUnitOrders();
         rc.setIndicatorString(0, "after give unit orders");
-        if (currentUnit < strat.length)
-        {
-            rc.setIndicatorString(1, "Next unit: " + strat[currentUnit]);
-        }
-
 
         // reset tower under attack channel every round
         rc.broadcast(Messaging.TowerUnderAttack.ordinal(), 0);
@@ -90,9 +85,9 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() > 1000)
+        else if (Clock.getRoundNum() > 1250)
         {
-            //rc.broadcast(Messaging.Attack.ordinal(), 1);
+            rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
 
         // even round so odd channel has data
@@ -167,7 +162,7 @@ public class HQ extends Structure
 
         if (currentUnit < strat.length)
         {
-            rc.setIndicatorString(1, ""+strat[currentUnit]);
+            rc.setIndicatorString(1, "Next Unit: "+strat[currentUnit]);
         }
 
 
@@ -275,7 +270,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 50)
+        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 250)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {

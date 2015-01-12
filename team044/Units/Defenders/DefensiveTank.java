@@ -5,17 +5,37 @@ import team044.Units.DefensiveUnits;
 import team044.*;
 import team044.Units.Tank;
 
+import java.util.Random;
+
 public class DefensiveTank extends DefensiveUnits
 {
+    private Random random;
+    boolean mineDefender = false;
     public DefensiveTank(RobotController rc)
     {
         super(rc);
         rc.setIndicatorString(0, "Defensive Tank");
+        random = new Random(rc.getID());
+
+        if (rc.getLocation().distanceSquaredTo(ourHQ) > 100)
+        {
+            mineDefender = true;
+        }
     }
 
     public void collectData2() throws GameActionException
     {
-        target = Utilities.getTowerClosestToEnemyHQ(rc);
+        if (mineDefender)
+        {
+            do {
+                target = rc.getLocation().add(dirs[random.nextInt(8)], 3);
+            } while (!rc.isPathable(RobotType.SOLDIER, target));
+        }
+        else
+        {
+            target = Utilities.getTowerClosestToEnemyHQ(rc);
+        }
+
 
 
         rc.setIndicatorString(1, "Target: " + target);

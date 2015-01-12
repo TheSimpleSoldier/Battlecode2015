@@ -22,16 +22,23 @@ public class Launcher extends Unit
     {
         super.collectData();
         // collect our data
+
+        target = Utilities.getTowerClosestToEnemyHQ(rc);
+
+        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
+        {
+            MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
+            if (enemyTower.length > 0)
+            {
+                target = enemyTower[0];
+            }
+            else
+            {
+                target = rc.senseEnemyHQLocation();
+            }
+        }
+
         nearByEnemies = rc.senseNearbyRobots(range, opponent);
-        MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
-        if (enemyTower.length > 0)
-        {
-            target = enemyTower[0];
-        }
-        else
-        {
-            target = rc.senseEnemyHQLocation();
-        }
     }
 
     public void handleMessages() throws GameActionException

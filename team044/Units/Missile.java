@@ -78,6 +78,7 @@ public class Missile extends Unit
                 }
                 else
                 {
+                    rc.setIndicatorString(0, "Inside of else: " + Clock.getBytecodeNum() + ", round: " + Clock.getRoundNum());
                     for (int i = nearByEnemies.length; --i>=0;)
                     {
                         if (nearByEnemies[i].type == RobotType.LAUNCHER)
@@ -129,26 +130,29 @@ public class Missile extends Unit
                             rc.move(dir);
                         }
 
-                        if (rc.canMove(dir.rotateRight()))
+                        else if (rc.canMove(dir.rotateRight()))
                         {
                             rc.move(dir.rotateRight());
                         }
 
-                        if (rc.canMove(dir.rotateLeft()))
+                        else if (rc.canMove(dir.rotateLeft()))
                         {
                             rc.move(dir.rotateLeft());
                         }
 
-                        if (rc.canMove(dir.rotateLeft().rotateLeft()))
+                        else if (rc.canMove(dir.rotateLeft().rotateLeft()))
                         {
                             rc.move(dir.rotateLeft().rotateLeft());
                         }
 
-                        if (rc.canMove(dir.rotateRight().rotateRight()))
+                        else if (rc.canMove(dir.rotateRight().rotateRight()))
                         {
                             rc.move(dir.rotateRight().rotateRight());
                         }
+                        rc.setIndicatorString(1, "!foundLauncher: " + Clock.getBytecodeNum() + ", round: " + Clock.getRoundNum());
                     }
+
+
                 }
 
                 rc.yield();
