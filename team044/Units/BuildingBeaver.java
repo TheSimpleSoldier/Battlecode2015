@@ -14,6 +14,7 @@ public class BuildingBeaver extends Beaver
     Boolean build;
     RobotType building = null;
     RobotType building2 = null;
+    RobotType building3 = null;
     Direction dir;
     static Random rand;
     Direction[] dirs;
@@ -32,6 +33,7 @@ public class BuildingBeaver extends Beaver
 
         becomeMiner = false;
         numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
+        rand = new Random(rc.getID());
         type = -1;
         foundSpot = false;
     }
@@ -58,6 +60,13 @@ public class BuildingBeaver extends Beaver
 
             building = Utilities.getTypeForInt(type);
 
+            rc.setIndicatorString(2, "Building: " + building + ", target: " + target);
+
+            if (building == null && Clock.getRoundNum() > 500)
+            {
+                building = RobotType.SUPPLYDEPOT;
+            }
+
             if (type == BuildOrderMessaging.DoneBuilding.ordinal())
             {
                 becomeMiner = true;
@@ -76,6 +85,7 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(1, "Build Mining Baracks");
                 building = RobotType.MINERFACTORY;
                 building2 = RobotType.BARRACKS;
+                building3 = RobotType.TANKFACTORY;
                 numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
                 rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
@@ -85,31 +95,60 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(0, "Numb: " + numb);
                 rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
             }
+            else if (type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal())
+            {
+
+            }
             else
             {
+                rc.setIndicatorString(0, " In else: " + target);
                 numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
                 rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
                 if (building == RobotType.MINERFACTORY)
                 {
                     rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
                 }
+
                 target = Utilities.findLocationForBuilding(rc, numb, building);
+
+
+                if (target == null)
+                {
+                    rc.setIndicatorString(1, "Target was null");
+                    target = rc.getLocation().add(rc.getLocation().directionTo(rc.senseEnemyHQLocation()));
+                }
+
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
-                //rc.setIndicatorString(0, "Numb: " + numb);
-                //rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot);
+                rc.setIndicatorString(0, "Numb: " + numb);
+                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot + ", target: " + target);
             }
         }
 
         if (target != null && rc.canSenseLocation(target) && rc.getLocation().distanceSquaredTo(target) < 24)
         {
             rc.setIndicatorString(1, "can sense Spot");
-            if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID)
+            if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID || rc.isLocationOccupied(target))
             {
-                rc.setIndicatorString(1, "build = true");
-                target = rc.getLocation();
-                build = true;
+                if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal())
+                {
+                    buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
+                    target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
+                }
+                else
+                {
+                    //rc.setIndicatorString(2, "build = true");
+                    target = rc.getLocation();
+                    build = true;
+                }
             }
+        }
+
+        if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal() && target != null && buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.isLocationOccupied(buildingSpot))
+        {
+            buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
+            rc.setIndicatorString(2, "New Building Spot: " + buildingSpot + ", old Target");
+            target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
         }
     }
 
@@ -130,11 +169,18 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 15)
+        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 3)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
-                if (building2 != null)
+                if (building3 != null)
+                {
+                    building = building2;
+                    building2 = building3;
+                    building3 = null;
+                    return true;
+                }
+                else if (building2 != null)
                 {
                     building = building2;
                     building2 = null;

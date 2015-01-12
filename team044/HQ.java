@@ -30,8 +30,42 @@ public class HQ extends Structure
         super(rc);
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
+
         strat = Strategy.initialStrategy(rc);
 
+        // TODO: put this strategy with a lot of tweaking into the Strategy framework
+        strat = new BuildOrderMessaging[28];
+        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[1] = BuildOrderMessaging.BuildMinerFactory;
+        strat[2] = BuildOrderMessaging.BuildHelipad;
+        strat[3] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[5] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[6] = BuildOrderMessaging.BuildMiningBaracks;
+        strat[7] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[8] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[9] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[10] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[11] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[4] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[13] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[15] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[16] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[17] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[18] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[19] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[20] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[21] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[22] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[23] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[24] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[25] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[26] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[27] = BuildOrderMessaging.BuildSupplyDepot;
+
+
+        rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
     public void handleMessages() throws GameActionException
@@ -55,7 +89,7 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() > 1000)
+        else if (Clock.getRoundNum() > 1250)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
@@ -132,7 +166,7 @@ public class HQ extends Structure
 
         if (currentUnit < strat.length)
         {
-            rc.setIndicatorString(1, ""+strat[currentUnit]);
+            rc.setIndicatorString(1, "Next Unit: "+strat[currentUnit]);
         }
 
 
@@ -263,10 +297,31 @@ public class HQ extends Structure
 
     public void collectData() throws GameActionException
     {
+        MapLocation[] towers = rc.senseTowerLocations();
+
+        if (towers.length >= 2)
+        {
+            range = 35;
+        }
+        else
+        {
+            range = 24;
+        }
+
         enemies = rc.senseNearbyRobots(99999, opponent);
         nearByEnemies = rc.senseNearbyRobots(35, opponent);
         allies = rc.senseNearbyRobots(99999, us);
         nearByAllies = rc.senseNearbyRobots(range, us);
+
+        if (currentUnit == strat.length)
+        {
+            if (rc.getTeamOre() > 1000)
+            {
+                rc.setIndicatorString(1, "Adding AeroSpaceLab");
+                currentUnit--;
+                strat[currentUnit] = BuildOrderMessaging.BuildAerospaceLab;
+            }
+        }
     }
 
     public boolean fight() throws GameActionException
@@ -276,11 +331,6 @@ public class HQ extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (nearByEnemies.length > 0)
-        {
-            System.out.println("Near by enemies length to great");
-            return false;
-        }
         if (currentUnit >= strat.length)
         {
             return false;
@@ -309,7 +359,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 1)
+        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 250)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {

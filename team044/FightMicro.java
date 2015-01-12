@@ -1,7 +1,6 @@
 package team044;
 
 import battlecode.common.*;
-import battlecode.world.Robot;
 
 public class FightMicro
 {
@@ -171,6 +170,26 @@ public class FightMicro
         }
         if (nearByEnemies.length < 1)
         {
+            if (rc.getType() == RobotType.HQ)
+            {
+                RobotInfo[] enemies = rc.senseNearbyRobots(52, rc.getTeam().opponent());
+
+                if (enemies.length > 0)
+                {
+                    MapLocation enemy;
+                    MapLocation us = rc.getLocation();
+                    for (int i = enemies.length; --i>=0; )
+                    {
+                        enemy = enemies[i].location;
+                        enemy = enemy.add(enemy.directionTo(us));
+
+                        if (!rc.isLocationOccupied(enemy) && rc.canAttackLocation(enemy))
+                        {
+                            rc.attackLocation(enemy);
+                        }
+                    }
+                }
+            }
             return false;
         }
         RobotInfo enemyToAttack = FightMicroUtilities.findWeakestEnemy(nearByEnemies);
@@ -184,54 +203,19 @@ public class FightMicro
         return false;
     }
 
-
-
-
-    /**
-     * This is a second attempt with missile fighting
-     */
-    public MapLocation missileAttack2() throws GameActionException
-    {
-        RobotInfo[] nearByEnemies = rc.senseNearbyRobots(2, rc.getTeam().opponent());
-
-        if (nearByEnemies.length == 0)
-        {
-            nearByEnemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
-            if (nearByEnemies.length == 0)
-            {
-                nearByEnemies = rc.senseNearbyRobots(999, rc.getTeam().opponent());
-            }
-            return nearByEnemies[0].location;
-        }
-
-        RobotInfo[] nearByAllies = rc.senseNearbyRobots(2, rc.getTeam());
-
-        if (nearByEnemies.length > nearByAllies.length * 2)
-        {
-            rc.explode();
-        }
-        else
-        {
-            nearByEnemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
-            if (nearByEnemies.length == 0)
-            {
-                nearByEnemies = rc.senseNearbyRobots(999, rc.getTeam().opponent());
-            }
-            return nearByEnemies[0].location;
-        }
-        return rc.getLocation();
-    }
-
-
     public boolean launcherAttack(RobotInfo[] nearByEnemies) throws GameActionException
     {
-        if (!rc.isWeaponReady())
-        {
-            return false;
-        }
-
         if (rc.getMissileCount() == 0)
         {
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+            for (int i = 0; i < enemyTowers.length; i++)
+            {
+                if (rc.getLocation().distanceSquaredTo(enemyTowers[i]) < 49)
+                {
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -246,6 +230,9 @@ public class FightMicro
                     Direction dir = rc.getLocation().directionTo(enemyTowers[i]);
                     if (rc.canMove(dir))
                     {
+                        // broadcast location for missiles
+                        rc.broadcast(Constants.towerX, enemyTowers[i].x);
+                        rc.broadcast(Constants.towerY, enemyTowers[i].y);
                         rc.launchMissile(dir);
                         return true;
                     }
@@ -257,6 +244,8 @@ public class FightMicro
                 Direction dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
                 if (rc.canMove(dir))
                 {
+                    rc.broadcast(Constants.towerX, rc.senseEnemyHQLocation().x);
+                    rc.broadcast(Constants.towerY, rc.senseEnemyHQLocation().y);
                     rc.launchMissile(dir);
                     return true;
                 }
@@ -266,20 +255,27 @@ public class FightMicro
         }
 
         Direction dir = rc.getLocation().directionTo(nearByEnemies[0].location);
-        /*int i = 0;
-        while (!rc.canMove(dir) && i < nearByEnemies.length)
-        {
-            dir = rc.getLocation().directionTo(nearByEnemies[i].location);
-        }*/
+
         if (rc.canMove(dir))
         {
             rc.launchMissile(dir);
         }
 
         dir = dir.opposite();
-        if (rc.canMove(dir) && rc.isCoreReady())
+        if (rc.isCoreReady())
         {
-            rc.move(dir);
+            if (rc.canMove(dir))
+            {
+                rc.move(dir);
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                rc.move(dir.rotateRight());
+            }
         }
 
         return true;
@@ -295,7 +291,6 @@ public class FightMicro
         if (enemyHQ == null)
         {
             enemyHQ = rc.senseEnemyHQLocation();
-            System.out.println("enemyHQ null");
         }
 
         // if we can shoot
@@ -396,7 +391,7 @@ public class FightMicro
                 if (!Utilities.locInRangeOfEnemyTower(rc.getLocation().add(direction), enemyTowers, enemyHQ))
                 {
                     rc.setIndicatorString(0, "Closest enemy Tower: " + closestTower);
-                    //rc.setIndicatorString(2, "Dist: " + closestTower.distanceSquaredTo(rc.getLocation().add(direction)));
+                    rc.setIndicatorString(1, "Dist: " + closestTower.distanceSquaredTo(rc.getLocation().add(direction)));
                     rc.move(direction);
                     return true;
                 }

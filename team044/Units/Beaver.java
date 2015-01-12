@@ -26,8 +26,6 @@ public class Beaver extends Unit
 
     public void handleMessages() throws GameActionException
     {
-        super.handleMessages();
-
         Utilities.handleMessageCounter(rc, Messaging.NumbOfBeaverOdd.ordinal(), Messaging.NumbOfBeaverEven.ordinal());
     }
 
@@ -37,9 +35,8 @@ public class Beaver extends Unit
         {
             return false;
         }
-
+        rc.setIndicatorString(0, "In navigation: " + target);
         return nav.takeNextStep(target);
-        //return nav.badMovement(target);
     }
 
     public boolean fight() throws GameActionException

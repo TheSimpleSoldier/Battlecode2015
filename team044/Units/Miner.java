@@ -29,13 +29,14 @@ public class Miner extends Unit
         // collect our data
         super.collectData();
 
-        if (rc.senseOre(rc.getLocation()) < 5)
+        if (rc.senseOre(rc.getLocation()) < 2)
         {
             //target = Utilities.getBestMiningSpot(rc);
             target = Utilities.greedyBestMiningSpot(rc);
 
             if (target == rc.getLocation())
             {
+                rc.setIndicatorString(1, "We can't sense a good spot");
                 if (mineToOurHQ)
                 {
                     target = ourHQ;
@@ -65,7 +66,7 @@ public class Miner extends Unit
     {
         if (target == null)
         {
-            return false;
+            target = enemyHQ;
         }
 
         return nav.takeNextStep(target);
@@ -74,8 +75,8 @@ public class Miner extends Unit
 
     public boolean fight() throws GameActionException
     {
-        //return fighter.advancedFightMicro(nearByEnemies);
-        return fighter.basicFightMicro(nearByEnemies);
+        return fighter.advancedFightMicro(nearByEnemies);
+        //return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
@@ -89,7 +90,7 @@ public class Miner extends Unit
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 1)
+        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
         {
             rc.mine();
             return true;

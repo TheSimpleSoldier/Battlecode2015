@@ -18,10 +18,16 @@ public class DroneRusher extends Drone {
         target = Utilities.getRushLocation(rc);
 
         nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
         return current;
+    }
+
+    public boolean fight() throws GameActionException
+    {
+        return fighter.advancedFightMicro(nearByEnemies);
     }
 }

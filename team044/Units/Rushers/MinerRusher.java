@@ -18,6 +18,7 @@ public class MinerRusher extends Miner {
         target = Utilities.getRushLocation(rc);
 
         nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

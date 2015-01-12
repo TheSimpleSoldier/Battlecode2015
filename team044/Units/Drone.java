@@ -4,7 +4,9 @@ package team044.Units;
 import battlecode.common.GameActionException;
 import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
+import team044.Messaging;
 import team044.Unit;
+import team044.Units.Rushers.DroneRusher;
 
 public class Drone extends Unit
 {
@@ -41,6 +43,10 @@ public class Drone extends Unit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new DroneRusher(rc);
+        }
         return current;
     }
 

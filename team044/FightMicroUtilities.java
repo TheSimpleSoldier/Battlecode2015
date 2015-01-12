@@ -342,7 +342,7 @@ public class FightMicroUtilities
         Direction best = null;
         Direction[] dirs = Direction.values();
         MapLocation us = rc.getLocation();
-        int bestScore = 0;
+        int bestScore = -1;
 
         for (int i = 0; i < 8; i++)
         {
@@ -359,7 +359,7 @@ public class FightMicroUtilities
                 }
                 if (enemies[j].type.attackRadiusSquared >= distToEnemy)
                 {
-                    if (safe)
+                    if (safe || enemies[j].type == RobotType.DRONE)
                     {
                         score -= 100000;
                     }
@@ -391,8 +391,9 @@ public class FightMicroUtilities
         for (int i = enemies.length; --i>=0; )
         {
             int dist = us.distanceSquaredTo(enemies[i].location);
-            // bashers move then attack
-            if (enemies[i].type == RobotType.BASHER)
+            // bashers and missiles move then attack
+            RobotType enemy = enemies[i].type;
+            if (enemy == RobotType.BASHER || enemy == RobotType.MISSILE)
             {
                 dist -= 11;
             }

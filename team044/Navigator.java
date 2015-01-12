@@ -55,9 +55,10 @@ public class Navigator
         dogGo();
 
         Direction dir = rc.getLocation().directionTo(dog);
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
 
         //if you can move towards the dog, do
-        if (rc.canMove(dir) && rc.isCoreReady())
+        if (!badSpot(rc.getLocation().add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
             return true;
@@ -65,19 +66,20 @@ public class Navigator
         //if it is another unit, go around it
         else if(isUnit(rc.getLocation().add(dir)) && rc.isCoreReady())
         {
-            if(!badSpot(rc.getLocation().add(dir.rotateRight())) && rc.canMove(dir.rotateRight()))
+
+            if(!badSpot(rc.getLocation().add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
             {
                 rc.move(dir.rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft())) && rc.canMove(dir.rotateLeft()))
+            else if(!badSpot(rc.getLocation().add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight())) && rc.canMove(dir.rotateRight().rotateRight()))
+            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft())) && rc.canMove(dir.rotateLeft().rotateLeft()))
+            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
             }
@@ -100,6 +102,8 @@ public class Navigator
     {
         int round = Clock.getRoundNum();
         Direction lastDir = Direction.NONE;
+
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
         //go till out of site
         while(dogInSight() && !dog.equals(target))
         {
@@ -134,7 +138,7 @@ public class Navigator
 
             MapLocation nextSpot = dog.add(lastDir);
 
-            if(badSpot(nextSpot))
+            if(badSpot(nextSpot, towers))
             {
                 if(!goingAround)
                 {
@@ -148,7 +152,7 @@ public class Navigator
             }
 
             //while way is blocked, rotate till free
-            while(badSpot(nextSpot))
+            while(badSpot(nextSpot, towers))
             {
                 if(goingLeft)
                 {
@@ -177,10 +181,12 @@ public class Navigator
     {
         //start one closer to dog's location since we can get to where we are
         MapLocation currentLocation = rc.getLocation().add(rc.getLocation().directionTo(dog));
+
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
         //loop through until it either reaches the goal or finds a bad spot
         while(true)
         {
-            if(badSpot(currentLocation))
+            if(badSpot(currentLocation, towers))
             {
                 return false;
             }
@@ -224,40 +230,38 @@ public class Navigator
     }
 
     //this takes into account flags to check if we are near enemy towers or hq
-    private boolean checkEnemyMainStructures(MapLocation spot)
+    private boolean checkEnemyMainStructures(MapLocation spot, MapLocation[] towers)
     {
-        boolean nearEnemy = false;
         if(avoidTowers)
         {
-            MapLocation[] towers = rc.senseEnemyTowerLocations();
             for(int k = 0; k < towers.length; k++)
             {
-                if(spot.distanceSquaredTo(towers[k]) <= 25)
+                if(spot.distanceSquaredTo(towers[k]) <= 24)
                 {
-                    nearEnemy = true;
+                    return true;
                 }
             }
         }
         if(avoidHQ)
         {
-            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 35)
+            if(spot.distanceSquaredTo(rc.senseEnemyHQLocation()) <= 51)
             {
-                nearEnemy = true;
+                return true;
             }
         }
 
-        return nearEnemy;
+        return false;
     }
 
     //this returns true if the spot is bad for any reason
     //such as void if not drone, unknown, off map, enemy towers/hq, or our own structures
-    private boolean badSpot(MapLocation spot) throws GameActionException
+    private boolean badSpot(MapLocation spot, MapLocation[] towers) throws GameActionException
     {
         boolean bad = false;
 
-        if(checkEnemyMainStructures(spot))
+        if(checkEnemyMainStructures(spot, towers))
         {
-            bad = true;
+            return true;
         }
 
         if(rc.canSenseLocation(spot))
@@ -314,27 +318,28 @@ public class Navigator
     //returns true if we should bug left around the roadblock, false means go right
     private boolean goLeft(Direction lastDir) throws GameActionException
     {
-        if(!badSpot(dog.add(lastDir.rotateLeft())))
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+        if(!badSpot(dog.add(lastDir.rotateLeft()), towers))
         {
             return true;
         }
-        else if(!badSpot(dog.add(lastDir.rotateRight())))
+        else if(!badSpot(dog.add(lastDir.rotateRight()), towers))
         {
             return false;
         }
-        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft())))
+        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft()), towers))
         {
             return true;
         }
-        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight())))
+        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight()), towers))
         {
             return false;
         }
-        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft().rotateLeft())))
+        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft().rotateLeft()), towers))
         {
             return true;
         }
-        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight().rotateRight())))
+        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight().rotateRight()), towers))
         {
             return false;
         }
@@ -346,14 +351,16 @@ public class Navigator
     //this checks if the target cannot be reached by the robot
     private boolean cantGetCloser() throws GameActionException
     {
-        if(!badSpot(target))
+
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+        if(!badSpot(target, towers))
         {
             return false;
         }
         MapLocation currentLocation = rc.getLocation();
         while(!currentLocation.equals(target))
         {
-            if(!badSpot(currentLocation))
+            if(!badSpot(currentLocation, towers))
             {
                 return false;
             }
@@ -384,33 +391,4 @@ public class Navigator
         return target;
     }
 
-    //mainly for missiles. very bycode efficient, but also not very good
-    public boolean badMovement(MapLocation target) throws GameActionException
-    {
-        if (!rc.isCoreReady())
-        {
-            return false;
-        }
-
-        if (rc.getLocation().equals(target))
-        {
-            return false;
-        }
-
-        Direction dir = rc.getLocation().directionTo(target);
-        if (rc.canMove(dir))
-        {
-            rc.move(dir);
-            return true;
-        }
-        else
-        {
-            while (!rc.canMove(dir))
-            {
-                dir = dir.rotateRight();
-            }
-            rc.move(dir);
-            return true;
-        }
-    }
 }

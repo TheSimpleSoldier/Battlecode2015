@@ -19,6 +19,7 @@ public class BeaverRusher extends Beaver
         target = Utilities.getRushLocation(rc);
 
         nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
 
     public boolean carryOutAbility() throws GameActionException

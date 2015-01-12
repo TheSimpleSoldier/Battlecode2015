@@ -215,7 +215,8 @@ public class Utilities
             return false;
         }
 
-        if(location.distanceSquaredTo(rc.senseHQLocation()) < close)
+        // building close to our HQ is pointless and gets in the way
+        if(location.distanceSquaredTo(rc.senseHQLocation()) < (close * 2))
         {
             return false;
         }
@@ -396,7 +397,13 @@ public class Utilities
      */
     public static void shareSupplies(RobotController rc) throws GameActionException
     {
-        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED - 1;
+        // no use transfering no supplies
+        if (rc.getSupplyLevel() <= 100)
+        {
+            return;
+        }
+
+        int dist = GameConstants.SUPPLY_TRANSFER_RADIUS_SQUARED;
 
         RobotInfo[] nearByAllies = rc.senseNearbyRobots(dist, rc.getTeam());
         if (nearByAllies.length <= 0)
@@ -404,33 +411,56 @@ public class Utilities
             return;
         }
 
-        MapLocation ourHQ = rc.senseHQLocation();
-        int distToHQ = rc.getLocation().distanceSquaredTo(ourHQ);
+        int roundNumb = Clock.getRoundNum();
 
         if (shareAllSupplies(rc, nearByAllies))
         {
         }
         else
         {
+            int ourSupply = (int) rc.getSupplyLevel();
+            int totalSupply = ourSupply;
+            int index = 1;
+            RobotType ally;
+            for (int i = nearByAllies.length; --i>=0; )
+            {
+                ally = nearByAllies[i].type;
+                if (ally == RobotType.BEAVER || ally == RobotType.AEROSPACELAB || ally == RobotType.BARRACKS || ally == RobotType.HQ || ally == RobotType.MINERFACTORY || ally == RobotType.SUPPLYDEPOT || ally == RobotType.TANKFACTORY || ally == RobotType.TOWER)
+                {
+                    continue;
+                }
+                int allySupply = (int) nearByAllies[i].supplyLevel;
+                if (allySupply < ourSupply)
+                {
+                    totalSupply += allySupply;
+                    index++;
+                }
+            }
+
+            int averageSupply = totalSupply / index;
+
             for (int i = 0; i < nearByAllies.length; i++)
             {
-                int allyDist = nearByAllies[i].location.distanceSquaredTo(ourHQ);
-                if (allyDist > distToHQ)
+                ally = nearByAllies[i].type;
+                if (Clock.getBytecodesLeft() < 1000)
                 {
-                    MapLocation allySpot = nearByAllies[i].location;
-                    int allySupply = (int) nearByAllies[i].supplyLevel;
-                    if (allySupply < rc.getSupplyLevel())
+                    break;
+                }
+                if (roundNumb != Clock.getRoundNum())
+                {
+                    break;
+                }
+                if (ally == RobotType.BEAVER || ally == RobotType.AEROSPACELAB || ally == RobotType.BARRACKS || ally == RobotType.HQ || ally == RobotType.MINERFACTORY || ally == RobotType.SUPPLYDEPOT || ally == RobotType.TANKFACTORY || ally == RobotType.TOWER)
+                {
+                    continue;
+                }
+                int allySupply = (int) nearByAllies[i].supplyLevel;
+                if (allySupply < ourSupply)
+                {
+                    int supplyAmount = averageSupply - allySupply;
+                    if (supplyAmount > 0)
                     {
-                        if (Clock.getBytecodeNum() > 4000)
-                        {
-                            break;
-                        }
-                        if (rc.isLocationOccupied(allySpot) && allySpot.distanceSquaredTo(rc.getLocation()) < dist)
-                        {
-                            // transfer half of difference to them
-                            int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
-                            rc.transferSupplies(amount, allySpot);
-                        }
+                        rc.transferSupplies(supplyAmount, nearByAllies[i].location);
                     }
                 }
             }
@@ -442,6 +472,7 @@ public class Utilities
      */
     public static boolean shareAllSupplies(RobotController rc, RobotInfo[] nearByAllies) throws GameActionException
     {
+        /* TODO: Look into making a better Implementation of this
         if (rc.getHealth() < 20)
         {
             int totalSupplies = (int) rc.getSupplyLevel();
@@ -463,7 +494,7 @@ public class Utilities
             }
 
             return true;
-        }
+        }*/
         return false;
     }
 
@@ -605,7 +636,8 @@ public class Utilities
         // otherwise troop building
         else
         {
-            target = buildTrainingFacility(rc);
+            //target = buildTrainingFacility(rc);
+            target = buildSupplyDepot(rc);
         }
 
         return target;
@@ -616,22 +648,64 @@ public class Utilities
      */
     public static MapLocation buildSupplyDepot(RobotController rc) throws GameActionException
     {
-        MapLocation target = rc.senseHQLocation();
+        MapLocation ourHQ = rc.senseHQLocation();
+        MapLocation target = ourHQ;
 
-        // TODO: Implement supply depot creation currently is copy of building
+        Random rand = new Random(rc.getID() * Clock.getRoundNum());
+
+        int dirToTake = rand.nextInt(3);
         Direction[] dirs = Direction.values();
+        Direction dir = target.directionTo(rc.senseEnemyHQLocation());
+        MapLocation next;
 
-        random = new Random();
-
-        int dir = random.nextInt(8);
-
-        target = target.add(dirs[dir], 2);
-
-        while (rc.isLocationOccupied(target))
+        while (rc.canSenseLocation(target) && rc.isLocationOccupied(target))
         {
-            dir = random.nextInt(8);
+            for (int i = 1; i < 8; i+=2)
+            {
+                next = target.add(dirs[i]);
+                if (rc.canSenseLocation(next) && !rc.isLocationOccupied(next) && rc.senseTerrainTile(next) != TerrainTile.VOID && rc.senseTerrainTile(next) != TerrainTile.OFF_MAP)
+                {
+                    return next;
+                }
+                else if (!rc.canSenseLocation(next))
+                {
+                    return next;
+                }
+            }
 
-            target = target.add(dirs[dir], 2);
+            if (dirToTake == 0)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir);
+                }
+                else
+                {
+                    target = target.add(dir.rotateLeft());
+                }
+            }
+            else if (dirToTake == 1)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateRight(), 2);
+                }
+                else
+                {
+                    target = target.add(dir.rotateRight());
+                }
+            }
+            else
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateLeft(), 2);
+                }
+                else
+                {
+                    target = target.add(dir, 2);
+                }
+            }
         }
 
         return target;
@@ -648,7 +722,7 @@ public class Utilities
 
         if (numb == 0)//< towers.length)
         {
-            target = getTowerClosestToEnemyHQ(rc);
+            target = rc.senseHQLocation();  //getTowerClosestToEnemyHQ(rc);
         }
         else
         {
@@ -711,11 +785,12 @@ public class Utilities
 
         target = target.add(dirs[dir], 2);
 
-        while (rc.isLocationOccupied(target))
+        while (!rc.isPathable(rc.getType(), target))
         {
             dir = random.nextInt(8);
 
-            target = target.add(dirs[dir], 2);
+            target = target.add(dirs[dir]);
+
         }
 
         return target;
@@ -936,7 +1011,7 @@ public class Utilities
             }
         }
 
-        if (spot.distanceSquaredTo(enemyHQ) <= 35)
+        if (spot.distanceSquaredTo(enemyHQ) <= 51)
         {
             return true;
         }

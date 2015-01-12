@@ -30,90 +30,86 @@ public class Tower extends Structure
             {
                 if (towers[i] == us)
                 {
-<<<<<<< HEAD
-                    rc.broadcast(Messaging.TowerUnderAttack.ordinal(), i);
+                    rc.broadcast(Messaging.TowerUnderAttack.ordinal(), (i + 1));
+                }
+            }
 
-                    // Set team memory on first attack only.
-                    if (rc.readBroadcast(Messaging.AttackOccurred.ordinal()) == 0 && rc.getHealth() < RobotType.TOWER.maxHealth)
+            // Set team memory on first attack only.
+            if (rc.readBroadcast(Messaging.AttackOccurred.ordinal()) == 0 && rc.getHealth() < RobotType.TOWER.maxHealth)
+            {
+                rc.broadcast(Messaging.AttackOccurred.ordinal(), 1);
+                int[] enemyType = new int[5];
+                int enemyCountMax = -1;
+                int mostUnits = -1;
+                int secondMost = 0;
+                for (int j = 0; j < nearByEnemies.length; j++)
+                {
+                    RobotType typeCheck = nearByEnemies[j].type;
+                    // Drone counter
+                    if (typeCheck.equals(RobotType.DRONE))
                     {
-                        rc.broadcast(Messaging.AttackOccurred.ordinal(), 1);
-                        int[] enemyType = new int[5];
-                        int enemyCountMax = -1;
-                        int mostUnits = -1;
-                        int secondMost = 0;
-                        for (int j = 0; j < nearByEnemies.length; j++)
+                        enemyType[0]++;
+                        if (enemyType[0] >= enemyCountMax)
                         {
-                            RobotType typeCheck = nearByEnemies[j].type;
-                            // Drone counter
-                            if (typeCheck.equals(RobotType.DRONE))
-                            {
-                                enemyType[0]++;
-                                if (enemyType[0] >= enemyCountMax)
-                                {
-                                    enemyCountMax = enemyType[0];
-                                    secondMost = mostUnits;
-                                    mostUnits = 1;
-                                }
-                            }
-                            // Missile/Launcher counter
-                            else if (typeCheck.equals(RobotType.MISSILE) || typeCheck.equals(RobotType.LAUNCHER))
-                            {
-                                enemyType[1]++;
-                                if (enemyType[1] >= enemyCountMax)
-                                {
-                                    enemyCountMax = enemyType[1];
-                                    secondMost = mostUnits;
-                                    mostUnits = 2;
-                                }
-                            }
-                            // Tank counter
-                            else if (typeCheck.equals(RobotType.TANK))
-                            {
-                                enemyType[2]++;
-                                if (enemyType[2] >= enemyCountMax)
-                                {
-                                    enemyCountMax = enemyType[2];
-                                    secondMost = mostUnits;
-                                    mostUnits = 3;
-                                }
-                            }
-                            // Basher counter
-                            else if (typeCheck.equals(RobotType.BASHER))
-                            {
-                                enemyType[3]++;
-                                if (enemyType[3] >= enemyCountMax)
-                                {
-                                    enemyCountMax = enemyType[3];
-                                    secondMost = mostUnits;
-                                    mostUnits = 4;
-                                }
-                            }
-                            // Soldier counter
-                            else if (typeCheck.equals(RobotType.SOLDIER))
-                            {
-                                enemyType[4]++;
-                                if (enemyType[4] >= enemyCountMax)
-                                {
-                                    enemyCountMax = enemyType[4];
-                                    secondMost = mostUnits;
-                                    mostUnits = 5;
-                                }
-                            }
-                        }
-                        // At least one offensive unit attacked the structure
-                        if (mostUnits > 0)
-                        {
-                            secondMost = secondMost << 4;   // Retrieve this with: long secondMost = memoryArray[AttackTiming.ordinal()] >>> 16;
-                            mostUnits += secondMost;
-                            mostUnits = mostUnits << 12;    // Retrieve this with: long mostUnits = (memoryArray[AttackTiming.ordinal()] >>> 12) & 15;
-                            int timing = Clock.getRoundNum();
-                            timing += mostUnits;            // Retrieve this with: long timing = memoryArray[AttackTiming.ordinal()] & 4095;
-                            rc.setTeamMemory(TeamMemory.AttackTiming.ordinal(), timing);
+                            enemyCountMax = enemyType[0];
+                            secondMost = mostUnits;
+                            mostUnits = 1;
                         }
                     }
-=======
-                    rc.broadcast(Messaging.TowerUnderAttack.ordinal(), (i + 1));
->>>>>>> 8d998e5265d9ef5906d5c59afd8c781ff5500e7b
+                    // Missile/Launcher counter
+                    else if (typeCheck.equals(RobotType.MISSILE) || typeCheck.equals(RobotType.LAUNCHER))
+                    {
+                        enemyType[1]++;
+                        if (enemyType[1] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[1];
+                            secondMost = mostUnits;
+                            mostUnits = 2;
+                        }
+                    }
+                    // Tank counter
+                    else if (typeCheck.equals(RobotType.TANK))
+                    {
+                        enemyType[2]++;
+                        if (enemyType[2] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[2];
+                            secondMost = mostUnits;
+                            mostUnits = 3;
+                        }
+                    }
+                    // Basher counter
+                    else if (typeCheck.equals(RobotType.BASHER))
+                    {
+                        enemyType[3]++;
+                        if (enemyType[3] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[3];
+                            secondMost = mostUnits;
+                            mostUnits = 4;
+                        }
+                    }
+                    // Soldier counter
+                    else if (typeCheck.equals(RobotType.SOLDIER))
+                    {
+                        enemyType[4]++;
+                        if (enemyType[4] >= enemyCountMax)
+                        {
+                            enemyCountMax = enemyType[4];
+                            secondMost = mostUnits;
+                            mostUnits = 5;
+                        }
+                    }
+                }
+                // At least one offensive unit attacked the structure
+                if (mostUnits > 0)
+                {
+                    secondMost = secondMost << 4;   // Retrieve this with: long secondMost = memoryArray[AttackTiming.ordinal()] >>> 16;
+                    mostUnits += secondMost;
+                    mostUnits = mostUnits << 12;    // Retrieve this with: long mostUnits = (memoryArray[AttackTiming.ordinal()] >>> 12) & 15;
+                    int timing = Clock.getRoundNum();
+                    timing += mostUnits;            // Retrieve this with: long timing = memoryArray[AttackTiming.ordinal()] & 4095;
+                    rc.setTeamMemory(TeamMemory.AttackTiming.ordinal(), timing);
                 }
             }
         }

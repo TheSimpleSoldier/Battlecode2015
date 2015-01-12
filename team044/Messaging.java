@@ -55,6 +55,7 @@ public enum Messaging {
     NumbOfFactories,
     RushEnemyBase,
     Attack,
-
+    EnemyTowerX,
+    EnemyTowerY,
     // etc
 }

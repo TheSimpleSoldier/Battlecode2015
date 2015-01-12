@@ -17,6 +17,7 @@ public class Tank extends Unit
         super(rc);
 
         nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
 
         rc.setIndicatorString(0, "Standard Tank");
     }
@@ -28,15 +29,6 @@ public class Tank extends Unit
         // TODO: Add code to smartly move forward so the entire army moves together
         target = Utilities.getRushLocation(rc);
         rc.setIndicatorString(1, "Target: " + target);
-        /*MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
-        if (enemyTower.length > 0)
-        {
-            target = enemyTower[0];
-        }
-        else
-        {
-            target = rc.senseEnemyHQLocation();
-        }*/
     }
 
     public void handleMessages() throws GameActionException
@@ -55,7 +47,7 @@ public class Tank extends Unit
         roundNumb = Clock.getRoundNum() - roundNumb;
         if (roundNumb > 0)
         {
-            System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
+            //System.out.println("Byte Codes: " + byteCodes + ", Rounds: " + roundNumb);
         }
         return move;
     }
