@@ -342,7 +342,8 @@ public class FightMicroUtilities
         Direction best = null;
         Direction[] dirs = Direction.values();
         MapLocation us = rc.getLocation();
-        int bestScore = -1;
+        int bestScore = 0;
+        boolean enemyDrone = false;
 
         for (int i = 0; i < 8; i++)
         {
@@ -359,9 +360,22 @@ public class FightMicroUtilities
                 }
                 if (enemies[j].type.attackRadiusSquared >= distToEnemy)
                 {
-                    if (safe || enemies[j].type == RobotType.DRONE)
+                    if (!safe && enemies[j].type == RobotType.DRONE)
+                    {
+                        if (!attackDrone(rc, enemies, enemies[j]))
+                        {
+                            score -= 100000;
+                            enemyDrone = true;
+                        }
+                    }
+                    else if (safe)
                     {
                         score -= 100000;
+                    }
+
+                    if (enemies[j].type == RobotType.DRONE)
+                    {
+                        enemyDrone = true;
                     }
                     score--;
                 }
@@ -376,10 +390,65 @@ public class FightMicroUtilities
                 bestScore = score;
                 best = dirs[i];
             }
+            else if (!enemyDrone && score >= bestScore)
+            {
+                bestScore = score;
+                best = dirs[i];
+            }
         }
 
         return best;
     }
+
+    /**
+     * Should we attack enemy drone
+     */
+    public static boolean attackDrone(RobotController rc, RobotInfo[] enemies, RobotInfo drone)
+    {
+        boolean enemyAtRisk = false;
+        RobotInfo[] allies = null;
+
+        if (drone.supplyLevel == 0)
+        {
+            enemyAtRisk = true;
+        }
+        else
+        {
+            // first we look behind it to see if it is against a wall
+            MapLocation behindDrone = drone.location.add(rc.getLocation().directionTo(drone.location), 6);
+
+            allies = rc.senseNearbyRobots(behindDrone, 24, rc.getTeam());
+
+            if (allies.length > 1)
+            {
+                enemyAtRisk = true;
+            }
+        }
+
+        if (enemyAtRisk)
+        {
+            RobotInfo[] allies2 = rc.senseNearbyRobots(24, rc.getTeam());
+
+            if (allies != null && allies.length > 1)
+            {
+                if (allies2.length + allies.length > (1 + enemies.length))
+                {
+                    rc.setIndicatorString(1, "Advance anyways");
+                    return true;
+                }
+            }
+            else
+            {
+                if (allies2.length > (3 + enemies.length))
+                {
+                    rc.setIndicatorString(1, "Advance anyways 2");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Checks if there is an enemy in range of us
@@ -472,6 +541,68 @@ public class FightMicroUtilities
             }
         }
         return best;
+    }
+
+
+    //======================== Methods for launchers ============================\\
+    public static Direction dirToShoot(RobotController rc, RobotInfo[] nearByEnemies, MapLocation enemyStructure)
+    {
+        Direction dir;
+        MapLocation us = rc.getLocation();
+        if (enemyStructure != null)
+        {
+            int dist = us.distanceSquaredTo(enemyStructure);
+            dir = us.directionTo(enemyStructure);
+
+            if (!rc.canLaunch(dir))
+            {
+
+            }
+            if (dist <= 24)
+            {
+                return dir;
+            }
+            else if (!alliesInPath(rc.senseNearbyRobots(35, rc.getTeam()), dir, us))
+            {
+                return dir;
+            }
+        }
+        else
+        {
+            RobotInfo[] allies = rc.senseNearbyRobots(35, rc.getTeam());
+            for (int i = nearByEnemies.length; --i>=0; )
+            {
+                if (nearByEnemies[i].type != RobotType.MISSILE)
+                {
+                    dir = us.directionTo(nearByEnemies[i].location);
+                    if (!rc.canLaunch(dir))
+                    {
+
+                    }
+                    else if (!alliesInPath(allies, dir, us))
+                    {
+                        return dir;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean alliesInPath(RobotInfo[] nearByAllies, Direction dir, MapLocation startingSpot)
+    {
+        for (int i = nearByAllies.length; --i>=0; )
+        {
+            if (nearByAllies[i].type != RobotType.MISSILE)
+            {
+                // if an ally is in the way
+                if (startingSpot.directionTo(nearByAllies[i].location) == dir)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 

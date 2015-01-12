@@ -12,7 +12,7 @@ public class Missile
 
         RobotInfo[] nearByEnemies;
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
-        Direction dir;
+        Direction dir = null;
         MapLocation target = null;
         boolean foundLauncher = false;
         MapLocation us;
@@ -23,16 +23,14 @@ public class Missile
             {
                 if (!rc.isCoreReady())
                 {
-                    rc.setIndicatorString(1, "!rc.isCoreReady()");
                     continue;
                 }
 
+                target = null;
                 nearByEnemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
 
                 if (nearByEnemies.length == 0)
                 {
-                    rc.setIndicatorString(0, "nearByEnemies: " + Clock.getBytecodeNum() + ", round: " + Clock.getRoundNum());
-
                     int x = rc.readBroadcast(7893);
                     int y = rc.readBroadcast(7894);
 
@@ -41,8 +39,6 @@ public class Missile
 
 
                     dir = us.directionTo(closest);
-
-                    int byteCodes = Clock.getBytecodeNum();
 
                     if (rc.canMove(dir))
                     {
@@ -64,11 +60,9 @@ public class Missile
                     {
                         rc.move(dir.rotateRight().rotateRight());
                     }
-                    rc.setIndicatorString(1, "After movement: " + Clock.getBytecodeNum() + ", round: " + Clock.getRoundNum() + ", before: " + byteCodes);
                 }
                 else
                 {
-                    rc.setIndicatorString(0, "Inside of else: " + Clock.getBytecodeNum() + ", round: " + Clock.getRoundNum());
                     for (int i = nearByEnemies.length; --i>=0;)
                     {
                         if (nearByEnemies[i].type == RobotType.LAUNCHER)
@@ -113,36 +107,78 @@ public class Missile
 
                     if (!foundLauncher)
                     {
-                        dir = rc.getLocation().directionTo(target);
-                        foundLauncher = false;
-                        if (rc.canMove(dir))
+                        if (target == null)
                         {
-                            rc.move(dir);
-                        }
+                            RobotInfo[] nearByAllies = rc.senseNearbyRobots(15, rc.getTeam());
 
-                        else if (rc.canMove(dir.rotateRight()))
-                        {
-                            rc.move(dir.rotateRight());
-                        }
+                            for (int i = nearByAllies.length; --i>=0; )
+                            {
+                                if (nearByAllies[i].type == RobotType.LAUNCHER)
+                                {
+                                    dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
+                                    break;
+                                }
+                                else if (dir != null && nearByAllies[i].type != RobotType.MISSILE)
+                                {
+                                    dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
+                                }
+                            }
 
-                        else if (rc.canMove(dir.rotateLeft()))
-                        {
-                            rc.move(dir.rotateLeft());
+                            if (dir == null)
+                            {
+                                // don't see any enemies and aren't next to an ally
+                            }
+                            else if (rc.canMove(dir))
+                            {
+                                rc.move(dir);
+                            }
+                            else if (rc.canMove(dir.rotateRight()))
+                            {
+                                rc.move(dir.rotateRight());
+                            }
+                            else if (rc.canMove(dir.rotateLeft()))
+                            {
+                                rc.move(dir.rotateLeft());
+                            }
+                            else if (rc.canMove(dir.rotateLeft().rotateLeft()))
+                            {
+                                rc.move(dir.rotateLeft().rotateLeft());
+                            }
+                            else if (rc.canMove(dir.rotateRight().rotateRight()))
+                            {
+                                rc.move(dir.rotateRight().rotateRight());
+                            }
                         }
+                        else
+                        {
+                            dir = rc.getLocation().directionTo(target);
+                            foundLauncher = false;
+                            if (rc.canMove(dir))
+                            {
+                                rc.move(dir);
+                            }
 
-                        else if (rc.canMove(dir.rotateLeft().rotateLeft()))
-                        {
-                            rc.move(dir.rotateLeft().rotateLeft());
-                        }
+                            else if (rc.canMove(dir.rotateRight()))
+                            {
+                                rc.move(dir.rotateRight());
+                            }
 
-                        else if (rc.canMove(dir.rotateRight().rotateRight()))
-                        {
-                            rc.move(dir.rotateRight().rotateRight());
+                            else if (rc.canMove(dir.rotateLeft()))
+                            {
+                                rc.move(dir.rotateLeft());
+                            }
+
+                            else if (rc.canMove(dir.rotateLeft().rotateLeft()))
+                            {
+                                rc.move(dir.rotateLeft().rotateLeft());
+                            }
+
+                            else if (rc.canMove(dir.rotateRight().rotateRight()))
+                            {
+                                rc.move(dir.rotateRight().rotateRight());
+                            }
                         }
-                        rc.setIndicatorString(1, "!foundLauncher: " + Clock.getBytecodeNum() + ", round: " + Clock.getRoundNum());
                     }
-
-
                 }
 
                 rc.yield();

@@ -18,7 +18,7 @@ public abstract class DefensiveUnits extends Unit
         int x = rc.readBroadcast(Messaging.BuildingInDistressX.ordinal());
         int y = rc.readBroadcast(Messaging.BuildingInDistressY.ordinal());
 
-        boolean defendBuilding = false;
+        boolean defend = false;
         if (x != 0 && y != 0)
         {
             MapLocation building = new MapLocation(x,y);
@@ -26,7 +26,7 @@ public abstract class DefensiveUnits extends Unit
             if (building.distanceSquaredTo(rc.getLocation()) < 200)
             {
                 target = building;
-                defendBuilding = true;
+                defend = true;
             }
         }
 
@@ -40,13 +40,46 @@ public abstract class DefensiveUnits extends Unit
             if (rc.getLocation().distanceSquaredTo(tower) < 400)
             {
                 target = tower;
-                defendBuilding = true;
+                defend = true;
+            }
+        }
+
+        x = rc.readBroadcast(Messaging.MinerUnderAttackX.ordinal());
+        y = rc.readBroadcast(Messaging.MinerUnderAttackY.ordinal());
+
+        if (x != 0 && y != 0)
+        {
+            MapLocation miner = new MapLocation(x, y);
+
+            if (rc.getLocation().distanceSquaredTo(miner) <= 400)
+            {
+                target = miner;
+                defend = true;
+                if (rc.getType() == RobotType.LAUNCHER)
+                {
+                    rc.broadcast(Messaging.MinerUnderAttackX.ordinal(), 0);
+                    rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), 0);
+                }
+            }
+        }
+
+        x = rc.readBroadcast(Messaging.LauncherAttackX.ordinal());
+        y = rc.readBroadcast(Messaging.LauncherAttackY.ordinal());
+
+        if (x != 0 && y != 0)
+        {
+            MapLocation goal = new MapLocation(x, y);
+
+            if (rc.getLocation().distanceSquaredTo(goal) < 400)
+            {
+                target = goal;
+                defend = true;
             }
         }
 
 
         // if we are not defending a building run unit specified code
-        if (!defendBuilding)
+        if (!defend)
         {
             collectData2();
         }

@@ -57,5 +57,9 @@ public enum Messaging {
     Attack,
     EnemyTowerX,
     EnemyTowerY,
+    MinerUnderAttackX,
+    MinerUnderAttackY,
+    LauncherAttackX,
+    LauncherAttackY,
     // etc
 }

@@ -42,7 +42,7 @@ public class BuildingBeaver extends Beaver
     {
         super.collectData();
 
-        if(type == BuildOrderMessaging.BuildMiningBaracks.ordinal() && !foundSpot)
+        if(type == BuildOrderMessaging.BuildMiningBaracks.ordinal() || type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal() && !foundSpot)
         {
             MapLocation temp = Utilities.getBestSpotSimple(rc);
             if(!temp.equals(rc.getLocation()))
@@ -97,7 +97,18 @@ public class BuildingBeaver extends Beaver
             }
             else if (type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal())
             {
-
+                rc.setIndicatorString(1, "Build Mining AerospaceLab");
+                building = RobotType.MINERFACTORY;
+                building2 = RobotType.HELIPAD;
+                building3 = RobotType.AEROSPACELAB;
+                numb = rc.readBroadcast(Messaging.NumbOfFactories.ordinal());
+                rc.broadcast(Messaging.BuildOrder.ordinal(), -1);
+                rc.broadcast(Messaging.NumbOfFactories.ordinal(), (numb+1));
+                target = Utilities.findLocationForBuilding(rc, numb, building);
+                buildingSpot = target;
+                target = target.add(target.directionTo(rc.getLocation()));
+                rc.setIndicatorString(0, "Numb: " + numb);
+                rc.setIndicatorString(2, "Aerospace Lab Building: " + building + ", Building Spot" + buildingSpot);
             }
             else
             {
@@ -130,7 +141,7 @@ public class BuildingBeaver extends Beaver
             rc.setIndicatorString(1, "can sense Spot");
             if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID || rc.isLocationOccupied(target))
             {
-                if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal())
+                if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal() && type != BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal())
                 {
                     buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
                     target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
@@ -144,7 +155,7 @@ public class BuildingBeaver extends Beaver
             }
         }
 
-        if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal() && target != null && buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.isLocationOccupied(buildingSpot))
+        if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal() && type != BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal() && target != null && buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.isLocationOccupied(buildingSpot))
         {
             buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
             rc.setIndicatorString(2, "New Building Spot: " + buildingSpot + ", old Target");

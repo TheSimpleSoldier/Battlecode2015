@@ -6,25 +6,20 @@ import team044.*;
 import battlecode.common.*;
 import team044.Units.Rushers.LauncherRusher;
 
-public class Launcher extends Unit
+public class Launcher extends DefensiveUnits
 {
     public Launcher(RobotController rc)
     {
         super(rc);
-        // override supers range
-        range = 24;
+        // override supers range as it is 0 but missiles can go a long ways
+        range = 35;
 
         nav.setAvoidTowers(false);
         nav.setAvoidHQ(false);
     }
 
-    public void collectData() throws GameActionException
+    public void collectData2() throws GameActionException
     {
-        super.collectData();
-        // collect our data
-
-        target = Utilities.getTowerClosestToEnemyHQ(rc);
-
         if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
         {
             MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
@@ -37,8 +32,10 @@ public class Launcher extends Unit
                 target = rc.senseEnemyHQLocation();
             }
         }
-
-        nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        else
+        {
+            target = Utilities.getTowerClosestToEnemyHQ(rc);
+        }
     }
 
     public void handleMessages() throws GameActionException

@@ -17,7 +17,7 @@ public class Miner extends Unit
         super(rc);
 
         rc.setIndicatorString(0, "Miner to our HQ");
-        if (rc.getID() % 4 == 0)
+        if (rc.getID() % 2 == 0)
         {
             rc.setIndicatorString(0, "Miner to enemyHQ");
             mineToOurHQ = false;
@@ -51,6 +51,14 @@ public class Miner extends Unit
             {
                 mineToOurHQ = false;
             }
+        }
+
+        enemies = rc.senseNearbyRobots(24, opponent);
+
+        if (enemies.length > 0)
+        {
+            rc.broadcast(Messaging.MinerUnderAttackX.ordinal(), enemies[0].location.x);
+            rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), enemies[0].location.y);
         }
 
     }

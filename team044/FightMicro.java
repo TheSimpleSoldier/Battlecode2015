@@ -6,10 +6,26 @@ public class FightMicro
 {
     RobotController rc;
     public MapLocation enemyHQ;
+    private int HQRange = 24;
     public FightMicro(RobotController rc)
     {
         this.rc = rc;
         enemyHQ = rc.senseEnemyHQLocation();
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+        if (enemyTowers.length >= 5)
+        {
+            HQRange = 52;
+        }
+        else if (enemyTowers.length >= 2)
+        {
+            HQRange = 35;
+        }
+        else
+        {
+            HQRange = 24;
+        }
     }
     public static Direction[] dirs = Direction.values();
 
@@ -168,11 +184,11 @@ public class FightMicro
         {
             return false;
         }
-        if (nearByEnemies.length < 1)
+        if (nearByEnemies.length < 1 && HQRange > 35)
         {
             if (rc.getType() == RobotType.HQ)
             {
-                RobotInfo[] enemies = rc.senseNearbyRobots(52, rc.getTeam().opponent());
+                RobotInfo[] enemies = rc.senseNearbyRobots(HQRange, rc.getTeam().opponent());
 
                 if (enemies.length > 0)
                 {
@@ -186,19 +202,23 @@ public class FightMicro
                         if (!rc.isLocationOccupied(enemy) && rc.canAttackLocation(enemy))
                         {
                             rc.attackLocation(enemy);
+                            return true;
                         }
                     }
                 }
             }
             return false;
         }
-        RobotInfo enemyToAttack = FightMicroUtilities.findWeakestEnemy(nearByEnemies);
-        MapLocation target = enemyToAttack.location;
-
-        if (rc.canAttackLocation(target))
+        else if (nearByEnemies.length > 0)
         {
-            rc.attackLocation(target);
-            return true;
+            RobotInfo enemyToAttack = FightMicroUtilities.findWeakestEnemy(nearByEnemies);
+            MapLocation target = enemyToAttack.location;
+
+            if (rc.canAttackLocation(target))
+            {
+                rc.attackLocation(target);
+                return true;
+            }
         }
         return false;
     }
@@ -227,8 +247,8 @@ public class FightMicro
             {
                 if (rc.getLocation().distanceSquaredTo(enemyTowers[i]) < 49)
                 {
-                    Direction dir = rc.getLocation().directionTo(enemyTowers[i]);
-                    if (rc.canMove(dir))
+                    Direction dir = FightMicroUtilities.dirToShoot(rc, null, enemyTowers[i]);
+                    if (dir != null && rc.canLaunch(dir))
                     {
                         // broadcast location for missiles
                         rc.broadcast(Constants.towerX, enemyTowers[i].x);
@@ -241,8 +261,8 @@ public class FightMicro
 
             if (rc.getLocation().distanceSquaredTo(rc.senseEnemyHQLocation()) < 49)
             {
-                Direction dir = rc.getLocation().directionTo(rc.senseEnemyHQLocation());
-                if (rc.canMove(dir))
+                Direction dir = FightMicroUtilities.dirToShoot(rc, null, rc.senseEnemyHQLocation());
+                if (dir != null && rc.canLaunch(dir))
                 {
                     rc.broadcast(Constants.towerX, rc.senseEnemyHQLocation().x);
                     rc.broadcast(Constants.towerY, rc.senseEnemyHQLocation().y);
@@ -254,27 +274,78 @@ public class FightMicro
             return false;
         }
 
-        Direction dir = rc.getLocation().directionTo(nearByEnemies[0].location);
+        Direction dir = FightMicroUtilities.dirToShoot(rc, nearByEnemies, null);
 
-        if (rc.canMove(dir))
+        rc.setIndicatorString(2, "Dir: " + dir);
+
+        if (dir != null && rc.canLaunch(dir))
         {
             rc.launchMissile(dir);
+            MapLocation rallyPoint = rc.getLocation().add(dir, 7);
+            rc.broadcast(Messaging.LauncherAttackX.ordinal(), rallyPoint.x);
+            rc.broadcast(Messaging.LauncherAttackY.ordinal(), rallyPoint.y);
         }
 
-        dir = dir.opposite();
-        if (rc.isCoreReady())
+        if (dir != null)
         {
-            if (rc.canMove(dir))
+            dir = dir.opposite();
+            if (rc.isCoreReady())
             {
-                rc.move(dir);
+                if (rc.canMove(dir))
+                {
+                    rc.move(dir);
+                }
+                else if (rc.canMove(dir.rotateLeft()))
+                {
+                    rc.move(dir.rotateLeft());
+                }
+                else if (rc.canMove(dir.rotateRight()))
+                {
+                    rc.move(dir.rotateRight());
+                }
             }
-            else if (rc.canMove(dir.rotateLeft()))
+        }
+        // if we can see a drone ahead run to the closest tower or HQ
+        else
+        {
+            RobotInfo[] enemies = rc.senseNearbyRobots(90, rc.getTeam().opponent());
+            boolean enemyDrone = false;
+
+            for (int i = enemies.length; --i>=0;)
             {
-                rc.move(dir.rotateLeft());
+                if (enemies[i].type == RobotType.DRONE)
+                {
+                    enemyDrone = true;
+                    break;
+                }
             }
-            else if (rc.canMove(dir.rotateRight()))
+
+            if (enemyDrone)
             {
-                rc.move(dir.rotateRight());
+                MapLocation[] towers = rc.senseTowerLocations();
+                MapLocation closestTower = Utilities.closestTower(rc, towers);
+
+                if (closestTower == null)
+                {
+                    closestTower = rc.senseHQLocation();
+                }
+
+                dir = rc.getLocation().directionTo(closestTower);
+                if (rc.isCoreReady())
+                {
+                    if (rc.canMove(dir))
+                    {
+                        rc.move(dir);
+                    }
+                    else if (rc.canMove(dir.rotateLeft()))
+                    {
+                        rc.move(dir.rotateLeft());
+                    }
+                    else if (rc.canMove(dir.rotateRight()))
+                    {
+                        rc.move(dir.rotateRight());
+                    }
+                }
             }
         }
 
@@ -284,7 +355,7 @@ public class FightMicro
     public boolean droneAttack(RobotInfo[] nearByEnemies) throws GameActionException
     {
         Direction direction = null;
-        RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+        RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
         MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
 
@@ -391,7 +462,6 @@ public class FightMicro
                 if (!Utilities.locInRangeOfEnemyTower(rc.getLocation().add(direction), enemyTowers, enemyHQ))
                 {
                     rc.setIndicatorString(0, "Closest enemy Tower: " + closestTower);
-                    rc.setIndicatorString(1, "Dist: " + closestTower.distanceSquaredTo(rc.getLocation().add(direction)));
                     rc.move(direction);
                     return true;
                 }
