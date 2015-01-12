@@ -302,11 +302,6 @@ public class RobotPlayer
         return new Tower(rc);
     }
 
-    private static Unit getMissile(RobotController rc)
-    {
-        return new Missile(rc);
-    }
-
     private static Unit getSupplyDepot(RobotController rc)
     {
         return new SupplyDepot(rc);

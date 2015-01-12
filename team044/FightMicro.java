@@ -260,6 +260,20 @@ public class FightMicro
         {
             rc.launchMissile(dir);
         }
+        else if (rc.canMove(dir.rotateRight()))
+        {
+            rc.launchMissile(dir.rotateRight());
+        }
+        else if (rc.canMove(dir.rotateLeft()))
+        {
+            rc.launchMissile(dir.rotateLeft());
+        }
+
+        MapLocation target = rc.getLocation().add(dir, 6);
+
+        // make sure missile heads out towards opponent
+        rc.broadcast(Constants.towerX, target.x);
+        rc.broadcast(Constants.towerY, target.y);
 
         dir = dir.opposite();
         if (rc.isCoreReady())
@@ -391,7 +405,6 @@ public class FightMicro
                 if (!Utilities.locInRangeOfEnemyTower(rc.getLocation().add(direction), enemyTowers, enemyHQ))
                 {
                     rc.setIndicatorString(0, "Closest enemy Tower: " + closestTower);
-                    rc.setIndicatorString(1, "Dist: " + closestTower.distanceSquaredTo(rc.getLocation().add(direction)));
                     rc.move(direction);
                     return true;
                 }
