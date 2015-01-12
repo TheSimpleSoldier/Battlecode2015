@@ -7,7 +7,7 @@ import team044.Structure;
 public class SupplyDepot extends Structure {
     public SupplyDepot(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
     }
 
     // currently doesn't do anything

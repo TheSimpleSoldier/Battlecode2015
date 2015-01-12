@@ -6,14 +6,19 @@ public abstract class Unit
 {
     public RobotController rc;
     public int range;
+    public int sightRange;
     public Team us;
     public Team opponent;
     public MapLocation ourHQ;
     public MapLocation enemyHQ;
     public RobotInfo[] nearByEnemies;
     public RobotInfo[] nearByAllies;
+    public RobotInfo[] enemies;
     public FightMicro fighter;
     public Navigator nav;
+    public EnemyMinerTracker tracker;
+    public MapLocation target;
+    public Direction[] dirs;
 
     public Unit()
     {
@@ -26,16 +31,23 @@ public abstract class Unit
         us = rc.getTeam();
         opponent = us.opponent();
         range = rc.getType().attackRadiusSquared;
-        nav = new Navigator(rc);
+        nav = new Navigator(rc, true, true, true, false);
         fighter = new FightMicro(rc);
+        tracker = new EnemyMinerTracker(rc);
         ourHQ = rc.senseHQLocation();
         enemyHQ = rc.senseEnemyHQLocation();
+        dirs = Direction.values();
+        sightRange = rc.getType().sensorRadiusSquared;
     }
 
     public void collectData() throws GameActionException
     {
         nearByEnemies = rc.senseNearbyRobots(range, opponent);
         nearByAllies = rc.senseNearbyRobots(range, us);
+        if(nearByEnemies != null)
+        {
+            tracker.record(nearByEnemies);
+        }
     }
 
     public void handleMessages() throws GameActionException

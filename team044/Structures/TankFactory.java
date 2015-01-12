@@ -7,7 +7,7 @@ import team044.Utilities;
 public class TankFactory extends Structure{
     public TankFactory(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
     }
 
     public boolean carryOutAbility() throws GameActionException

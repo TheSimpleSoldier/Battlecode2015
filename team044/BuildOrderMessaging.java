@@ -9,6 +9,7 @@ public enum BuildOrderMessaging {
     BuildDrone,
     BuildScoutingDrone,
     BuildSupplyDrone,
+    BuildSearchAndDestroyDrone,
     BuildLauncher,
     BuildMiner,
     BuildSoldier,
@@ -21,8 +22,10 @@ public enum BuildOrderMessaging {
     BuildTechnologyInstitute,
     BuildTrainingField,
     BuildSupplyDepot,
-    BuilderAlive,
-
+    BuildMiningBaracks,
+    BuildDefensiveSoldier,
+    BuildDefensiveTank,
+    BuildDefensiveBasher,
     // this should be last entry
     DoneBuilding
 }

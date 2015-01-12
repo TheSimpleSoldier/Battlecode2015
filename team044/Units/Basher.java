@@ -4,32 +4,35 @@ package team044.Units;
 import team044.*;
 
 import battlecode.common.*;
+import team044.Units.Rushers.BasherRusher;
 
 import javax.rmi.CORBA.Util;
 
 public class Basher extends Unit
 {
-    MapLocation target;
-
     public Basher(RobotController rc)
     {
         super(rc);
-        target = Utilities.getTowerClosestToEnemyHQ(rc);
+
+        nav.setAvoidTowers(false);
     }
 
     public void collectData() throws GameActionException
     {
         super.collectData();
+        
         // collect our data
-        MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
-        if (Clock.getRoundNum() > 1000 && enemyTower.length > 0)
+        target = Utilities.getRushLocation(rc);
+        rc.setIndicatorString(1, "Target: " + target);
+        /*MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
+        if (enemyTower.length > 0)
         {
             target = enemyTower[0];
         }
-        else if (Clock.getRoundNum() > 1500)
+        else
         {
             target = rc.senseEnemyHQLocation();
-        }
+        }*/
     }
 
     public void handleMessages() throws GameActionException
@@ -46,11 +49,15 @@ public class Basher extends Unit
 
     public boolean fight() throws GameActionException
     {
-        return false;
+        return fighter.basherFightMicro();
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new BasherRusher(rc);
+        }
         return current;
     }
 

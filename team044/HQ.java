@@ -5,18 +5,16 @@ import battlecode.common.*;
 public class HQ extends Structure
 {
     RobotInfo[] enemies;
-    RobotInfo[] nearByEnemies;
     RobotInfo[] allies;
     RobotInfo[] nearByAllies;
-    int range;
-    Team us;
-    Team opponent;
     int numberOfMinerFactories = -1;
     Direction[] dirs;
     FightMicro fighter;
     Messenger messenger;
     BuildOrderMessaging[] strat;
     int currentUnit = 0;
+    int numbOfBuildings = 0;
+    int lastNumbOfBuildings = 0;
 
     int numbOfBashers   = 0;
     int numbOfBeavers   = 0;
@@ -29,13 +27,11 @@ public class HQ extends Structure
 
     public HQ(RobotController rc) throws GameActionException
     {
-        this.rc = rc;
-        range = rc.getType().attackRadiusSquared;
-        us = rc.getTeam();
-        opponent = us.opponent();
+        super(rc);
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
         strat = Strategy.initialStrategy(rc);
+
     }
 
     public void handleMessages() throws GameActionException
@@ -43,6 +39,26 @@ public class HQ extends Structure
         //rc.setIndicatorString(0, "Messaging");
         messenger.giveUnitOrders();
         //rc.setIndicatorString(0, "after give unit orders");
+
+        // reset tower under attack channel every round
+        rc.broadcast(Messaging.TowerUnderAttack.ordinal(), 0);
+
+        // reset building under attack channels every round
+        rc.broadcast(Messaging.BuildingInDistressY.ordinal(), 0);
+        rc.broadcast(Messaging.BuildingInDistressX.ordinal(), 0);
+
+        // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
+        if (Clock.getRoundNum() > 1800)
+        {
+            rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
+            rc.setIndicatorString(2, "Rushing enemy");
+        }
+        // currently we attack when we reach round 1000
+        // TODO: Smarter attack metrics
+        else if (Clock.getRoundNum() > 1000)
+        {
+            rc.broadcast(Messaging.Attack.ordinal(), 1);
+        }
 
         // even round so odd channel has data
         if (Clock.getRoundNum() % 2 == 0)
@@ -112,7 +128,12 @@ public class HQ extends Structure
         rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);
 
         //rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + ", Tanks: " + numbOfTanks);
+        //numbOfBuildings = Utilities.test(rc);
 
+        if (currentUnit < strat.length)
+        {
+            rc.setIndicatorString(1, ""+strat[currentUnit]);
+        }
 
 
         if (currentUnit >= strat.length)
@@ -133,19 +154,16 @@ public class HQ extends Structure
             // if a beaver has taken up a job then we go ahead and post the next building
             if (rc.readBroadcast(Messaging.BuildOrder.ordinal()) == -1)
             {
-                System.out.println("Increase Unit count");
                 currentUnit++;
-                if(currentUnit < strat.length)
-                {
-                    if(currentUnit >= strat.length && strat[currentUnit] == BuildOrderMessaging.BuildMinerFactory)
-                    {
-                        numberOfMinerFactories++;
-                        rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numberOfMinerFactories);
-                    }
-                }
             }
 
             if (currentUnit >= strat.length)
+            {
+                return;
+            }
+
+            // something is messed up
+            if (strat[currentUnit] == null)
             {
                 return;
             }
@@ -246,7 +264,7 @@ public class HQ extends Structure
     public void collectData() throws GameActionException
     {
         enemies = rc.senseNearbyRobots(99999, opponent);
-        nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        nearByEnemies = rc.senseNearbyRobots(35, opponent);
         allies = rc.senseNearbyRobots(99999, us);
         nearByAllies = rc.senseNearbyRobots(range, us);
     }
@@ -267,16 +285,6 @@ public class HQ extends Structure
         {
             return false;
         }
-        // ensure that we always have at least one builder beaver
-        if (rc.readBroadcast(BuildOrderMessaging.BuilderAlive.ordinal()) == 0) {  // Check if a builder beaver exists
-            if (Utilities.spawnUnit(RobotType.BEAVER, rc))              // Spawn builder beaver if there are no builders
-            {
-                rc.broadcast(Messaging.BeaverType.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
-                rc.broadcast(BuildOrderMessaging.BuilderAlive.ordinal(), 0);  // BuilderAlive = 0 next round if builder died
-                return true;
-            }
-        }
-        rc.broadcast(BuildOrderMessaging.BuilderAlive.ordinal(), 0);  // BuilderAlive = 0 next round if builders are dead
         // we only build a beaver if it is the next unit to be built
         if (strat[currentUnit] == BuildOrderMessaging.BuildBeaverBuilder || strat[currentUnit] == BuildOrderMessaging.BuildBeaverMiner)
         {
@@ -297,6 +305,15 @@ public class HQ extends Structure
 
                 //rc.setIndicatorString(1, "" + strat[currentUnit]);
                 rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
+                return true;
+            }
+        }
+        // if we are trying to build a building but don't have any beavers then create a beaver
+        else if (numbOfBeavers < 1)
+        {
+            if (Utilities.spawnUnit(RobotType.BEAVER, rc))
+            {
+                rc.broadcast(Messaging.BuildOrder.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
                 return true;
             }
         }

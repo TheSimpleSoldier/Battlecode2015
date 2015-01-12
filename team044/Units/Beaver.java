@@ -2,11 +2,12 @@ package team044.Units;
 
 import team044.*;
 import battlecode.common.*;
+import team044.Units.Rushers.BasherRusher;
+import team044.Units.Rushers.BeaverRusher;
 
 public class Beaver extends Unit
 {
     int buildingType;
-    MapLocation target;
 
     public Beaver()
     {
@@ -44,10 +45,15 @@ public class Beaver extends Unit
     public boolean fight() throws GameActionException
     {
         return fighter.basicFightMicro(nearByEnemies);
+        //return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new BeaverRusher(rc);
+        }
         return current;
     }
 

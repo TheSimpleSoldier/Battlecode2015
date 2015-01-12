@@ -15,11 +15,8 @@ public class Tower extends Structure
     RobotInfo[] nearByAllies;
     public Tower(RobotController rc)
     {
-        this.rc = rc;
+        super(rc);
         fighter = new FightMicro(rc);
-        us = rc.getTeam();
-        opponent = us.opponent();
-        range = rc.getType().attackRadiusSquared;
     }
 
     public void handleMessages() throws GameActionException
@@ -33,6 +30,7 @@ public class Tower extends Structure
             {
                 if (towers[i] == us)
                 {
+<<<<<<< HEAD
                     rc.broadcast(Messaging.TowerUnderAttack.ordinal(), i);
 
                     // Set team memory on first attack only.
@@ -113,6 +111,9 @@ public class Tower extends Structure
                             rc.setTeamMemory(TeamMemory.AttackTiming.ordinal(), timing);
                         }
                     }
+=======
+                    rc.broadcast(Messaging.TowerUnderAttack.ordinal(), (i + 1));
+>>>>>>> 8d998e5265d9ef5906d5c59afd8c781ff5500e7b
                 }
             }
         }

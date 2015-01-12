@@ -1,17 +1,27 @@
 package team044.Units;
 
-import battlecode.world.Util;
-import team044.*;
+
+import team044.Messaging;
+import team044.Unit;
+import team044.Utilities;
 
 import battlecode.common.*;
+import team044.Units.Rushers.MinerRusher;
 
 public class Miner extends Unit
 {
-    MapLocation target;
+    boolean mineToOurHQ = true;
 
     public Miner(RobotController rc)
     {
         super(rc);
+
+        rc.setIndicatorString(0, "Miner to our HQ");
+        if (rc.getID() % 4 == 0)
+        {
+            rc.setIndicatorString(0, "Miner to enemyHQ");
+            mineToOurHQ = false;
+        }
     }
 
     public void collectData() throws GameActionException
@@ -23,7 +33,25 @@ public class Miner extends Unit
         {
             //target = Utilities.getBestMiningSpot(rc);
             target = Utilities.greedyBestMiningSpot(rc);
+
+            if (target == rc.getLocation())
+            {
+                if (mineToOurHQ)
+                {
+                    target = ourHQ;
+                }
+                else
+                {
+                    target = enemyHQ;
+                }
+            }
+
+            if (rc.getLocation().distanceSquaredTo(ourHQ) < 35)
+            {
+                mineToOurHQ = false;
+            }
         }
+
     }
 
     public void handleMessages() throws GameActionException
@@ -46,11 +74,16 @@ public class Miner extends Unit
 
     public boolean fight() throws GameActionException
     {
+        //return fighter.advancedFightMicro(nearByEnemies);
         return fighter.basicFightMicro(nearByEnemies);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new MinerRusher(rc);
+        }
         return current;
     }
 

@@ -7,16 +7,37 @@ import battlecode.common.*;
  */
 public abstract class Structure extends Unit
 {
+    public Structure()
+    {
+        //do nothing
+    }
+
+    public Structure(RobotController rc)
+    {
+        this.rc = rc;
+        us = rc.getTeam();
+        opponent = us.opponent();
+        range = rc.getType().attackRadiusSquared;
+        sightRange = rc.getType().sensorRadiusSquared;
+        tracker = new EnemyMinerTracker(rc);
+        ourHQ = rc.senseHQLocation();
+        enemyHQ = rc.senseEnemyHQLocation();
+    }
+
     public void collectData() throws GameActionException
     {
         // collect our data
         super.collectData();
+
+        enemies = rc.senseNearbyRobots(sightRange, opponent);
     }
 
     public void handleMessages() throws GameActionException
     {
-        if (nearByEnemies.length > 0)
+        rc.setIndicatorString(1, "Handle Messages");
+        if (enemies.length > 0)
         {
+            rc.setIndicatorString(2, "Enemies spoted");
             rc.broadcast(Messaging.BuildingInDistressX.ordinal(), rc.getLocation().x);
             rc.broadcast(Messaging.BuildingInDistressY.ordinal(), rc.getLocation().y);
         }
@@ -54,6 +75,13 @@ public abstract class Structure extends Unit
             return;
         }
 
+        int byteCodeLimit = 1500;
+
+        if (rc.getType() == RobotType.HQ)
+        {
+            byteCodeLimit = 9000;
+        }
+
         if (rc == null)
         {
             System.out.println("Houston we have a serious problem");
@@ -73,6 +101,10 @@ public abstract class Structure extends Unit
         // first give all supply to Drones
         for (int i = 0; i < closeAllies.length; i++)
         {
+            if (Clock.getBytecodeNum() > byteCodeLimit)
+            {
+                break;
+            }
             if (closeAllies[i].type == RobotType.DRONE)
             {
                 int totalSupplies = (int) rc.getSupplyLevel();
@@ -83,12 +115,12 @@ public abstract class Structure extends Unit
 
         for (int i = 0; i < closeAllies.length; i++)
         {
-            if (Clock.getBytecodeNum() > 1750)
+            if (Clock.getBytecodeNum() > byteCodeLimit)
             {
                 break;
             }
             MapLocation ally = closeAllies[i].location;
-            if (rc.senseRobotAtLocation(ally) != null && rc.getLocation().distanceSquaredTo(ally) < dist)
+            if (rc.isLocationOccupied(ally) && rc.getLocation().distanceSquaredTo(ally) < dist)
             {
                 rc.transferSupplies(supplies, ally);
             }

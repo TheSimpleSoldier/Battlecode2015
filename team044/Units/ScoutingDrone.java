@@ -3,6 +3,7 @@ package team044.Units;
 
 import battlecode.common.*;
 import team044.Unit;
+import team044.Utilities;
 
 import java.util.Random;
 
@@ -21,15 +22,11 @@ public class ScoutingDrone extends Drone
     public void collectData() throws GameActionException
     {
         // collect our data
+        super.collectData();
         if(Clock.getRoundNum() % 20 == 0)
         {
-            //Utilities.getBestSpot(rc, false);
+            Utilities.getBestSpot(rc, false);
         }
-    }
-
-    public void handleMessages() throws GameActionException
-    {
-        // default to doing nothing
     }
 
     public boolean takeNextStep() throws GameActionException
@@ -45,7 +42,7 @@ public class ScoutingDrone extends Drone
 
         rc.setIndicatorString(1, "target: " + target.toString());
 
-        return nav.takeNextStep(target, true, true);
+        return nav.takeNextStep(target);
     }
 
     private MapLocation findNextTarget()
@@ -88,11 +85,6 @@ public class ScoutingDrone extends Drone
         }
 
         return next;
-    }
-
-    public boolean fight() throws GameActionException
-    {
-        return false;
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

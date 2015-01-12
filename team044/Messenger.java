@@ -35,7 +35,7 @@ public class Messenger
 
         // initialize strategies
         basherStrat = new BuildOrderMessaging[1];
-        basherStrat[0] = BuildOrderMessaging.BuildBasher;
+        basherStrat[0] = BuildOrderMessaging.BuildDefensiveBasher;
 
         computerStrat = new BuildOrderMessaging[1];
         computerStrat[0] = BuildOrderMessaging.BuildComputer;
@@ -47,13 +47,13 @@ public class Messenger
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
         soldierStrat = new BuildOrderMessaging[1];
-        soldierStrat[0] = BuildOrderMessaging.BuildSoldier;
+        soldierStrat[0] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
-        tankStrat[0] = BuildOrderMessaging.BuildTank;
+        tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
 
         droneStrat = new BuildOrderMessaging[1];
-        droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
+        droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
     }
 
     /**
@@ -62,6 +62,15 @@ public class Messenger
      */
     public void giveUnitOrders() throws GameActionException
     {
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 0)
+        {
+            droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
+        }
+        else
+        {
+            droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+        }
+
         int message;
         if (rc.readBroadcast(Messaging.BasherType.ordinal()) == -1)
         {
@@ -88,7 +97,7 @@ public class Messenger
         {
             message = minerStrat[numbOfMiners].ordinal();
             rc.broadcast(Messaging.MinerType.ordinal(), message);
-            numbOfMiners++;
+            numbOfMiners = (numbOfMiners + 1) % minerStrat.length;
         }
 
         if (rc.readBroadcast(Messaging.SoldierType.ordinal()) == -1)

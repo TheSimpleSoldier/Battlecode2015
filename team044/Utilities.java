@@ -1,7 +1,6 @@
 package team044;
 
 import battlecode.common.*;
-import battlecode.world.Robot;
 
 import java.util.Random;
 
@@ -11,6 +10,46 @@ public class Utilities
     // location for methods that can be used across multiple domains
 
     private static int startChannelMineSpots = 100;
+
+    public static MapLocation getBestSpotSimple(RobotController rc) throws GameActionException
+    {
+        Random rand = new Random(rc.getID() * Clock.getRoundNum());
+        MapLocation location = rc.getLocation();
+        int dist = (int) Math.sqrt((double) rc.senseEnemyHQLocation().distanceSquaredTo(rc.senseHQLocation()));
+        dist = dist / 3;
+        dist = dist * dist;
+        int k = 10;
+        for(; --k >= 0;)
+        {
+            MapLocation nextLocation = location.add(Direction.values()[rand.nextInt(8)]);
+
+            if(rc.canSenseLocation(location))
+            {
+                if(spotBetter(rc, location, nextLocation, dist))
+                {
+                    location = nextLocation;
+                }
+            }
+        }
+
+        Direction[] dirs = Direction.values();
+        //MapLocation location = rc.getLocation();
+
+        if(rc.senseOre(location) >= 20 && farFromHome(rc, dist, rc.getLocation()))
+        {
+            return location;
+        }
+
+        for(k = 0; k < 8; k++)
+        {
+            if(rc.senseOre(location.add(dirs[k])) >= 20 && farFromHome(rc, dist, rc.getLocation()))
+            {
+                return location.add(dirs[k]);
+            }
+        }
+
+        return rc.getLocation();
+    }
 
     public static MapLocation getBestSpot(RobotController rc, boolean lightWeight) throws GameActionException
     {
@@ -45,6 +84,8 @@ public class Utilities
 
         int startChannel = -1;
 
+
+/*
         //if far from us, but also not near enemy
         if(farFromHome(rc, rc.getTeam(), location) && farFromHome(rc, rc.getTeam().opponent(), location))
         {
@@ -54,7 +95,7 @@ public class Utilities
         else if(!farFromHome(rc, rc.getTeam(), location))
         {
             startChannel = startChannelMineSpots;
-        }
+        }*/
 
         //this looks at the current top spots and inserts the current spot if it is larger big enough
         if(startChannel != -1)
@@ -104,41 +145,86 @@ public class Utilities
         }
     }
 
-    //this will check if a spot is near the towers or hq of a particular team.
-    private static boolean farFromHome(RobotController rc, Team team, MapLocation location)
+    private static boolean spotBetter(RobotController rc, MapLocation oldSpot, MapLocation newSpot, int dist)
     {
-        int close = 10;
-
-        boolean opponent = false;
-        if(rc.getTeam() != team)
+        if (rc.senseOre(newSpot) < rc.senseOre(oldSpot))
         {
-            opponent = true;
+            return false;
         }
 
-        if(opponent)
+        int score = 0;
+
+        int oldDistToHQ = oldSpot.distanceSquaredTo(rc.senseHQLocation());
+        if (oldDistToHQ < dist)
         {
-            if(location.distanceSquaredTo(rc.senseEnemyHQLocation()) < close)
+            if (newSpot.distanceSquaredTo(rc.senseHQLocation()) >= oldDistToHQ)
             {
-                return false;
+                score++;
+            }
+            else
+            {
+                score--;
             }
         }
-        else
+
+        int oldDistToEnemyHQ = oldSpot.distanceSquaredTo(rc.senseEnemyHQLocation());
+        if (oldDistToEnemyHQ <= dist)
         {
-            if(location.distanceSquaredTo(rc.senseHQLocation()) < close)
+            if (newSpot.distanceSquaredTo(rc.senseEnemyHQLocation()) >= oldDistToEnemyHQ)
             {
-                return false;
+                score++;
+            }
+            else
+            {
+                score--;
             }
         }
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+        for (int i = enemyTowers.length; --i>=0; )
+        {
+            int oldDist = oldSpot.distanceSquaredTo(enemyTowers[i]);
+            if (oldDist <= dist)
+            {
+                if (newSpot.distanceSquaredTo(enemyTowers[i]) >= oldDist)
+                {
+                    score++;
+                }
+                else
+                {
+                    score--;
+                }
+            }
+        }
+
+        if (score >= 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    //this will check if a spot is near the towers or hq of a particular team.
+    private static boolean farFromHome(RobotController rc, int dist, MapLocation location)
+    {
+        int close = dist;
+
+        if(location.distanceSquaredTo(rc.senseEnemyHQLocation()) < close)
+        {
+            return false;
+        }
+
+        if(location.distanceSquaredTo(rc.senseHQLocation()) < close)
+        {
+            return false;
+        }
+
 
         MapLocation[] towers;
-        if(opponent)
-        {
-            towers = rc.senseEnemyTowerLocations();
-        }
-        else
-        {
-            towers = rc.senseTowerLocations();
-        }
+
+        // we are only concerned about being far away from enemy towers
+        towers = rc.senseEnemyTowerLocations();
 
         for(int k = towers.length; --k >= 0;)
         {
@@ -186,6 +272,7 @@ public class Utilities
                     {
                         best = newSpot;
                     }
+                    /*
                     for (int j = 0; j < 8; j++)
                     {
                         MapLocation newSpot2 = newSpot.add(dirs[j]);
@@ -196,20 +283,10 @@ public class Utilities
                                 best = newSpot2;
                             }
                         }
-                    }
+                    }*/
                 }
             }
         } while (rc.senseOre(best) > rc.senseOre(currentBest));
-
-        if (currentBest == rc.getLocation())
-        {
-            Direction dir = dirs[random.nextInt(8)];
-            while (!rc.canMove(dir))
-            {
-                dir = dirs[random.nextInt(8)];
-            }
-            currentBest = currentBest.add(dir);
-        }
 
         rc.setIndicatorString(1, "Best: "+currentBest);
         return currentBest;
@@ -340,18 +417,19 @@ public class Utilities
                 int allyDist = nearByAllies[i].location.distanceSquaredTo(ourHQ);
                 if (allyDist > distToHQ)
                 {
+                    MapLocation allySpot = nearByAllies[i].location;
                     int allySupply = (int) nearByAllies[i].supplyLevel;
                     if (allySupply < rc.getSupplyLevel())
                     {
-                        if (Clock.getBytecodeNum() > 4500)
+                        if (Clock.getBytecodeNum() > 4000)
                         {
                             break;
                         }
-                        if (rc.isLocationOccupied(nearByAllies[i].location))
+                        if (rc.isLocationOccupied(allySpot) && allySpot.distanceSquaredTo(rc.getLocation()) < dist)
                         {
                             // transfer half of difference to them
                             int amount = (int) (rc.getSupplyLevel() - allySupply) / 2;
-                            rc.transferSupplies(amount, nearByAllies[i].location);
+                            rc.transferSupplies(amount, allySpot);
                         }
                     }
                 }
@@ -373,7 +451,7 @@ public class Utilities
             {
                 for (int i = 0; i < nearByAllies.length; i++)
                 {
-                    if (Clock.getBytecodeNum() > 4500)
+                    if (Clock.getBytecodeNum() > 4000)
                     {
                         break;
                     }
@@ -400,12 +478,20 @@ public class Utilities
 
         for (int i = 0; i < allies.length; i++)
         {
+            if (Clock.getBytecodeNum() > 4000)
+            {
+                break;
+            }
             // if building don't give it supply
             if (!allies[i].type.needsSupply())
             {
                 continue;
             }
             int supplyAmount = (int) rc.getSupplyLevel() - 100;
+            if (supplyAmount < 0 )
+            {
+                supplyAmount = 0;
+            }
             rc.transferSupplies(supplyAmount, allies[i].location);
             return true;
         }
@@ -492,6 +578,10 @@ public class Utilities
         {
             return RobotType.TRAININGFIELD;
         }
+        else if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal())
+        {
+            return RobotType.BARRACKS;
+        }
         return null;
     }
 
@@ -556,25 +646,27 @@ public class Utilities
 
         MapLocation[] towers = rc.senseTowerLocations();
 
-        if (numb < towers.length)
+        if (numb == 0)//< towers.length)
         {
-            target = towers[numb];
+            target = getTowerClosestToEnemyHQ(rc);
         }
         else
         {
             // first go to right
-            if (numb == towers.length)
+            if (numb == 1)//towers.length)
             {
                 MapLocation ourHQ = rc.senseHQLocation();
-                int dist = ourHQ.distanceSquaredTo(rc.senseEnemyHQLocation());
-                Direction dir = ourHQ.directionTo(rc.senseEnemyHQLocation());
+                MapLocation enemyHQ = rc.senseEnemyHQLocation();
+                int dist = ourHQ.distanceSquaredTo(enemyHQ);
+                Direction dir = ourHQ.directionTo(enemyHQ);
                 dir = dir.rotateRight();
                 MapLocation current = rc.senseHQLocation().add(dir);
                 int newDist = current.distanceSquaredTo(ourHQ);
-                while (newDist < (dist/2))
+                while (newDist < (dist/2) && newDist < 1000)
                 {
                     current = current.add(dir);
                     newDist = current.distanceSquaredTo(ourHQ);
+                    dir = current.directionTo(enemyHQ).rotateRight();
                 }
                 target = current;
             }
@@ -582,15 +674,17 @@ public class Utilities
             else
             {
                 MapLocation ourHQ = rc.senseHQLocation();
-                int dist = ourHQ.distanceSquaredTo(rc.senseEnemyHQLocation());
-                Direction dir = ourHQ.directionTo(rc.senseEnemyHQLocation());
+                MapLocation enemyHQ = rc.senseEnemyHQLocation();
+                int dist = ourHQ.distanceSquaredTo(enemyHQ);
+                Direction dir = ourHQ.directionTo(enemyHQ);
                 dir = dir.rotateLeft();
                 MapLocation current = rc.senseHQLocation().add(dir);
                 int newDist = current.distanceSquaredTo(ourHQ);
-                while (newDist < dist/2)
+                while (newDist < dist/2 && newDist < 1000)
                 {
                     current = current.add(dir);
                     newDist = current.distanceSquaredTo(ourHQ);
+                    dir = current.directionTo(enemyHQ).rotateLeft();
                 }
                 target = current;
             }
@@ -696,5 +790,157 @@ public class Utilities
             numb++;
             rc.broadcast(channelOdd, numb);
         }
+    }
+
+    /**
+     * This method will build the requirement for a building
+     */
+    public static void buildRequirement(RobotController rc, MapLocation spot, RobotType type) throws GameActionException
+    {
+        // need to build barracks
+        if (type == RobotType.TANKFACTORY)
+        {
+            BuildStructure(rc, spot, RobotType.BARRACKS);
+        }
+        // need to build a helipad
+        else if (type == RobotType.AEROSPACELAB)
+        {
+            BuildStructure(rc, spot, RobotType.HELIPAD);
+        }
+        // need to build a technology institue
+        else if (type == RobotType.TRAININGFIELD)
+        {
+            BuildStructure(rc, spot, RobotType.TECHNOLOGYINSTITUTE);
+        }
+        else
+        {
+            System.out.println("Unknown building type");
+        }
+    }
+
+    /**
+     * This method returns the closest tower
+     */
+    public static MapLocation closestTower(RobotController rc, MapLocation[] towers)
+    {
+        int closestDist = 99999999;
+        MapLocation closest = null;
+        MapLocation us = rc.getLocation();
+
+        for (int i = towers.length; --i>=0; )
+        {
+            int dist = towers[i].distanceSquaredTo(us);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = towers[i];
+            }
+        }
+
+        return closest;
+    }
+
+    /**
+     * This is a test
+     */
+    public static int test(RobotController rc) throws GameActionException
+    {
+        int numbOfMinerFactories = 0;
+        int numbOfTankFactories = 0;
+        int numbOfBarracks = 0;
+        int numbOfHelipads = 0;
+        int numbOfAerospacelab = 0;
+        int numbOfSupplyDepots = 0;
+        int numbOfTrainingfields = 0;
+        int numbOfTechnologyInstitutes = 0;
+
+        RobotInfo[] allies = rc.senseNearbyRobots(9999, rc.getTeam());
+
+        for (int i = allies.length; --i>=0; )
+        {
+            if (allies[i].type == RobotType.BARRACKS)
+            {
+                numbOfBarracks++;
+            }
+            else if (allies[i].type == RobotType.MINERFACTORY)
+            {
+                numbOfMinerFactories++;
+            }
+            else if (allies[i].type == RobotType.TANKFACTORY)
+            {
+                numbOfTankFactories++;
+            }
+            else if (allies[i].type == RobotType.HELIPAD)
+            {
+                numbOfHelipads++;
+            }
+            else if (allies[i].type == RobotType.AEROSPACELAB)
+            {
+                numbOfAerospacelab++;
+            }
+            else if (allies[i].type == RobotType.SUPPLYDEPOT)
+            {
+                numbOfSupplyDepots++;
+            }
+            else if (allies[i].type == RobotType.TRAININGFIELD)
+            {
+                numbOfTrainingfields++;
+            }
+            else if (allies[i].type == RobotType.TECHNOLOGYINSTITUTE)
+            {
+                numbOfTechnologyInstitutes++;
+            }
+
+        }
+
+        rc.setIndicatorString(0, "Barracks: " + numbOfBarracks + ", MinerFactory: " + numbOfMinerFactories + ", Tank Factory: " + ", Helipads: " + numbOfHelipads);
+        return numbOfTankFactories + numbOfBarracks + numbOfHelipads + numbOfMinerFactories + numbOfAerospacelab + numbOfSupplyDepots + numbOfTechnologyInstitutes + numbOfTrainingfields;
+    }
+
+    /**
+     * This method returns the rush location
+     */
+    public static MapLocation getRushLocation(RobotController rc)
+    {
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+
+        if (towers.length == 0)
+        {
+            return rc.senseEnemyHQLocation();
+        }
+
+        int bestDist = 99999;
+        MapLocation best = null;
+        for (int i = towers.length; --i>=0; )
+        {
+            int dist = towers[i].distanceSquaredTo(rc.senseHQLocation());
+            if (dist < bestDist)
+            {
+                bestDist = dist;
+                best = towers[i];
+            }
+        }
+        return best;
+    }
+
+    /**
+     * This method returns the if a location is within firing distance of a tower or enemy HQ
+     */
+    public static boolean locInRangeOfEnemyTower(MapLocation spot, MapLocation[] towers, MapLocation enemyHQ)
+    {
+        for (int i = 0; i < towers.length; i++)
+        {
+            if (spot.distanceSquaredTo(towers[i]) <= 24)
+            {
+                return true;
+            }
+        }
+
+        if (spot.distanceSquaredTo(enemyHQ) <= 35)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
