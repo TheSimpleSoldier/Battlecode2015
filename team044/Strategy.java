@@ -214,19 +214,19 @@ public class Strategy
                 case 1:     // First attack on tower/HQ was with a drone last game.
                     primaryStructure = BuildOrderMessaging.BuildTankFactory;
                     secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildTankFactory;
+                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
                     miningType = BuildOrderMessaging.BuildMiningBaracks;
                     break;
                 case 2:     // First attack on tower/HQ was with a Launcher last game.
                     primaryStructure = BuildOrderMessaging.BuildHelipad;
                     secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildTankFactory;
+                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
                     miningType = BuildOrderMessaging.BuildAerospaceLab;
                     break;
                 case 3:     // First attack on tower/HQ was with a Tank last game.
-                    primaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+                    primaryStructure = BuildOrderMessaging.BuildHelipad;
                     secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    tertiaryStructure = BuildOrderMessaging.BuildHelipad;
+                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
                     miningType = BuildOrderMessaging.BuildMinerFactory;
                     break;
                 default:
