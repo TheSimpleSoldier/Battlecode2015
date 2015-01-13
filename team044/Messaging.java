@@ -57,5 +57,6 @@ public enum Messaging {
     Attack,
     EnemyTowerX,
     EnemyTowerY,
+    StopCountingEnemy
     // etc
 }

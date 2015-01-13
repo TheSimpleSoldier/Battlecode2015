@@ -332,10 +332,22 @@ public class HQ extends Structure
                 }
             }
         }
-        mostUnits = mostUnits << 4;
-        mostUnits += secondMost;
-        rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
-        rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+
+        if (rc.readBroadcast(Messaging.StopCountingEnemy.ordinal()) == 0 && ((enemyCountMax > 30 && mostUnits == 1) || (enemyCountMax > 15 && mostUnits == 2)))
+        {
+            rc.broadcast(Messaging.StopCountingEnemy.ordinal(), 1);
+            mostUnits = mostUnits << 4;
+            mostUnits += secondMost;
+            rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
+            rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+        }
+        else if (rc.readBroadcast(Messaging.StopCountingEnemy.ordinal()) == 0)
+        {
+            mostUnits = mostUnits << 4;
+            mostUnits += secondMost;
+            rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
+            rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+        }
     }
 
     public boolean fight() throws GameActionException
