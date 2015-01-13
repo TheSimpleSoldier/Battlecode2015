@@ -1,8 +1,6 @@
 package team044;
 
-import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
-import battlecode.common.RobotController;
+import battlecode.common.*;
 
 /**
  * Created by David on 1/11/2015.
@@ -59,18 +57,33 @@ public class Strategy
         int hqDistance = enemyHQ.distanceSquaredTo(rc.getLocation());
         long[] memory = rc.getTeamMemory();     // 32 longs of data from the previous game
         long attackTiming = memory[TeamMemory.AttackTiming.ordinal()] & 4095;
-        long mostUnits = (memory[TeamMemory.AttackTiming.ordinal()] >>> 12) & 15;
-        long secondMost = memory[TeamMemory.AttackTiming.ordinal()] >>> 16;
+        long mostInitialAttackers = (memory[TeamMemory.AttackTiming.ordinal()] >>> 12) & 15;
+        //long secondMost = memory[TeamMemory.AttackTiming.ordinal()] >>> 16;
+        long mostEndGameUnit = memory[TeamMemory.EnemyUnitBuild.ordinal()] >>> 4;
+        long secondMostEndGame = memory[TeamMemory.EnemyUnitBuild.ordinal()] & 15;
+        long endGameHP = memory[TeamMemory.HQHP.ordinal()];
         BuildOrderMessaging primaryStructure;
         BuildOrderMessaging secondaryStructure;
         BuildOrderMessaging tertiaryStructure;
+        Direction toEnemy = rc.getLocation().directionTo(enemyHQ);
+        MapLocation mapEdge = enemyHQ.add(toEnemy);
+        int count = 0;
 
-        String debug = String.format("HQ Distance: %d; First Attacker: %d; Attack Timing: %d; Tower Count: %d", hqDistance, mostUnits, attackTiming, numbTowers);
+        while (rc.isPathable(RobotType.MINER, mapEdge)) {
+            count++;
+            mapEdge = mapEdge.add(toEnemy);
+        }
 
+        hqDistance = (int) Math.sqrt((double) hqDistance);
+        hqDistance += count + count;
+
+        String debug = String.format("HP: %d; Size: %d; First Attacker: %d; Attack Timing: %d; Unit #1: %d; #2: %d; ByteCodes left: %d", endGameHP, hqDistance, mostInitialAttackers, attackTiming, mostEndGameUnit, secondMostEndGame, Clock.getBytecodesLeft());
+
+        System.out.println(debug);
         // Small map
         if (hqDistance < 2000) {
             // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostUnits) {
+            switch ((int) mostInitialAttackers) {
                 case 1:     // First attack on tower/HQ was with a drone last game.
                     primaryStructure = BuildOrderMessaging.BuildTankFactory;
                     secondaryStructure = BuildOrderMessaging.BuildHelipad;
@@ -134,7 +147,7 @@ public class Strategy
             // Fewer than 6 towers
             else if (numbTowers < 6)
             {
-                strat = new BuildOrderMessaging[23];
+                strat = new BuildOrderMessaging[30];
                 strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
                 strat[1] = BuildOrderMessaging.BuildMinerFactory;
                 strat[2] = BuildOrderMessaging.BuildBeaverMiner;
@@ -164,7 +177,7 @@ public class Strategy
             // Just a small map
             else
             {
-                strat = new BuildOrderMessaging[23];
+                strat = new BuildOrderMessaging[30];
                 strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
                 strat[1] = BuildOrderMessaging.BuildMinerFactory;
                 strat[2] = BuildOrderMessaging.BuildBeaverMiner;
@@ -196,7 +209,7 @@ public class Strategy
         else if (hqDistance > 5000)
         {
             // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostUnits)
+            switch ((int) mostInitialAttackers)
             {
                 case 1:     // First attack on tower/HQ was with a drone last game.
                     primaryStructure = BuildOrderMessaging.BuildTankFactory;
@@ -232,7 +245,7 @@ public class Strategy
             // Enemy rushed last game
             if (attackTiming < 600)
             {
-                strat = new BuildOrderMessaging[23];
+                strat = new BuildOrderMessaging[30];
                 strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
                 strat[1] = BuildOrderMessaging.BuildMinerFactory;
                 strat[2] = BuildOrderMessaging.BuildBeaverMiner;
@@ -262,7 +275,7 @@ public class Strategy
             // Fewer than 6 towers
             else if (numbTowers < 6)
             {
-                strat = new BuildOrderMessaging[23];
+                strat = new BuildOrderMessaging[30];
                 strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
                 strat[1] = BuildOrderMessaging.BuildMinerFactory;
                 strat[2] = BuildOrderMessaging.BuildBeaverMiner;
@@ -292,7 +305,7 @@ public class Strategy
             // Just a large map
             else
             {
-                strat = new BuildOrderMessaging[23];
+                strat = new BuildOrderMessaging[30];
                 strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
                 strat[1] = BuildOrderMessaging.BuildMinerFactory;
                 strat[2] = BuildOrderMessaging.BuildBeaverMiner;
@@ -325,7 +338,7 @@ public class Strategy
         else
         {
             // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostUnits)
+            switch ((int) mostInitialAttackers)
             {
                 case 1:     // First attack on tower/HQ was with a drone last game.
                     primaryStructure = BuildOrderMessaging.BuildTankFactory;
@@ -358,7 +371,7 @@ public class Strategy
                     tertiaryStructure = BuildOrderMessaging.BuildTankFactory;
                     break;
             }
-            strat = new BuildOrderMessaging[23];
+            strat = new BuildOrderMessaging[30];
             strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
             strat[1] = BuildOrderMessaging.BuildMinerFactory;
             strat[2] = BuildOrderMessaging.BuildBeaverMiner;
