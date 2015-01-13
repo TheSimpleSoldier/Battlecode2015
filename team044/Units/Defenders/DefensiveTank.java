@@ -17,7 +17,7 @@ public class DefensiveTank extends DefensiveUnits
         rc.setIndicatorString(0, "Defensive Tank");
         random = new Random(rc.getID());
 
-        if (rc.getLocation().distanceSquaredTo(ourHQ) > 100)
+        if (rc.getLocation().distanceSquaredTo(ourHQ) > -100)
         {
             mineDefender = true;
         }

@@ -34,46 +34,7 @@ public class HQ extends Structure
         strat = Strategy.initialStrategy(rc);
 
         // TODO: put this strategy with a lot of tweaking into the Strategy framework
-        strat = new BuildOrderMessaging[39];
-        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        strat[2] = BuildOrderMessaging.BuildHelipad;
-        strat[3] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[5] = BuildOrderMessaging.BuildMiningAeroSpaceLab;
-        strat[6] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[7] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[8] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[9] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[10] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[11] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[12] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[13] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[15] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[16] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[17] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[18] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[19] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[20] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[21] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[22] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[23] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[24] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[25] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[26] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[27] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[28] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[29] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[30] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[31] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[32] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[33] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[34] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[35] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[36] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[37] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[38] = BuildOrderMessaging.BuildSupplyDepot;
+
 
 
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
