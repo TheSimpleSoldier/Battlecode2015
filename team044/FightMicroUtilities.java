@@ -610,5 +610,69 @@ public class FightMicroUtilities
         }
         return false;
     }
+
+    //======================= Commander Methods =========================\\
+
+    /**
+     * This method finds the best place for a commander to flash back to
+     */
+    public static MapLocation retreatFlashLoc(RobotController rc, RobotInfo[] enemies) throws GameActionException
+    {
+        MapLocation us = rc.getLocation();
+        MapLocation flashTo = null;
+
+        for (int i = enemies.length; --i>=0; )
+        {
+            MapLocation enemy = enemies[i].location;
+            Direction dir = enemy.directionTo(us);
+
+            MapLocation temp = enemy.add(enemy.directionTo(us), 2);
+
+            if (!rc.isLocationOccupied(temp) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
+            {
+                return temp;
+            }
+            else if (!rc.isLocationOccupied(temp.add(dir.rotateRight().rotateRight())) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
+            {
+                return temp.add(dir.rotateRight().rotateRight());
+            }
+            else if (!rc.isLocationOccupied(temp.add(dir.rotateLeft().rotateLeft())) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
+            {
+                return temp.add(dir.rotateLeft().rotateLeft());
+            }
+        }
+
+        return flashTo;
+    }
+
+    /**
+     * This method finds the best location to flash to when trying to catch a retreating enemy
+     */
+    public static MapLocation attackFlashLoc(RobotController rc, RobotInfo[] enemies) throws GameActionException
+    {
+        MapLocation flashTo = null;
+        MapLocation us = rc.getLocation();
+
+        for (int i = enemies.length; --i>=0; )
+        {
+            Direction dir = us.directionTo(enemies[i].location);
+            MapLocation temp = us.add(dir, 2);
+
+            if (!rc.isLocationOccupied(temp) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
+            {
+                return temp;
+            }
+            else if (!rc.isLocationOccupied(temp.add(dir.rotateRight().rotateRight())) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
+            {
+                return temp.add(dir.rotateRight().rotateRight());
+            }
+            else if (!rc.isLocationOccupied(temp.add(dir.rotateLeft().rotateLeft())) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
+            {
+                return temp.add(dir.rotateLeft().rotateLeft());
+            }
+        }
+
+        return flashTo;
+    }
 }
 

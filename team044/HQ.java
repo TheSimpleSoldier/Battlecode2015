@@ -35,6 +35,11 @@ public class HQ extends Structure
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc);
 
+        strat = new BuildOrderMessaging[35];
+        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[1] = BuildOrderMessaging.BuildTechnologyInstitute;
+        strat[2] = BuildOrderMessaging.BuildTrainingField;
+
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 

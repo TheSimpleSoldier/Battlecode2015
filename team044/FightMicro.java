@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Robot;
 
 public class FightMicro
 {
@@ -542,5 +543,104 @@ public class FightMicro
         {
             return false;
         }
+    }
+
+    /**
+     * This fight Micro is for Commanders
+     */
+    public boolean commanderMicro(RobotInfo[] nearByEnemies, boolean regenerating) throws GameActionException
+    {
+        MapLocation flashTo = null;
+        MapLocation attack = null;
+        Direction moveTo = null;
+
+        if (rc.hasLearnedSkill(CommanderSkillType.FLASH) && rc.getFlashCooldown() <= 1)
+        {
+            if (nearByEnemies.length > 0)
+            {
+                // then we want to flash to safety
+                if (regenerating)
+                {
+                    flashTo = FightMicroUtilities.retreatFlashLoc(rc, nearByEnemies);
+                }
+            }
+            else
+            {
+                RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
+
+                if (enemies.length > 0)
+                {
+                    flashTo = FightMicroUtilities.attackFlashLoc(rc, enemies);
+                }
+            }
+        }
+        // if we aren't flashing then c if we should move
+        if (!rc.isCoreReady() && flashTo == null)
+        {
+            // run away from enemies
+            if (regenerating)
+            {
+                if (nearByEnemies.length == 0)
+                {
+                    // sit tight
+                }
+                else
+                {
+                    moveTo = rc.getLocation().directionTo(nearByEnemies[0].location).opposite();
+                }
+            }
+            // run towards enemies
+            else
+            {
+                if (nearByEnemies.length > 0)
+                {
+                    moveTo = rc.getLocation().directionTo(nearByEnemies[0].location);
+                }
+                else
+                {
+                    RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
+                    if (enemies.length > 0)
+                    {
+                        moveTo = rc.getLocation().directionTo(enemies[0].location);
+                    }
+                }
+            }
+        }
+
+
+        RobotInfo target = null;
+
+        if (rc.isWeaponReady())
+        {
+            target = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+            if (target != null)
+            {
+                attack = target.location;
+            }
+        }
+
+        // if we picked a spot to flash to then flash!
+        if (flashTo != null && flashTo.distanceSquaredTo(rc.getLocation()) <= 5)
+        {
+            rc.castFlash(flashTo);
+        }
+
+        // if we can attack then by all means do so
+        if (attack != null)
+        {
+            if (rc.canAttackLocation(attack))
+            {
+                rc.attackLocation(attack);
+            }
+        }
+
+        if (moveTo != null)
+        {
+            if (rc.canMove(moveTo))
+            {
+                rc.move(moveTo);
+            }
+        }
+        return false;
     }
 }
