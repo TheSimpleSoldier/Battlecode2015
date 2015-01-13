@@ -25,12 +25,14 @@ public class HQ extends Structure
     int numbOfSoldiers  = 0;
     int numbOfTanks     = 0;
 
+    int lastGameEnemy = 0;
+
     public HQ(RobotController rc) throws GameActionException
     {
         super(rc);
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
-
+        lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc);
 
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
@@ -340,10 +342,27 @@ public class HQ extends Structure
                 }
             }
         }
-        mostUnits = mostUnits << 4;
-        mostUnits += secondMost;
-        rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
-        rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+
+        if (rc.readBroadcast(Messaging.StopCountingEnemy.ordinal()) == 0 && ((enemyCountMax > 20 && mostUnits == 1) || (enemyCountMax > 20 && mostUnits == 2)))
+        {
+            rc.broadcast(Messaging.StopCountingEnemy.ordinal(), 1);
+            rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
+            rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+        }
+        else if (rc.readBroadcast(Messaging.StopCountingEnemy.ordinal()) == 0)
+        {
+            if (mostUnits == -1)
+            {
+                rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), lastGameEnemy);
+                rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+            }
+            else
+            {
+                rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
+                rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+            }
+
+        }
     }
 
     public boolean fight() throws GameActionException

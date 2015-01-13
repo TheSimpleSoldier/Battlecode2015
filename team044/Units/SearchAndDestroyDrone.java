@@ -86,6 +86,10 @@ public class SearchAndDestroyDrone extends Drone
         {
             toReturn = tracker.getRandomMinerFactory();
         }
+        else if (choice < 8)
+        {
+            toReturn = Utilities.getRandomLocation(rc);
+        }
         //30% chance or no factories found for looking for miner
         if(toReturn.equals(rc.getLocation()))
         {

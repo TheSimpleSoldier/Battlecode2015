@@ -61,5 +61,6 @@ public enum Messaging {
     MinerUnderAttackY,
     LauncherAttackX,
     LauncherAttackY,
+    StopCountingEnemy
     // etc
 }
