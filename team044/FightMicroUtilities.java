@@ -572,18 +572,24 @@ public class FightMicroUtilities
             RobotInfo[] allies = rc.senseNearbyRobots(35, rc.getTeam());
             for (int i = nearByEnemies.length; --i>=0; )
             {
-                if (nearByEnemies[i].type != RobotType.MISSILE)
+                dir = us.directionTo(nearByEnemies[i].location);
+                if (!rc.canLaunch(dir))
                 {
-                    dir = us.directionTo(nearByEnemies[i].location);
-                    if (!rc.canLaunch(dir))
-                    {
 
-                    }
-                    else if (!alliesInPath(allies, dir, us))
-                    {
-                        return dir;
-                    }
                 }
+                else if (!alliesInPath(allies, dir, us))
+                {
+                    return dir;
+                }
+                /*
+                else if (!alliesInPath(allies, dir.rotateLeft(), us))
+                {
+                    return dir.rotateLeft();
+                }
+                else if (!alliesInPath(allies, dir.rotateRight(), us))
+                {
+                    return dir.rotateRight();
+                }*/
             }
         }
         return null;

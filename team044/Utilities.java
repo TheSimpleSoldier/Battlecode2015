@@ -216,7 +216,7 @@ public class Utilities
         }
 
         // building close to our HQ is pointless and gets in the way
-        if(location.distanceSquaredTo(rc.senseHQLocation()) < (close * 2))
+        if(location.distanceSquaredTo(rc.senseHQLocation()) < (close * 3))
         {
             return false;
         }

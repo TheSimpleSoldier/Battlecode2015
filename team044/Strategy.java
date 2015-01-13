@@ -57,19 +57,36 @@ public class Strategy
         int hqDistance = enemyHQ.distanceSquaredTo(rc.getLocation());
         long[] memory = rc.getTeamMemory();     // 32 longs of data from the previous game
         long attackTiming = memory[TeamMemory.AttackTiming.ordinal()] & 4095;
-        long mostUnits = (memory[TeamMemory.AttackTiming.ordinal()] >>> 12) & 15;
-        long secondMost = memory[TeamMemory.AttackTiming.ordinal()] >>> 16;
+        long mostInitialAttackers = (memory[TeamMemory.AttackTiming.ordinal()] >>> 12) & 15;
+        //long secondMost = memory[TeamMemory.AttackTiming.ordinal()] >>> 16;
+        long mostEndGameUnit = memory[TeamMemory.EnemyUnitBuild.ordinal()] >>> 4;
+        long secondMostEndGame = memory[TeamMemory.EnemyUnitBuild.ordinal()] & 15;
+        long endGameHP = memory[TeamMemory.HQHP.ordinal()];
         BuildOrderMessaging primaryStructure;
         BuildOrderMessaging secondaryStructure;
         BuildOrderMessaging tertiaryStructure;
         BuildOrderMessaging miningType;
+        Direction toEnemy = rc.getLocation().directionTo(enemyHQ);
+        MapLocation mapEdge = enemyHQ.add(toEnemy);
+        int count = 0;
 
-        String debug = String.format("HQ Distance: %d; First Attacker: %d; Attack Timing: %d; Tower Count: %d", hqDistance, mostUnits, attackTiming, numbTowers);
+        while (rc.isPathable(RobotType.MINER, mapEdge)) {
+            count++;
+            mapEdge = mapEdge.add(toEnemy);
+        }
 
+        hqDistance = (int) Math.sqrt((double) hqDistance);
+        hqDistance += count + count;
+
+        hqDistance *= hqDistance;
+
+        String debug = String.format("HP: %d; Size: %d; First Attacker: %d; Attack Timing: %d; Unit #1: %d; #2: %d; ByteCodes left: %d", endGameHP, hqDistance, mostInitialAttackers, attackTiming, mostEndGameUnit, secondMostEndGame, Clock.getBytecodesLeft());
+
+        System.out.println(debug);
         // Small map
-        if (hqDistance < 2000) {
+        if (hqDistance < 3000) {
             // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostUnits) {
+            switch ((int) mostEndGameUnit) {
                 case 1:     // First attack on tower/HQ was with a drone last game.
                     primaryStructure = BuildOrderMessaging.BuildTankFactory;
                     secondaryStructure = BuildOrderMessaging.BuildHelipad;
@@ -130,17 +147,17 @@ public class Strategy
             strat[33] = BuildOrderMessaging.BuildSupplyDepot;
             strat[34] = BuildOrderMessaging.BuildSupplyDepot;
 
-            rc.setIndicatorString(0, "Small map, most unit: " + mostUnits);
+            rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance);
         }
         // Large map
         else if (hqDistance > 5000)
         {
             // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostUnits)
+            switch ((int) mostEndGameUnit)
             {
                 case 1:     // First attack on tower/HQ was with a drone last game.
-                    primaryStructure = BuildOrderMessaging.BuildTankFactory;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
+                    primaryStructure = BuildOrderMessaging.BuildHelipad;
+                    secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
                     tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
                     miningType = BuildOrderMessaging.BuildMiningBaracks;
                     break;
@@ -203,17 +220,18 @@ public class Strategy
             strat[36] = BuildOrderMessaging.BuildSupplyDepot;
             strat[37] = BuildOrderMessaging.BuildSupplyDepot;
             strat[38] = BuildOrderMessaging.BuildSupplyDepot;
-            rc.setIndicatorString(0, "Large Map, mostUnit: " + mostUnits);
+            rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance);
+
         }
         // Default Strategy
         else
         {
             // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostUnits)
+            switch ((int) mostEndGameUnit)
             {
                 case 1:     // First attack on tower/HQ was with a drone last game.
-                    primaryStructure = BuildOrderMessaging.BuildTankFactory;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
+                    primaryStructure = BuildOrderMessaging.BuildHelipad;
+                    secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
                     tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
                     miningType = BuildOrderMessaging.BuildMiningBaracks;
                     break;
@@ -276,7 +294,7 @@ public class Strategy
             strat[36] = BuildOrderMessaging.BuildSupplyDepot;
             strat[37] = BuildOrderMessaging.BuildSupplyDepot;
             strat[38] = BuildOrderMessaging.BuildSupplyDepot;
-            rc.setIndicatorString(0, "Default " + debug + " ");
+            rc.setIndicatorString(0, "Default " + debug + ", " + mostEndGameUnit + ", dist: " + hqDistance);
         }
         return strat;
     }

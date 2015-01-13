@@ -298,6 +298,52 @@ public class HQ extends Structure
                 strat[currentUnit] = BuildOrderMessaging.BuildAerospaceLab;
             }
         }
+        int[] enemyType = new int[3];
+        int enemyCountMax = -1;
+        int mostUnits = -1;
+        int secondMost = 0;
+
+        for (int i = 0; i < enemies.length; i++)
+        {
+            RobotType typeCheck = enemies[i].type;
+            // Drone counter
+            if (typeCheck.equals(RobotType.DRONE))
+            {
+                enemyType[0]++;
+                if (enemyType[0] >= enemyCountMax)
+                {
+                    enemyCountMax = enemyType[0];
+                    secondMost = mostUnits;
+                    mostUnits = 1;
+                }
+            }
+            // Missile/Launcher counter
+            else if (typeCheck.equals(RobotType.MISSILE) || typeCheck.equals(RobotType.LAUNCHER))
+            {
+                enemyType[1]++;
+                if (enemyType[1] >= enemyCountMax)
+                {
+                    enemyCountMax = enemyType[1];
+                    secondMost = mostUnits;
+                    mostUnits = 2;
+                }
+            }
+            // Tank counter
+            else if (typeCheck.equals(RobotType.TANK))
+            {
+                enemyType[2]++;
+                if (enemyType[2] >= enemyCountMax)
+                {
+                    enemyCountMax = enemyType[2];
+                    secondMost = mostUnits;
+                    mostUnits = 3;
+                }
+            }
+        }
+        mostUnits = mostUnits << 4;
+        mostUnits += secondMost;
+        rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
+        rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
     }
 
     public boolean fight() throws GameActionException
