@@ -61,7 +61,7 @@ public class SearchAndDestroyDrone extends Drone
 
     public boolean takeNextStep() throws GameActionException
     {
-        if (rc.getLocation().distanceSquaredTo(target) <= 35 || (roundNumb + 100) < Clock.getRoundNum())
+        if (rc.getLocation().distanceSquaredTo(target) <= 35 || (roundNumb + 50) < Clock.getRoundNum())
         {
             target = findNextTarget();
             roundNumb = Clock.getRoundNum();

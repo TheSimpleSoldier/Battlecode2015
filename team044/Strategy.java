@@ -166,8 +166,8 @@ public class Strategy
             strat = new BuildOrderMessaging[39];
             strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
             strat[1] = BuildOrderMessaging.BuildMinerFactory;
-            strat[2] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[3] = miningType;
+            strat[2] = miningType;
+            strat[3] = BuildOrderMessaging.BuildBeaverBuilder;
             strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
             strat[5] = primaryStructure;
             strat[6] = secondaryStructure;

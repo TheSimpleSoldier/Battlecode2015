@@ -33,10 +33,6 @@ public class HQ extends Structure
 
         strat = Strategy.initialStrategy(rc);
 
-        // TODO: put this strategy with a lot of tweaking into the Strategy framework
-
-
-
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
@@ -56,6 +52,10 @@ public class HQ extends Structure
         // reset Launcher in need of help channel
         rc.broadcast(Messaging.LauncherAttackX.ordinal(), 0);
         rc.broadcast(Messaging.LauncherAttackY.ordinal(), 0);
+
+        // reset Miner in need of help channel
+        rc.broadcast(Messaging.MinerUnderAttackX.ordinal(), 0);
+        rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), 0);
 
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
         if (Clock.getRoundNum() > 1800)
