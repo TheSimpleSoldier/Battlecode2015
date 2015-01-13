@@ -740,11 +740,17 @@ public class Utilities
                 dir = dir.rotateRight();
                 MapLocation current = rc.senseHQLocation().add(dir);
                 int newDist = current.distanceSquaredTo(ourHQ);
-                while (newDist < (dist/2) && newDist < 1000)
+                int counter = 0;
+                while (newDist < (dist*2/5))
                 {
                     current = current.add(dir);
                     newDist = current.distanceSquaredTo(ourHQ);
                     dir = current.directionTo(enemyHQ).rotateRight();
+                    if (counter % 2 == 0)
+                    {
+                        dir = dir.rotateRight();
+                    }
+                    counter++;
                 }
                 target = current;
             }
@@ -758,12 +764,19 @@ public class Utilities
                 dir = dir.rotateLeft();
                 MapLocation current = rc.senseHQLocation().add(dir);
                 int newDist = current.distanceSquaredTo(ourHQ);
-                while (newDist < dist/2 && newDist < 1000)
+                int counter = 0;
+                while (newDist < dist*2/5)
                 {
                     current = current.add(dir);
                     newDist = current.distanceSquaredTo(ourHQ);
                     dir = current.directionTo(enemyHQ).rotateLeft();
+                    if (counter % 2 == 0)
+                    {
+                        dir = dir.rotateLeft();
+                    }
+                    counter++;
                 }
+
                 target = current;
             }
         }
@@ -1072,5 +1085,28 @@ public class Utilities
             }
         }
         return false;
+    }
+
+
+    public static MapLocation getRandomLocation(RobotController rc)
+    {
+        MapLocation us = rc.getLocation();
+
+        MapLocation next = us;
+        MapLocation nextTry;
+        Direction dir;
+        Direction[] dirs = Direction.values();
+        Random rand = new Random(rc.getID() * Clock.getRoundNum());
+
+        while (us.distanceSquaredTo(next) < 100)
+        {
+            nextTry = next.add(dirs[rand.nextInt(8)], 5);
+            if (rc.isPathable(rc.getType(), nextTry))
+            {
+                next = nextTry;
+            }
+        }
+
+        return next;
     }
 }

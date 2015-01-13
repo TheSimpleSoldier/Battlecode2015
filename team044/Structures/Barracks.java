@@ -30,6 +30,7 @@ public class Barracks extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
+        /*
         if (basher)
         {
             if (rc.getTeamOre() > 600 && Utilities.spawnUnit(RobotType.BASHER, rc))
@@ -43,7 +44,7 @@ public class Barracks extends Structure
             {
                 return true;
             }
-        }
+        }*/
         return false;
     }
 }

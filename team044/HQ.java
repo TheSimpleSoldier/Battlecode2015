@@ -25,56 +25,15 @@ public class HQ extends Structure
     int numbOfSoldiers  = 0;
     int numbOfTanks     = 0;
 
+    int lastGameEnemy = 0;
+
     public HQ(RobotController rc) throws GameActionException
     {
         super(rc);
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
-
+        lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc);
-
-        // TODO: put this strategy with a lot of tweaking into the Strategy framework
-        strat = new BuildOrderMessaging[39];
-        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        strat[2] = BuildOrderMessaging.BuildHelipad;
-        strat[3] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[5] = BuildOrderMessaging.BuildMiningAeroSpaceLab;
-        strat[6] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[7] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[8] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[9] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[10] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[11] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[12] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[13] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[15] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[16] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[17] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[18] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[19] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[20] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[21] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[22] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[23] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[24] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[25] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[26] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[27] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[28] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[29] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[30] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[31] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[32] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[33] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[34] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[35] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[36] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[37] = BuildOrderMessaging.BuildSupplyDepot;
-        strat[38] = BuildOrderMessaging.BuildSupplyDepot;
-
 
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
@@ -95,6 +54,10 @@ public class HQ extends Structure
         // reset Launcher in need of help channel
         rc.broadcast(Messaging.LauncherAttackX.ordinal(), 0);
         rc.broadcast(Messaging.LauncherAttackY.ordinal(), 0);
+
+        // reset Miner in need of help channel
+        rc.broadcast(Messaging.MinerUnderAttackX.ordinal(), 0);
+        rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), 0);
 
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
         if (Clock.getRoundNum() > 1800)
@@ -336,6 +299,69 @@ public class HQ extends Structure
                 currentUnit--;
                 strat[currentUnit] = BuildOrderMessaging.BuildAerospaceLab;
             }
+        }
+        int[] enemyType = new int[3];
+        int enemyCountMax = -1;
+        int mostUnits = -1;
+        int secondMost = 0;
+
+        for (int i = 0; i < enemies.length; i++)
+        {
+            RobotType typeCheck = enemies[i].type;
+            // Drone counter
+            if (typeCheck.equals(RobotType.DRONE))
+            {
+                enemyType[0]++;
+                if (enemyType[0] >= enemyCountMax)
+                {
+                    enemyCountMax = enemyType[0];
+                    secondMost = mostUnits;
+                    mostUnits = 1;
+                }
+            }
+            // Missile/Launcher counter
+            else if (typeCheck.equals(RobotType.MISSILE) || typeCheck.equals(RobotType.LAUNCHER))
+            {
+                enemyType[1]++;
+                if (enemyType[1] >= enemyCountMax)
+                {
+                    enemyCountMax = enemyType[1];
+                    secondMost = mostUnits;
+                    mostUnits = 2;
+                }
+            }
+            // Tank counter
+            else if (typeCheck.equals(RobotType.TANK))
+            {
+                enemyType[2]++;
+                if (enemyType[2] >= enemyCountMax)
+                {
+                    enemyCountMax = enemyType[2];
+                    secondMost = mostUnits;
+                    mostUnits = 3;
+                }
+            }
+        }
+
+        if (rc.readBroadcast(Messaging.StopCountingEnemy.ordinal()) == 0 && ((enemyCountMax > 20 && mostUnits == 1) || (enemyCountMax > 20 && mostUnits == 2)))
+        {
+            rc.broadcast(Messaging.StopCountingEnemy.ordinal(), 1);
+            rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
+            rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+        }
+        else if (rc.readBroadcast(Messaging.StopCountingEnemy.ordinal()) == 0)
+        {
+            if (mostUnits == -1)
+            {
+                rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), lastGameEnemy);
+                rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+            }
+            else
+            {
+                rc.setTeamMemory(TeamMemory.EnemyUnitBuild.ordinal(), mostUnits);
+                rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) rc.getHealth());
+            }
+
         }
     }
 
