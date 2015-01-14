@@ -18,6 +18,30 @@ public class Launcher extends DefensiveUnits
         nav.setAvoidHQ(false);
     }
 
+    // override to follow Commander
+    public void collectData() throws GameActionException
+    {
+        nearByEnemies = rc.senseNearbyRobots(range, opponent);
+        nearByAllies = rc.senseNearbyRobots(range, us);
+        if(nearByEnemies != null)
+        {
+            tracker.record(nearByEnemies);
+        }
+
+        int x = rc.readBroadcast(Messaging.CommanderLocX.ordinal());
+        int y = rc.readBroadcast(Messaging.CommanderLocY.ordinal());
+
+        if (x != 0 && y != 0)
+        {
+            target = new MapLocation(x, y);
+        }
+        else
+        {
+            collectData2();
+        }
+    }
+
+    // currently not being used
     public void collectData2() throws GameActionException
     {
         if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)

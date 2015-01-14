@@ -287,7 +287,31 @@ public class FightMicro
             rc.broadcast(Messaging.LauncherAttackY.ordinal(), rallyPoint.y);
         }
 
-        if (dir != null)
+        int x = rc.readBroadcast(Messaging.CommanderLocX.ordinal());
+        int y = rc.readBroadcast(Messaging.CommanderLocY.ordinal());
+
+        if (x != 0 && y != 0)
+        {
+            MapLocation commander = new MapLocation(x, y);
+            dir = rc.getLocation().directionTo(commander);
+            if (!rc.isCoreReady())
+            {
+
+            }
+            else if (rc.canMove(dir))
+            {
+                rc.move(dir);
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                rc.move(dir.rotateRight());
+            }
+        }
+        else if (dir != null)
         {
             dir = dir.opposite();
             if (rc.isCoreReady())
@@ -548,45 +572,72 @@ public class FightMicro
     /**
      * This fight Micro is for Commanders
      */
-    public boolean commanderMicro(RobotInfo[] nearByEnemies, boolean regenerating) throws GameActionException
+    public boolean commanderMicro(RobotInfo[] nearByEnemies, boolean regenerating, RobotInfo[] enemies, boolean avoidStructures) throws GameActionException
     {
         MapLocation flashTo = null;
         MapLocation attack = null;
         Direction moveTo = null;
 
-        if (rc.hasLearnedSkill(CommanderSkillType.FLASH) && rc.getFlashCooldown() <= 1)
+        if (rc.hasLearnedSkill(CommanderSkillType.FLASH))
         {
+            if (rc.hasLearnedSkill(CommanderSkillType.FLASH))
+            {
+                rc.setIndicatorString(0, "Cool down: " + rc.getFlashCooldown());
+            }
+            rc.setIndicatorString(2, "Commander has skill flash");
             if (nearByEnemies.length > 0)
             {
                 // then we want to flash to safety
                 if (regenerating)
                 {
                     flashTo = FightMicroUtilities.retreatFlashLoc(rc, nearByEnemies);
+                    rc.setIndicatorString(2, "Flashing to safety: " + flashTo);
                 }
             }
             else
             {
-                RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
-
                 if (enemies.length > 0)
                 {
                     flashTo = FightMicroUtilities.attackFlashLoc(rc, enemies);
+                    rc.setIndicatorString(2, "Flashing offensively: " + flashTo);
                 }
             }
         }
         // if we aren't flashing then c if we should move
-        if (!rc.isCoreReady() && flashTo == null)
+        if (rc.isCoreReady() && flashTo == null)
         {
             // run away from enemies
             if (regenerating)
             {
                 if (nearByEnemies.length == 0)
                 {
-                    // sit tight
+                    if (enemies.length == 0)
+                    {
+                        // sit tight
+                    }
+                    else
+                    {
+                        moveTo = rc.getLocation().directionTo(enemies[0].location).opposite();
+                    }
                 }
                 else
                 {
-                    moveTo = rc.getLocation().directionTo(nearByEnemies[0].location).opposite();
+                    boolean enemyMissile = false;
+
+                    for (int i = enemies.length; --i>=0; )
+                    {
+                        if (enemies[i].type == RobotType.MISSILE)
+                        {
+                            enemyMissile = true;
+                            i = 0;
+                            moveTo = rc.getLocation().directionTo(enemies[i].location).opposite();
+                        }
+                    }
+
+                    if (!enemyMissile)
+                    {
+                        moveTo = rc.getLocation().directionTo(nearByEnemies[0].location).opposite();
+                    }
                 }
             }
             // run towards enemies
@@ -594,14 +645,35 @@ public class FightMicro
             {
                 if (nearByEnemies.length > 0)
                 {
-                    moveTo = rc.getLocation().directionTo(nearByEnemies[0].location);
+                    for (int i = enemies.length; --i>=0; )
+                    {
+                        if (enemies[i].type == RobotType.MISSILE)
+                        {
+                            i = 0;
+                            moveTo = rc.getLocation().directionTo(enemies[i].location).opposite();
+                        }
+                    }
                 }
                 else
                 {
-                    RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
                     if (enemies.length > 0)
                     {
-                        moveTo = rc.getLocation().directionTo(enemies[0].location);
+                        boolean enemyMissile = false;
+
+                        for (int i = enemies.length; --i>=0; )
+                        {
+                            if (enemies[i].type == RobotType.MISSILE)
+                            {
+                                enemyMissile = true;
+                                i = 0;
+                                moveTo = rc.getLocation().directionTo(enemies[i].location).opposite();
+                            }
+                        }
+
+                        if (!enemyMissile)
+                        {
+                            moveTo = rc.getLocation().directionTo(enemies[0].location);
+                        }
                     }
                 }
             }
@@ -610,7 +682,7 @@ public class FightMicro
 
         RobotInfo target = null;
 
-        if (rc.isWeaponReady())
+        if (rc.isWeaponReady() && nearByEnemies.length > 0)
         {
             target = FightMicroUtilities.prioritizeTargets(nearByEnemies);
             if (target != null)
@@ -619,10 +691,14 @@ public class FightMicro
             }
         }
 
+        boolean returnVal = false;
+
         // if we picked a spot to flash to then flash!
-        if (flashTo != null && flashTo.distanceSquaredTo(rc.getLocation()) <= 5)
+        if (flashTo != null /*&& flashTo.distanceSquaredTo(rc.getLocation()) <= 5*/ && rc.isCoreReady())
         {
+            rc.setIndicatorString(1, "Flashing to: " + flashTo);
             rc.castFlash(flashTo);
+            returnVal = true;
         }
 
         // if we can attack then by all means do so
@@ -630,17 +706,21 @@ public class FightMicro
         {
             if (rc.canAttackLocation(attack))
             {
+                returnVal = true;
                 rc.attackLocation(attack);
             }
         }
 
-        if (moveTo != null)
+        if (moveTo != null && rc.isCoreReady())
         {
-            if (rc.canMove(moveTo))
+            moveTo = FightMicroUtilities.moveCommander(rc, avoidStructures, moveTo);
+            if (moveTo != null)
             {
+                returnVal = true;
                 rc.move(moveTo);
             }
         }
-        return false;
+
+        return returnVal;
     }
 }

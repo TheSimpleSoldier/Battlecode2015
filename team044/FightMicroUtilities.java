@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import team044.Units.Launcher;
 
 public class FightMicroUtilities
 {
@@ -620,25 +621,37 @@ public class FightMicroUtilities
     {
         MapLocation us = rc.getLocation();
         MapLocation flashTo = null;
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
+        Direction dir;
+        MapLocation temp;
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
 
-        for (int i = enemies.length; --i>=0; )
+        // then we should flash away from enemyHQ
+        if (us.distanceSquaredTo(enemyHQ) <= 52)
         {
-            MapLocation enemy = enemies[i].location;
-            Direction dir = enemy.directionTo(us);
+            dir = enemyHQ.directionTo(us);
+            temp = us.add(dir, 2);
 
-            MapLocation temp = enemy.add(enemy.directionTo(us), 2);
+            return getLocation(rc, temp, dir, us);
+        }
+        else if (closestTower != null && us.distanceSquaredTo(closestTower) <= 24)
+        {
+            dir = closestTower.directionTo(us);
+            temp = us.add(dir, 2);
 
-            if (!rc.isLocationOccupied(temp) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
+            return getLocation(rc, temp, dir, us);
+        }
+        else
+        {
+            for (int i = enemies.length; --i>=0; )
             {
-                return temp;
-            }
-            else if (!rc.isLocationOccupied(temp.add(dir.rotateRight().rotateRight())) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
-            {
-                return temp.add(dir.rotateRight().rotateRight());
-            }
-            else if (!rc.isLocationOccupied(temp.add(dir.rotateLeft().rotateLeft())) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
-            {
-                return temp.add(dir.rotateLeft().rotateLeft());
+                MapLocation enemy = enemies[i].location;
+                dir = enemy.directionTo(us);
+
+                temp = us.add(dir, 2);
+
+                return getLocation(rc, temp, dir, us);
             }
         }
 
@@ -646,33 +659,173 @@ public class FightMicroUtilities
     }
 
     /**
+     * This method is for determining the location to flash to
+     */
+    public static MapLocation getLocation(RobotController rc, MapLocation temp, Direction dir, MapLocation us) throws GameActionException
+    {
+        MapLocation right, left;
+        if (dir.isDiagonal())
+        {
+            right = temp.add(dir.rotateRight().rotateRight().rotateRight());
+            left = temp.add(dir.rotateLeft().rotateLeft().rotateLeft());
+
+            if (us.distanceSquaredTo(right) <= 10 && !rc.isLocationOccupied(right))
+            {
+                return right;
+            }
+            else if (us.distanceSquaredTo(left) <= 10 && !rc.isLocationOccupied(left))
+            {
+                return left;
+            }
+        }
+        else
+        {
+            right = temp.add(dir.rotateRight().rotateRight());
+            left = temp.add(dir.rotateLeft().rotateLeft());
+            if (us.distanceSquaredTo(temp) <= 10 && !rc.isLocationOccupied(temp))
+            {
+                return temp;
+            }
+            else if (us.distanceSquaredTo(right) <= 10 && !rc.isLocationOccupied(right))
+            {
+                return right;
+            }
+            else if (us.distanceSquaredTo(left) <= 10 && !rc.isLocationOccupied(left))
+            {
+                return left;
+            }
+        }
+        return null;
+    }
+
+    /**
      * This method finds the best location to flash to when trying to catch a retreating enemy
      */
     public static MapLocation attackFlashLoc(RobotController rc, RobotInfo[] enemies) throws GameActionException
     {
-        MapLocation flashTo = null;
         MapLocation us = rc.getLocation();
+        MapLocation flashTo = null;
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
+        Direction dir;
+        MapLocation temp;
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
 
-        for (int i = enemies.length; --i>=0; )
+        // then we should flash to the enemyHQ
+        if (us.distanceSquaredTo(enemyHQ) >= 24)
         {
-            Direction dir = us.directionTo(enemies[i].location);
-            MapLocation temp = us.add(dir, 2);
+            dir = us.directionTo(enemyHQ);
+            temp = us.add(dir, 2);
 
-            if (!rc.isLocationOccupied(temp) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
+            return getLocation(rc, temp, dir, us);
+        }
+        else if (closestTower != null && us.distanceSquaredTo(closestTower) >= 24)
+        {
+            dir = us.directionTo(closestTower);
+            temp = us.add(dir, 2);
+
+            return getLocation(rc, temp, dir, us);
+        }
+        else
+        {
+            for (int i = enemies.length; --i>=0; )
             {
-                return temp;
-            }
-            else if (!rc.isLocationOccupied(temp.add(dir.rotateRight().rotateRight())) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
-            {
-                return temp.add(dir.rotateRight().rotateRight());
-            }
-            else if (!rc.isLocationOccupied(temp.add(dir.rotateLeft().rotateLeft())) && rc.senseTerrainTile(temp) != TerrainTile.OFF_MAP && rc.senseTerrainTile(temp) != TerrainTile.VOID)
-            {
-                return temp.add(dir.rotateLeft().rotateLeft());
+                MapLocation enemy = enemies[i].location;
+                dir = us.directionTo(enemy);
+
+                temp = us.add(dir, 2);
+
+                return getLocation(rc, temp, dir, us);
             }
         }
 
         return flashTo;
+    }
+
+    /**
+     * This method finds the best location to move the commander to
+     */
+    public static Direction moveCommander(RobotController rc, boolean avoidStructures, Direction dir)
+    {
+        MapLocation us = rc.getLocation();
+        MapLocation next = us.add(dir);
+
+        if (avoidStructures)
+        {
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+            MapLocation enemyHQ = rc.senseEnemyHQLocation();
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir))
+                {
+                    return dir;
+                }
+            }
+            next = us.add(dir.rotateLeft());
+
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir.rotateLeft()))
+                {
+                    return dir.rotateLeft();
+                }
+            }
+
+            next = us.add(dir.rotateRight());
+
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir.rotateRight()))
+                {
+                    return dir.rotateRight();
+                }
+            }
+
+            next = us.add(dir.rotateLeft().rotateLeft());
+
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir.rotateLeft().rotateLeft()))
+                {
+                    return dir.rotateLeft().rotateLeft();
+                }
+            }
+
+            next = us.add(dir.rotateRight().rotateRight());
+
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir.rotateRight().rotateRight()))
+                {
+                    return dir.rotateRight().rotateRight();
+                }
+            }
+        }
+        else
+        {
+            if (rc.canMove(dir))
+            {
+                return dir;
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                return dir.rotateLeft();
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                return  dir.rotateRight();
+            }
+            else if (rc.canMove(dir.rotateLeft().rotateLeft()))
+            {
+                return dir.rotateLeft().rotateLeft();
+            }
+            else if (rc.canMove(dir.rotateRight().rotateRight()))
+            {
+                return dir.rotateRight().rotateRight();
+            }
+        }
+
+        return null;
     }
 }
 

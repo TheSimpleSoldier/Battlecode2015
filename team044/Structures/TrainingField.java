@@ -16,7 +16,7 @@ public class TrainingField extends Structure {
         {
             return false;
         }
-        if (Utilities.spawnUnit(RobotType.TANK, rc))
+        if (Utilities.spawnUnit(RobotType.COMMANDER, rc))
         {
             return true;
         }

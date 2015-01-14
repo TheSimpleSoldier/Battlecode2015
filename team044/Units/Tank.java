@@ -27,7 +27,18 @@ public class Tank extends Unit
         super.collectData();
 
         // TODO: Add code to smartly move forward so the entire army moves together
-        target = Utilities.getRushLocation(rc);
+        //target = Utilities.getRushLocation(rc);
+        int x = rc.readBroadcast(Messaging.CommanderLocX.ordinal());
+        int y = rc.readBroadcast(Messaging.CommanderLocY.ordinal());
+
+        if (x != 0 && y != 0)
+        {
+            target = new MapLocation(x, y);
+        }
+        else
+        {
+            target = ourHQ.add(enemyHQ.directionTo(ourHQ), 3);
+        }
         rc.setIndicatorString(1, "Target: " + target);
     }
 
