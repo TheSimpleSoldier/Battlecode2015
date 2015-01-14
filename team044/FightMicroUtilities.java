@@ -633,14 +633,14 @@ public class FightMicroUtilities
             dir = enemyHQ.directionTo(us);
             temp = us.add(dir, 2);
 
-            return getLocation(rc, temp, dir, us);
+            return getLocation(rc, temp, dir, us, true);
         }
         else if (closestTower != null && us.distanceSquaredTo(closestTower) <= 24)
         {
             dir = closestTower.directionTo(us);
             temp = us.add(dir, 2);
 
-            return getLocation(rc, temp, dir, us);
+            return getLocation(rc, temp, dir, us, true);
         }
         else
         {
@@ -651,7 +651,7 @@ public class FightMicroUtilities
 
                 temp = us.add(dir, 2);
 
-                return getLocation(rc, temp, dir, us);
+                return getLocation(rc, temp, dir, us, true);
             }
         }
 
@@ -661,38 +661,78 @@ public class FightMicroUtilities
     /**
      * This method is for determining the location to flash to
      */
-    public static MapLocation getLocation(RobotController rc, MapLocation temp, Direction dir, MapLocation us) throws GameActionException
+    public static MapLocation getLocation(RobotController rc, MapLocation temp, Direction dir, MapLocation us, boolean safe) throws GameActionException
     {
         MapLocation right, left;
-        if (dir.isDiagonal())
+        // avoid towers
+        if (safe)
         {
-            right = temp.add(dir.rotateRight().rotateRight().rotateRight());
-            left = temp.add(dir.rotateLeft().rotateLeft().rotateLeft());
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+            MapLocation enemyHQ = rc.senseEnemyHQLocation();
+            if (dir.isDiagonal())
+            {
+                right = temp.add(dir.rotateRight().rotateRight().rotateRight());
+                left = temp.add(dir.rotateLeft().rotateLeft().rotateLeft());
 
-            if (us.distanceSquaredTo(right) <= 10 && !rc.isLocationOccupied(right))
-            {
-                return right;
+                if (us.distanceSquaredTo(right) <= 10 && !rc.isLocationOccupied(right) && rc.isPathable(RobotType.COMMANDER, right) && !Utilities.locInRangeOfEnemyTower(right, enemyTowers, enemyHQ))
+                {
+                    return right;
+                }
+                else if (us.distanceSquaredTo(left) <= 10 && !rc.isLocationOccupied(left) && rc.isPathable(RobotType.COMMANDER, left) && !Utilities.locInRangeOfEnemyTower(left, enemyTowers, enemyHQ))
+                {
+                    return left;
+                }
             }
-            else if (us.distanceSquaredTo(left) <= 10 && !rc.isLocationOccupied(left))
+            else
             {
-                return left;
+                right = temp.add(dir.rotateRight().rotateRight());
+                left = temp.add(dir.rotateLeft().rotateLeft());
+                if (us.distanceSquaredTo(temp) <= 10 && !rc.isLocationOccupied(temp) && rc.isPathable(RobotType.COMMANDER, temp) && !Utilities.locInRangeOfEnemyTower(temp, enemyTowers, enemyHQ))
+                {
+                    return temp;
+                }
+                else if (us.distanceSquaredTo(right) <= 10 && !rc.isLocationOccupied(right) && rc.isPathable(RobotType.COMMANDER, right) && !Utilities.locInRangeOfEnemyTower(right, enemyTowers, enemyHQ))
+                {
+                    return right;
+                }
+                else if (us.distanceSquaredTo(left) <= 10 && !rc.isLocationOccupied(left) && rc.isPathable(RobotType.COMMANDER, left) && !Utilities.locInRangeOfEnemyTower(left, enemyTowers, enemyHQ))
+                {
+                    return left;
+                }
             }
         }
         else
         {
-            right = temp.add(dir.rotateRight().rotateRight());
-            left = temp.add(dir.rotateLeft().rotateLeft());
-            if (us.distanceSquaredTo(temp) <= 10 && !rc.isLocationOccupied(temp))
+            if (dir.isDiagonal())
             {
-                return temp;
+                right = temp.add(dir.rotateRight().rotateRight().rotateRight());
+                left = temp.add(dir.rotateLeft().rotateLeft().rotateLeft());
+
+                if (us.distanceSquaredTo(right) <= 10 && !rc.isLocationOccupied(right) && rc.isPathable(RobotType.COMMANDER, right))
+                {
+                    return right;
+                }
+                else if (us.distanceSquaredTo(left) <= 10 && !rc.isLocationOccupied(left) && rc.isPathable(RobotType.COMMANDER, left))
+                {
+                    return left;
+                }
             }
-            else if (us.distanceSquaredTo(right) <= 10 && !rc.isLocationOccupied(right))
+            else
             {
-                return right;
-            }
-            else if (us.distanceSquaredTo(left) <= 10 && !rc.isLocationOccupied(left))
-            {
-                return left;
+                right = temp.add(dir.rotateRight().rotateRight());
+                left = temp.add(dir.rotateLeft().rotateLeft());
+                if (us.distanceSquaredTo(temp) <= 10 && !rc.isLocationOccupied(temp) && rc.isPathable(RobotType.COMMANDER, temp))
+                {
+                    return temp;
+                }
+                else if (us.distanceSquaredTo(right) <= 10 && !rc.isLocationOccupied(right) && rc.isPathable(RobotType.COMMANDER, right))
+                {
+                    return right;
+                }
+                else if (us.distanceSquaredTo(left) <= 10 && !rc.isLocationOccupied(left) && rc.isPathable(RobotType.COMMANDER, left))
+                {
+                    return left;
+                }
             }
         }
         return null;
@@ -717,14 +757,14 @@ public class FightMicroUtilities
             dir = us.directionTo(enemyHQ);
             temp = us.add(dir, 2);
 
-            return getLocation(rc, temp, dir, us);
+            return getLocation(rc, temp, dir, us, false);
         }
         else if (closestTower != null && us.distanceSquaredTo(closestTower) >= 24)
         {
             dir = us.directionTo(closestTower);
             temp = us.add(dir, 2);
 
-            return getLocation(rc, temp, dir, us);
+            return getLocation(rc, temp, dir, us, false);
         }
         else
         {
@@ -735,7 +775,7 @@ public class FightMicroUtilities
 
                 temp = us.add(dir, 2);
 
-                return getLocation(rc, temp, dir, us);
+                return getLocation(rc, temp, dir, us, false);
             }
         }
 

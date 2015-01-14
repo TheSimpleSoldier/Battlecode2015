@@ -598,8 +598,16 @@ public class FightMicro
             {
                 if (enemies.length > 0)
                 {
-                    flashTo = FightMicroUtilities.attackFlashLoc(rc, enemies);
-                    rc.setIndicatorString(2, "Flashing offensively: " + flashTo);
+                    if (regenerating)
+                    {
+                        flashTo = FightMicroUtilities.retreatFlashLoc(rc, nearByEnemies);
+                        rc.setIndicatorString(2, "Flashing to safety: " + flashTo);
+                    }
+                    else
+                    {
+                        flashTo = FightMicroUtilities.attackFlashLoc(rc, enemies);
+                        rc.setIndicatorString(2, "Flashing offensively: " + flashTo);
+                    }
                 }
             }
         }
@@ -694,7 +702,7 @@ public class FightMicro
         boolean returnVal = false;
 
         // if we picked a spot to flash to then flash!
-        if (flashTo != null /*&& flashTo.distanceSquaredTo(rc.getLocation()) <= 5*/ && rc.isCoreReady())
+        if (flashTo != null && flashTo.distanceSquaredTo(rc.getLocation()) <= 5 && rc.isPathable(rc.getType(), flashTo) && rc.isCoreReady())
         {
             rc.setIndicatorString(1, "Flashing to: " + flashTo);
             rc.castFlash(flashTo);
