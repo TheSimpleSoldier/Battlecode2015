@@ -11,6 +11,9 @@ import team044.Units.Rushers.MinerRusher;
 public class Miner extends Unit
 {
     boolean mineToOurHQ = true;
+    MapLocation lastSpot;
+    boolean efficientMiner = false;
+    int miningAmount = 2;
 
     public Miner(RobotController rc)
     {
@@ -22,6 +25,12 @@ public class Miner extends Unit
             rc.setIndicatorString(0, "Miner to enemyHQ");
             mineToOurHQ = false;
         }
+        lastSpot = rc.getLocation();
+        if (rc.senseOre(lastSpot) > 12)
+        {
+            efficientMiner = true;
+            miningAmount = 12;
+        }
     }
 
     public void collectData() throws GameActionException
@@ -29,7 +38,22 @@ public class Miner extends Unit
         // collect our data
         super.collectData();
 
-        if (rc.senseOre(rc.getLocation()) < 2)
+        if (lastSpot != rc.getLocation())
+        {
+            lastSpot = rc.getLocation();
+            if (rc.senseOre(lastSpot) > 12)
+            {
+                efficientMiner = true;
+                miningAmount = 12;
+            }
+            else
+            {
+                efficientMiner = false;
+                miningAmount = 2;
+            }
+        }
+
+        if (rc.senseOre(rc.getLocation()) < miningAmount)
         {
             //target = Utilities.getBestMiningSpot(rc);
             target = Utilities.greedyBestMiningSpot(rc);
@@ -98,7 +122,7 @@ public class Miner extends Unit
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= 2)
+        if (rc.isCoreReady() && rc.canMine() && rc.senseOre(rc.getLocation()) >= miningAmount)
         {
             rc.mine();
             return true;
