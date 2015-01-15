@@ -35,6 +35,14 @@ public class HQ extends Structure
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc);
 
+//        strat = new BuildOrderMessaging[35];
+//        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
+//        strat[1] = BuildOrderMessaging.BuildTechnologyInstitute;
+//        strat[2] = BuildOrderMessaging.BuildTrainingField;
+//        strat[3] = BuildOrderMessaging.BuildMinerFactory;
+//        strat[4] = BuildOrderMessaging.BuildBaracks;
+//        strat[5] = BuildOrderMessaging.BuildTankFactory;
+//        strat[6] = BuildOrderMessaging.BuildTankFactory;
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
@@ -59,6 +67,10 @@ public class HQ extends Structure
         rc.broadcast(Messaging.MinerUnderAttackX.ordinal(), 0);
         rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), 0);
 
+        // reset commander position
+        //rc.broadcast(Messaging.CommanderLocX.ordinal(), 0);
+        //rc.broadcast(Messaging.CommanderLocY.ordinal(), 0);
+
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
         if (Clock.getRoundNum() > 1800)
         {
@@ -67,7 +79,7 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() > 1250)
+        else if (Clock.getRoundNum() > 750)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }

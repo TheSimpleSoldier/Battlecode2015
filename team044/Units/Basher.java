@@ -23,7 +23,17 @@ public class Basher extends Unit
         super.collectData();
         
         // collect our data
-        target = Utilities.getRushLocation(rc);
+        int x = rc.readBroadcast(Messaging.CommanderLocX.ordinal());
+        int y = rc.readBroadcast(Messaging.CommanderLocY.ordinal());
+
+        if (x != 0 && y != 0)
+        {
+            target = new MapLocation(x, y);
+        }
+        else
+        {
+            target = ourHQ.add(enemyHQ.directionTo(ourHQ), 3);
+        }
         rc.setIndicatorString(1, "Target: " + target);
         /*MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
         if (enemyTower.length > 0)
