@@ -255,55 +255,48 @@ public class Utilities
     public static MapLocation greedyBestMiningSpot(RobotController rc) throws GameActionException
     {
         MapLocation best;
-        MapLocation currentBest;
 
         best = rc.getLocation();
         Direction[] dirs = Direction.values();
 
-        //do
+        MapLocation current = best;
+        for (int i = 0; i < 8; i++)
         {
-            currentBest = best;
-            MapLocation current = best;
-            for (int i = 0; i < 8; i++)
+            MapLocation newSpot = current.add(dirs[i]);
+            if (rc.canSenseLocation(newSpot))
             {
-                MapLocation newSpot = current.add(dirs[i]);
-                if (rc.canSenseLocation(newSpot))
+                if (rc.senseOre(newSpot) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot))
                 {
-                    if (rc.senseOre(newSpot) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot))
-                    {
-                        best = newSpot;
-                    }
+                    best = newSpot;
+                }
 
-                    for (int j = 0; j < 8; j++)
+                for (int j = 0; j < 8; j++)
+                {
+                    MapLocation newSpot2 = newSpot.add(dirs[j]);
+                    if (rc.canSenseLocation(newSpot2))
                     {
-                        MapLocation newSpot2 = newSpot.add(dirs[j]);
-                        if (rc.canSenseLocation(newSpot2))
+                        if (rc.senseOre(newSpot2) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot2))
                         {
-                            if (rc.senseOre(newSpot2) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot2))
-                            {
-                                best = newSpot2;
-                            }
+                            best = newSpot2;
                         }
-                        for (int k = 0; k < 8; k++)
+                    }
+                    for (int k = 0; k < 8; k++)
+                    {
+                        MapLocation newSpot3 = newSpot2.add(dirs[k]);
+                        if (rc.canSenseLocation(newSpot3))
                         {
-                            MapLocation newSpot3 = newSpot2.add(dirs[k]);
-                            if (rc.canSenseLocation(newSpot3))
+                            if (rc.senseOre(newSpot3) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot3))
                             {
-                                if (rc.senseOre(newSpot3) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot3))
-                                {
-                                    best = newSpot3;
-                                }
+                                best = newSpot3;
                             }
                         }
                     }
                 }
             }
-        } //while (rc.senseOre(best) > rc.senseOre(currentBest));
+        }
 
-        currentBest = best;
-
-        rc.setIndicatorString(1, "Best: "+currentBest);
-        return currentBest;
+        rc.setIndicatorString(1, "Best: "+best);
+        return best;
     }
 
     /**
