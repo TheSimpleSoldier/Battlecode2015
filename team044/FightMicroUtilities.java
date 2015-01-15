@@ -631,14 +631,14 @@ public class FightMicroUtilities
         if (us.distanceSquaredTo(enemyHQ) <= 52)
         {
             dir = enemyHQ.directionTo(us);
-            temp = us.add(dir, 2);
+            temp = us.add(dir, 3);
 
             return getLocation(rc, temp, dir, us, true);
         }
         else if (closestTower != null && us.distanceSquaredTo(closestTower) <= 24)
         {
             dir = closestTower.directionTo(us);
-            temp = us.add(dir, 2);
+            temp = us.add(dir, 3);
 
             return getLocation(rc, temp, dir, us, true);
         }
@@ -649,7 +649,7 @@ public class FightMicroUtilities
                 MapLocation enemy = enemies[i].location;
                 dir = enemy.directionTo(us);
 
-                temp = us.add(dir, 2);
+                temp = us.add(dir, 3);
 
                 return getLocation(rc, temp, dir, us, true);
             }
@@ -762,7 +762,7 @@ public class FightMicroUtilities
         else if (closestTower != null && us.distanceSquaredTo(closestTower) >= 24)
         {
             dir = us.directionTo(closestTower);
-            temp = us.add(dir, 2);
+            temp = us.add(dir, 3);
 
             return getLocation(rc, temp, dir, us, false);
         }
@@ -773,7 +773,7 @@ public class FightMicroUtilities
                 MapLocation enemy = enemies[i].location;
                 dir = us.directionTo(enemy);
 
-                temp = us.add(dir, 2);
+                temp = us.add(dir, 3);
 
                 return getLocation(rc, temp, dir, us, false);
             }
@@ -865,6 +865,58 @@ public class FightMicroUtilities
             }
         }
 
+        return null;
+    }
+
+    /**
+     * This method determines if the commander should go after a particular unit
+     */
+    public static MapLocation getCommanderAttack(RobotController rc, RobotInfo[] enemies)
+    {
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+        boolean inRange;
+        int distFromHQ;
+
+        if (towers.length < 2)
+        {
+            distFromHQ = 2;
+        }
+        // 35 range no splash damage
+        else if (towers.length < 5)
+        {
+            distFromHQ = 5;
+        }
+        // 35 range and splash damage
+        else
+        {
+            distFromHQ = 10;
+        }
+
+        for (int i = enemies.length; --i >=0; )
+        {
+            inRange = true;
+            MapLocation enemy = enemies[i].location;
+
+            if (enemy.distanceSquaredTo(enemyHQ) <= distFromHQ)
+            {
+                continue;
+            }
+
+            for (int j = towers.length; --j>=0; )
+            {
+                if (towers[j].distanceSquaredTo(enemy) <= 2)
+                {
+                    inRange = false;
+                    j = 0;
+                }
+            }
+
+            if (inRange)
+            {
+                return enemy;
+            }
+        }
         return null;
     }
 }

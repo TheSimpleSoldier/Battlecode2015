@@ -39,6 +39,10 @@ public class HQ extends Structure
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildTechnologyInstitute;
         strat[2] = BuildOrderMessaging.BuildTrainingField;
+        strat[3] = BuildOrderMessaging.BuildMinerFactory;
+        strat[4] = BuildOrderMessaging.BuildBaracks;
+        strat[5] = BuildOrderMessaging.BuildTankFactory;
+        strat[6] = BuildOrderMessaging.BuildTankFactory;
         //strat[3] = BuildOrderMessaging.BuildBaracks;
         //strat[4] = BuildOrderMessaging.BuildTankFactory;
         //strat[3] = BuildOrderMessaging.BuildHelipad;

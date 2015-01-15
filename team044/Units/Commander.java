@@ -16,13 +16,14 @@ public class Commander extends Unit
     boolean avoidStructures = true;
     RobotInfo[] enemies;
     Random random;
-
+    int choice;
+    int round;
 
     public Commander(RobotController rc)
     {
         super(rc);
         nav.setAvoidTowers(false);
-        target = ourHQ;
+        target = enemyHQ;
         random = new Random(rc.getID());
     }
 
@@ -31,10 +32,8 @@ public class Commander extends Unit
         // collect our data
         super.collectData();
 
-        /*if (rc.hasLearnedSkill(CommanderSkillType.FLASH))
-        {
-            rc.setIndicatorString(0, "Flash Cool down: " + rc.getFlashCooldown());
-        }*/
+        rc.setIndicatorString(0, "Flash Cool down: " + rc.getFlashCooldown());
+
 
         enemies = rc.senseNearbyRobots(35, opponent);
         // when we hit 100 health we head back to the battlefield
@@ -79,10 +78,9 @@ public class Commander extends Unit
             else
             {
                 avoidStructures = true;
-                target = enemyHQ;
                 nav.setAvoidTowers(true);
                 nav.setAvoidTowers(true);
-                /*
+
                 // change target every 25 turns
                 if (Clock.getRoundNum() % 25 != 0)
                 {
@@ -93,15 +91,15 @@ public class Commander extends Unit
 
                     if (choice == 0)
                     {
-                        target = ourHQ.add(ourHQ.directionTo(enemyHQ), 8);
+                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ), 8);
                     }
                     else if (choice == 1)
                     {
-                        target = ourHQ.add(ourHQ.directionTo(enemyHQ).rotateLeft(), 8);
+                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft(), 8);
                     }
                     else
                     {
-                        target = ourHQ.add(ourHQ.directionTo(enemyHQ).rotateRight(), 8);
+                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight(), 8);
                     }
 
                 }//*/
@@ -135,12 +133,14 @@ public class Commander extends Unit
         {
             return false;
         }
-
+        rc.setIndicatorString(1, "Nav movement");
         return nav.takeNextStep(target);
+
     }
 
     public boolean fight() throws GameActionException
     {
+        rc.setIndicatorString(1, "Fight Micro");
         return fighter.commanderMicro(nearByEnemies, regenerating, enemies, avoidStructures);
     }
 
