@@ -1,6 +1,7 @@
 package TestNav.Units;
 
 
+import TestNav.SmartNav;
 import battlecode.common.*;
 import TestNav.Unit;
 import TestNav.Utilities;
@@ -11,12 +12,14 @@ public class ScoutingDrone extends Drone
 {
     MapLocation target;
     Random rand;
+    SmartNav smartNav;
     public ScoutingDrone(RobotController rc)
     {
         super(rc);
         rc.setIndicatorString(0, "Scouting Drone");
         target = rc.getLocation();
         rand = new Random();
+        smartNav = new SmartNav(rc);
     }
 
     public void collectData() throws GameActionException
@@ -26,6 +29,13 @@ public class ScoutingDrone extends Drone
         if(Clock.getRoundNum() % 20 == 0)
         {
             Utilities.getBestSpot(rc, false);
+        }
+
+        if(rc.senseTerrainTile(rc.getLocation()) == TerrainTile.VOID && Clock.getRoundNum() > 1000)
+        {
+            int round = Clock.getRoundNum();
+            smartNav.analyzeVoid(rc.getLocation().x, rc.getLocation().y);
+            System.out.println("Rounds: " + (Clock.getRoundNum() - round));
         }
     }
 

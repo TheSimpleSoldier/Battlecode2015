@@ -295,6 +295,11 @@ public class Strategy
             strat[38] = BuildOrderMessaging.BuildSupplyDepot;
             rc.setIndicatorString(0, "Default " + debug + ", " + mostEndGameUnit + ", dist: " + hqDistance);
         }
-        return strat;
+
+        BuildOrderMessaging[] basicStrat = {BuildOrderMessaging.BuildBeaverBuilder,
+                                            BuildOrderMessaging.BuildHelipad};
+
+        return basicStrat;
+        //return strat;
     }
 }

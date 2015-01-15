@@ -53,7 +53,7 @@ public class Messenger
         tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
 
         droneStrat = new BuildOrderMessaging[1];
-        droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+        droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
     }
 
     /**
@@ -65,11 +65,11 @@ public class Messenger
         // we want to give a little time before we start managing supply distribution
         if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 10)
         {
-            droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
+            droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
         }
         else
         {
-            droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+            droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
         }
 
         int message;
