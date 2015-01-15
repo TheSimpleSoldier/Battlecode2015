@@ -1,7 +1,6 @@
 package team044;
 
 import battlecode.common.*;
-import battlecode.world.Robot;
 
 public class FightMicro
 {
