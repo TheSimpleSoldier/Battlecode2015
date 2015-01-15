@@ -37,28 +37,72 @@ public class Missile
                     MapLocation closest = new MapLocation(x,y);
                     us = rc.getLocation();
 
+                    if (us.distanceSquaredTo(closest) < 64)
+                    {
+                        dir = us.directionTo(closest);
 
-                    dir = us.directionTo(closest);
+                        if (rc.canMove(dir))
+                        {
+                            rc.move(dir);
+                        }
+                        else if (rc.canMove(dir.rotateRight()))
+                        {
+                            rc.move(dir.rotateRight());
+                        }
+                        else if (rc.canMove(dir.rotateLeft()))
+                        {
+                            rc.move(dir.rotateLeft());
+                        }
+                        else if (rc.canMove(dir.rotateLeft().rotateLeft()))
+                        {
+                            rc.move(dir.rotateLeft().rotateLeft());
+                        }
+                        else if (rc.canMove(dir.rotateRight().rotateRight()))
+                        {
+                            rc.move(dir.rotateRight().rotateRight());
+                        }
+                    }
+                    else
+                    {
+                        RobotInfo[] nearByAllies = rc.senseNearbyRobots(15, rc.getTeam());
 
-                    if (rc.canMove(dir))
-                    {
-                        rc.move(dir);
-                    }
-                    else if (rc.canMove(dir.rotateRight()))
-                    {
-                        rc.move(dir.rotateRight());
-                    }
-                    else if (rc.canMove(dir.rotateLeft()))
-                    {
-                        rc.move(dir.rotateLeft());
-                    }
-                    else if (rc.canMove(dir.rotateLeft().rotateLeft()))
-                    {
-                        rc.move(dir.rotateLeft().rotateLeft());
-                    }
-                    else if (rc.canMove(dir.rotateRight().rotateRight()))
-                    {
-                        rc.move(dir.rotateRight().rotateRight());
+                        for (int i = nearByAllies.length; --i>=0; )
+                        {
+                            if (nearByAllies[i].type == RobotType.LAUNCHER)
+                            {
+                                dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
+                                break;
+                            }
+                            else if (dir != null && nearByAllies[i].type != RobotType.MISSILE)
+                            {
+                                dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
+                            }
+                        }
+
+                        if (dir == null)
+                        {
+                            // don't see any enemies and aren't next to an ally
+                        }
+                        else if (rc.canMove(dir))
+                        {
+                            rc.move(dir);
+                        }
+                        else if (rc.canMove(dir.rotateRight()))
+                        {
+                            rc.move(dir.rotateRight());
+                        }
+                        else if (rc.canMove(dir.rotateLeft()))
+                        {
+                            rc.move(dir.rotateLeft());
+                        }
+                        else if (rc.canMove(dir.rotateLeft().rotateLeft()))
+                        {
+                            rc.move(dir.rotateLeft().rotateLeft());
+                        }
+                        else if (rc.canMove(dir.rotateRight().rotateRight()))
+                        {
+                            rc.move(dir.rotateRight().rotateRight());
+                        }
                     }
                 }
                 else
