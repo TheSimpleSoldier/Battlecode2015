@@ -260,7 +260,7 @@ public class Utilities
         best = rc.getLocation();
         Direction[] dirs = Direction.values();
 
-        do
+        //do
         {
             currentBest = best;
             MapLocation current = best;
@@ -273,7 +273,7 @@ public class Utilities
                     {
                         best = newSpot;
                     }
-                    /*
+
                     for (int j = 0; j < 8; j++)
                     {
                         MapLocation newSpot2 = newSpot.add(dirs[j]);
@@ -284,10 +284,23 @@ public class Utilities
                                 best = newSpot2;
                             }
                         }
-                    }*/
+                        for (int k = 0; k < 8; k++)
+                        {
+                            MapLocation newSpot3 = newSpot2.add(dirs[k]);
+                            if (rc.canSenseLocation(newSpot3))
+                            {
+                                if (rc.senseOre(newSpot3) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot3))
+                                {
+                                    best = newSpot3;
+                                }
+                            }
+                        }
+                    }
                 }
             }
-        } while (rc.senseOre(best) > rc.senseOre(currentBest));
+        } //while (rc.senseOre(best) > rc.senseOre(currentBest));
+
+        currentBest = best;
 
         rc.setIndicatorString(1, "Best: "+currentBest);
         return currentBest;
