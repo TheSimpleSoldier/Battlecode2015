@@ -35,6 +35,43 @@ public class HQ extends Structure
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc);
 
+        strat = new BuildOrderMessaging[35];
+        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[1] = BuildOrderMessaging.BuildMinerFactory;
+        strat[2] = BuildOrderMessaging.BuildBaracks;
+        strat[3] = BuildOrderMessaging.BuildTankFactory;
+        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[5] = BuildOrderMessaging.BuildTankFactory;
+        strat[6] = BuildOrderMessaging.BuildTankFactory;
+        strat[7] = BuildOrderMessaging.BuildTankFactory;
+        strat[8] = BuildOrderMessaging.BuildTankFactory;
+        strat[9] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[10] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[11] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[12] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[13] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[14] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[15] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[16] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[17] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[18] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[19] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[20] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[21] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[22] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[23] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[24] = BuildOrderMessaging.BuildTankFactory;
+        strat[25] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[26] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[27] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[28] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[29] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[30] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[31] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[32] = BuildOrderMessaging.BuildSupplyDepot;
+        strat[33] = BuildOrderMessaging.BuildTankFactory;
+        strat[34] = BuildOrderMessaging.BuildSupplyDepot;
+
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
