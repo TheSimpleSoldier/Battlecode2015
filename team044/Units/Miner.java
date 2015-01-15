@@ -12,8 +12,7 @@ public class Miner extends Unit
 {
     boolean mineToOurHQ = true;
     MapLocation lastSpot;
-    boolean efficientMiner = false;
-    int miningAmount = 2;
+    int miningAmount = 5;
 
     public Miner(RobotController rc)
     {
@@ -28,7 +27,6 @@ public class Miner extends Unit
         lastSpot = rc.getLocation();
         if (rc.senseOre(lastSpot) > 12)
         {
-            efficientMiner = true;
             miningAmount = 12;
         }
     }
@@ -43,13 +41,15 @@ public class Miner extends Unit
             lastSpot = rc.getLocation();
             if (rc.senseOre(lastSpot) > 12)
             {
-                efficientMiner = true;
                 miningAmount = 12;
+            }
+            else if (rc.senseOre(lastSpot) <= 5)
+            {
+                miningAmount = 2;
             }
             else
             {
-                efficientMiner = false;
-                miningAmount = 2;
+                miningAmount = 5;
             }
         }
 
