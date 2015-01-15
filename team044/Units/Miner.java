@@ -63,11 +63,11 @@ public class Miner extends Unit
                 rc.setIndicatorString(1, "We can't sense a good spot");
                 if (mineToOurHQ)
                 {
-                    target = ourHQ;
+                    target = rc.getLocation().add(rc.getLocation().directionTo(ourHQ));
                 }
                 else
                 {
-                    target = enemyHQ;
+                    target = rc.getLocation().add(rc.getLocation().directionTo(enemyHQ));
                 }
             }
 
