@@ -16,7 +16,7 @@ public class SmartNav
     }
 
     //this takes a spot on a void and analyzes the entire void
-    public boolean analyzeVoid(int x, int y)
+    public boolean analyzeVoid(int x, int y) throws GameActionException
     {
         int[] dims = findBorders(x, y);
 
@@ -32,7 +32,27 @@ public class SmartNav
             return false;
         }
 
-
+        /*
+        The following is purely for testing purposes
+        if(rc.readBroadcast(12865) != 1)
+        {
+            rc.broadcast(12865, 1);
+            System.out.println("start");
+            for(int k = 0; k < dims.length; k++)
+            {
+                System.out.println(dims[k]);
+            }
+            for(int k = 0; k < area.length; k++)
+            {
+                String line = "";
+                for(int a = 0; a < area[0].length; a++)
+                {
+                    line += area[k][a] + " ";
+                }
+                System.out.println(line);
+            }
+            rc.broadcast(12865, 0);
+        }*/
 
         return true;
     }
@@ -82,26 +102,26 @@ public class SmartNav
 
         MapLocation startBugLocation = currentLoc.add(Direction.NONE);
         Direction firstDir = Direction.NORTH;
+        while(rc.senseTerrainTile(currentLoc.add(firstDir)) != TerrainTile.VOID)
+        {
+            firstDir = firstDir.rotateRight();
+        }
+        firstDir = firstDir.opposite();
 
-        boolean first = true;
-        Direction lastDir = Direction.NORTH_WEST;
+        Direction lastDir = Direction.WEST;
+
 
         do
         {
-            lastDir = lastDir.rotateRight();
+            lastDir = lastDir.rotateRight().rotateRight();
             while(rc.senseTerrainTile(currentLoc.add(lastDir)) != TerrainTile.VOID)
             {
                 if(rc.senseTerrainTile(currentLoc.add(lastDir)) == TerrainTile.UNKNOWN)
                 {
                     return null;
                 }
-                lastDir = lastDir.rotateLeft();
-                if(first)
-                {
-                    firstDir = firstDir.rotateLeft();
-                }
+                lastDir = lastDir.rotateLeft().rotateLeft();
             }
-            first = false;
             currentLoc = currentLoc.add(lastDir);
             if(currentLoc.x < dims[0])
             {
@@ -133,16 +153,24 @@ public class SmartNav
      */
     private int[][] createVoidMap(int[] dims)
     {
-        int height = dims[3] - dims[1];
-        int width = dims[2] - dims[0];
+        int height = dims[3] - dims[1] + 1;
+        int width = dims[2] - dims[0] + 1;
 
         int[] newDims = new int[4];
 
         //update max and min so entire area being read is known
-        newDims[0] = (int)(dims[0] - Math.ceil(width / 2.));
-        newDims[1] = (int)(dims[1] - Math.ceil(height / 2.));
-        newDims[2] = (int)(dims[2] + Math.ceil(width / 2.));
-        newDims[3] = (int)(dims[3] + Math.ceil(height / 2.));
+        newDims[0] = (int)(dims[0] - (height / 2. - .1));
+        newDims[1] = (int)(dims[1] - (width / 2. - .1));
+        newDims[2] = (int)(dims[2] + (height / 2. + .9));
+        newDims[3] = (int)(dims[3] + (width / 2. + .9));
+
+        for(int k = 0; k < newDims.length; k++)
+        {
+            if(newDims[k] < 0)
+            {
+                newDims[k]--;
+            }
+        }
 
         //These for loops are checks for the edge of the map, because beyond the edge
         //of map spots are continued by unknowns deeper, this ensures we do not have
@@ -180,8 +208,8 @@ public class SmartNav
             }
         }
 
-        height = newDims[3] - newDims[1];
-        width = newDims[2] - newDims[0];
+        height = newDims[3] - newDims[1] + 1;
+        width = newDims[2] - newDims[0] + 1;
 
         int[][] area = new int[height][width];
 
@@ -189,8 +217,8 @@ public class SmartNav
         {
             for(int a = 0; a < width; a++)
             {
-                int currentX = a + dims[0];
-                int currentY = k + dims[1];
+                int currentX = a + newDims[0];
+                int currentY = k + newDims[1];
                 TerrainTile tile = rc.senseTerrainTile(new MapLocation(currentX, currentY));
 
                 if(tile == TerrainTile.NORMAL)

@@ -8,9 +8,11 @@ import TestNav.Utilities;
 public class Helipad extends Structure
 {
     int numbOfDrones;
+    boolean spawned;
     public Helipad(RobotController rc)
     {
         super(rc);
+        spawned = false;
     }
 
     public void collectData() throws GameActionException
@@ -23,8 +25,9 @@ public class Helipad extends Structure
     public boolean carryOutAbility() throws GameActionException
     {
         // start by only keeping up at most one drone at a time
-        if (numbOfDrones < 20 && !Utilities.cutProd(rc) && Utilities.spawnUnit(RobotType.DRONE, rc))
+        if (!spawned && Utilities.spawnUnit(RobotType.DRONE, rc))
         {
+            //spawned = true;
             return true;
         }
         return false;

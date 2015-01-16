@@ -20,6 +20,8 @@ public class ScoutingDrone extends Drone
         target = rc.getLocation();
         rand = new Random();
         smartNav = new SmartNav(rc);
+        nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
 
     public void collectData() throws GameActionException
@@ -31,11 +33,15 @@ public class ScoutingDrone extends Drone
             Utilities.getBestSpot(rc, false);
         }
 
-        if(rc.senseTerrainTile(rc.getLocation()) == TerrainTile.VOID && Clock.getRoundNum() > 1000)
+        if(rc.senseTerrainTile(rc.getLocation()) == TerrainTile.VOID && Clock.getRoundNum() > 1000 || true)
         {
-            int round = Clock.getRoundNum();
-            smartNav.analyzeVoid(rc.getLocation().x, rc.getLocation().y);
-            System.out.println("Rounds: " + (Clock.getRoundNum() - round));
+            if(smartNav.analyzeVoid(rc.getLocation().x, rc.getLocation().y))
+            {
+                /*while(true)
+                {
+                    rc.yield();
+                }*/
+            }
         }
     }
 
