@@ -7,7 +7,7 @@ import team044.Utilities;
 
 public class Barracks extends Structure
 {
-    boolean basher = true;
+    boolean basher = false;
     int numbOfSoldiers = 0;
     public Barracks(RobotController rc)
     {
@@ -30,7 +30,7 @@ public class Barracks extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-        /*
+
         if (basher)
         {
             if (rc.getTeamOre() > 600 && Utilities.spawnUnit(RobotType.BASHER, rc))
@@ -44,7 +44,7 @@ public class Barracks extends Structure
             {
                 return true;
             }
-        }*/
+        }
         return false;
     }
 }

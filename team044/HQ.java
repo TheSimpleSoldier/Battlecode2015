@@ -35,14 +35,14 @@ public class HQ extends Structure
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc);
 
-//        strat = new BuildOrderMessaging[35];
-//        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-//        strat[1] = BuildOrderMessaging.BuildTechnologyInstitute;
-//        strat[2] = BuildOrderMessaging.BuildTrainingField;
-//        strat[3] = BuildOrderMessaging.BuildMinerFactory;
-//        strat[4] = BuildOrderMessaging.BuildBaracks;
-//        strat[5] = BuildOrderMessaging.BuildTankFactory;
-//        strat[6] = BuildOrderMessaging.BuildTankFactory;
+        strat = new BuildOrderMessaging[35];
+        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[1] = BuildOrderMessaging.BuildTechnologyInstitute;
+        strat[2] = BuildOrderMessaging.BuildTrainingField;
+        strat[3] = BuildOrderMessaging.BuildMinerFactory;
+        strat[4] = BuildOrderMessaging.BuildBaracks;
+        strat[5] = BuildOrderMessaging.BuildBaracks;
+        strat[6] = BuildOrderMessaging.BuildBaracks;
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 

@@ -973,5 +973,64 @@ public class FightMicroUtilities
                 return false;
         }
     }
+
+    /**
+     * This method moves a unit in a given direction that is not in range of enemy towers or HQ
+     */
+    public static Direction moveAwayFromTowers(RobotController rc, Direction dir) throws GameActionException
+    {
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        MapLocation us = rc.getLocation();
+        MapLocation next = us.add(dir);
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir))
+            {
+                return dir;
+            }
+        }
+        next = us.add(dir.rotateLeft());
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir.rotateLeft()))
+            {
+                return dir.rotateLeft();
+            }
+        }
+
+        next = us.add(dir.rotateRight());
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir.rotateRight()))
+            {
+                return dir.rotateRight();
+            }
+        }
+
+        next = us.add(dir.rotateLeft().rotateLeft());
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir.rotateLeft().rotateLeft()))
+            {
+                return dir.rotateLeft().rotateLeft();
+            }
+        }
+
+        next = us.add(dir.rotateRight().rotateRight());
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir.rotateRight().rotateRight()))
+            {
+                return dir.rotateRight().rotateRight();
+            }
+        }
+        return null;
+    }
 }
 
