@@ -27,6 +27,7 @@ public enum BuildOrderMessaging {
     BuildDefensiveTank,
     BuildDefensiveBasher,
     BuildMiningAeroSpaceLab,
+    BuildHarrassSoldier,
     // this should be last entry
     DoneBuilding
 }

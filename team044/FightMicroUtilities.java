@@ -919,5 +919,59 @@ public class FightMicroUtilities
         }
         return null;
     }
+
+    /**
+     * This method determines if unit is type that is vulnerable to attack
+     */
+    public static boolean unitVulnerable(RobotInfo enemy)
+    {
+        switch(enemy.type)
+        {
+            case LAUNCHER:
+                return false;
+            case MISSILE:
+                return false;
+            case MINERFACTORY:
+                return true;
+            case MINER:
+                return true;
+            case COMMANDER:
+                return false;
+            case COMPUTER:
+                return true;
+            case SUPPLYDEPOT:
+                return true;
+            case SOLDIER:
+                return false;
+            case BASHER:
+                return false;
+            case DRONE:
+                return false;
+            case TANK:
+                return false;
+            case TOWER:
+                return false;
+            case TECHNOLOGYINSTITUTE:
+                return true;
+            case TRAININGFIELD:
+                return true;
+            case BARRACKS:
+                return true;
+            case TANKFACTORY:
+                return true;
+            case HANDWASHSTATION:
+                return true;
+            case HELIPAD:
+                return true;
+            case AEROSPACELAB:
+                return true;
+            case BEAVER:
+                return true;
+            case HQ:
+                return false;
+            default:
+                return false;
+        }
+    }
 }
 

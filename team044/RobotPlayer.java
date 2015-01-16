@@ -6,6 +6,7 @@ import battlecode.common.*;
 import team044.Units.Defenders.DefensiveBasher;
 import team044.Units.Defenders.DefensiveSoldiers;
 import team044.Units.Defenders.DefensiveTank;
+import team044.Units.harrassers.SoldierHarrasser;
 
 public class RobotPlayer
 {
@@ -187,8 +188,12 @@ public class RobotPlayer
         {
             return new DefensiveSoldiers(rc);
         }
+        else if (type == BuildOrderMessaging.BuildHarrassSoldier.ordinal())
+        {
+            return new SoldierHarrasser(rc);
+        }
         // default to defensive soldier
-        return new DefensiveSoldiers(rc);
+        return new Soldier(rc);
     }
 
     private static Unit getBasher(RobotController rc) throws GameActionException

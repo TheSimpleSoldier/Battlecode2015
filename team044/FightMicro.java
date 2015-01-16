@@ -755,4 +755,93 @@ public class FightMicro
 
         return returnVal;
     }
+
+    /**
+     * This method is for units that are harrassing, these units do not attack towers but avoid towers and the enemyHQ
+     * trying to focus on killing the enemies miners and structures and if possible avoids enemy military units
+     */
+    public boolean harrassMicro(RobotInfo[] nearByEnemies) throws GameActionException
+    {
+        if (!rc.isCoreReady() && !rc.isWeaponReady())
+        {
+            return false;
+        }
+
+        if (nearByEnemies.length > 0)
+        {
+            RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+            MapLocation enemySpot = enemy.location;
+
+            if (rc.canAttackLocation(enemySpot))
+            {
+                rc.attackLocation(enemySpot);
+                return true;
+            }
+        }
+        else if (rc.isCoreReady())
+        {
+            RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+
+            if (enemies.length > 0)
+            {
+                MapLocation weakEnemy = null;
+                MapLocation strongEnemy = null;
+                Direction dir = null;
+
+                for (int i = enemies.length; --i>=0; )
+                {
+                    if (FightMicroUtilities.unitVulnerable(enemies[i]))
+                    {
+                        weakEnemy = enemies[i].location;
+                    }
+                    else
+                    {
+                        strongEnemy = enemies[i].location;
+                    }
+                }
+
+                if (weakEnemy != null)
+                {
+                    dir = rc.getLocation().directionTo(weakEnemy);
+                }
+                else if (strongEnemy != null)
+                {
+                    dir = rc.getLocation().directionTo(strongEnemy).opposite();
+                }
+
+                if (dir != null)
+                {
+                    if (rc.canMove(dir))
+                    {
+                        rc.move(dir);
+                    }
+                    else if (rc.canMove(dir.rotateLeft()))
+                    {
+                        rc.move(dir.rotateLeft());
+                    }
+                    else if (rc.canMove(dir.rotateLeft().rotateLeft()))
+                    {
+                        rc.move(dir.rotateLeft().rotateLeft());
+                    }
+                    else if (rc.canMove(dir.rotateRight()))
+                    {
+                        rc.move(dir.rotateRight());
+                    }
+                    else if (rc.canMove(dir.rotateRight().rotateRight()))
+                    {
+                        rc.canMove(dir.rotateRight().rotateRight());
+                    }
+
+                    return true;
+                }
+            }
+            else
+            {
+                // let nav take care of avoiding towers and HQ
+                return false;
+            }
+        }
+
+        return false;
+    }
 }
