@@ -278,16 +278,16 @@ public class Utilities
                         if (rc.senseOre(newSpot2) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot2))
                         {
                             best = newSpot2;
-                        }
-                    }
-                    for (int k = 0; k < 8; k++)
-                    {
-                        MapLocation newSpot3 = newSpot2.add(dirs[k]);
-                        if (rc.canSenseLocation(newSpot3))
-                        {
-                            if (rc.senseOre(newSpot3) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot3))
+                            for (int k = 0; k < 8; k++)
                             {
-                                best = newSpot3;
+                                MapLocation newSpot3 = newSpot2.add(dirs[k]);
+                                if (rc.canSenseLocation(newSpot3))
+                                {
+                                    if (rc.senseOre(newSpot3) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot3))
+                                    {
+                                        best = newSpot3;
+                                    }
+                                }
                             }
                         }
                     }

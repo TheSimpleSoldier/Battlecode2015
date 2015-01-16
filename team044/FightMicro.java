@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Robot;
 
 public class FightMicro
 {
@@ -754,5 +755,75 @@ public class FightMicro
         }
 
         return returnVal;
+    }
+
+    /**
+     * This micro is for miners
+     */
+    public boolean minerMicro(RobotInfo[] nearByEnemies) throws GameActionException
+    {
+        if (!rc.isCoreReady() && !rc.isWeaponReady())
+        {
+            return false;
+        }
+        // if we can shoot and there is an enemy in sight range
+        else if (rc.isWeaponReady() && nearByEnemies.length > 0)
+        {
+            RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+            if (enemy != null)
+            {
+                MapLocation enemySpot = enemy.location;
+                if (rc.canAttackLocation(enemySpot))
+                {
+                    rc.attackLocation(enemySpot);
+                    return true;
+                }
+            }
+        }
+        // if there are no enemies in shooting range
+        else
+        {
+            RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
+
+            // if there are enemies in sight but not shooting range
+            if (enemies.length > 0)
+            {
+                // if there are a bunch of enemies then don't move towards them
+                if (enemies.length > 2)
+                {
+                    Direction direction = rc.getLocation().directionTo(enemies[0].location).opposite();
+
+                    if (rc.isCoreReady())
+                    {
+                        if (rc.canMove(direction))
+                        {
+                            rc.move(direction);
+                        }
+                        else if (rc.canMove(direction.rotateRight()))
+                        {
+                            rc.move(direction.rotateRight());
+                        }
+                        else if (rc.canMove(direction.rotateLeft()))
+                        {
+                            rc.move(direction.rotateLeft());
+                        }
+                    }
+                    // we don't want nav to move us into a large group of enemies
+                    return false;
+                }
+                // if there are only a few enemies then we are calling for help so keep going
+                // we can take a few shots
+                else
+                {
+                    return false;
+                }
+            }
+            // if we can't see any enemies then let nav take care of avoiding towers and enemy HQ
+            else
+            {
+                return false;
+            }
+        }
+        return false;
     }
 }
