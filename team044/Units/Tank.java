@@ -27,7 +27,12 @@ public class Tank extends Unit
         super.collectData();
 
         // TODO: Add code to smartly move forward so the entire army moves together
-        target = Utilities.getRushLocation(rc);
+        //target = Utilities.getRushLocation(rc);
+        target = Utilities.getTowerClosestToEnemyHQ(rc);
+        if (target == null)
+        {
+            target = ourHQ.add(ourHQ.directionTo(enemyHQ), 10);
+        }
         rc.setIndicatorString(1, "Target: " + target);
     }
 
@@ -59,7 +64,7 @@ public class Tank extends Unit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
         {
             return new TankRusher(rc);
         }

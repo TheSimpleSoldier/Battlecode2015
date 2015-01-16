@@ -188,7 +188,7 @@ public class RobotPlayer
             return new DefensiveSoldiers(rc);
         }
         // default to defensive soldier
-        return new DefensiveSoldiers(rc);
+        return new Soldier(rc);
     }
 
     private static Unit getBasher(RobotController rc) throws GameActionException

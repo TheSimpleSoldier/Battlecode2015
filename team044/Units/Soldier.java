@@ -23,6 +23,12 @@ public class Soldier extends Unit
     public void collectData() throws GameActionException
     {
         super.collectData();
+
+        target = Utilities.getTowerClosestToEnemyHQ(rc);
+        if (target == null)
+        {
+            target = ourHQ.add(ourHQ.directionTo(enemyHQ), 10);
+        }
     }
 
     public void handleMessages() throws GameActionException
@@ -53,7 +59,7 @@ public class Soldier extends Unit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
         {
             return new SoldierRusher(rc);
         }

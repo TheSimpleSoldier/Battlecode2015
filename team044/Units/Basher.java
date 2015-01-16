@@ -23,17 +23,16 @@ public class Basher extends Unit
         super.collectData();
         
         // collect our data
-        target = Utilities.getRushLocation(rc);
-        rc.setIndicatorString(1, "Target: " + target);
-        /*MapLocation[] enemyTower = rc.senseEnemyTowerLocations();
-        if (enemyTower.length > 0)
+        //target = Utilities.getRushLocation(rc);
+
+        target = Utilities.getTowerClosestToEnemyHQ(rc);
+        if (target == null)
         {
-            target = enemyTower[0];
+            target = ourHQ.add(ourHQ.directionTo(enemyHQ), 10);
         }
-        else
-        {
-            target = rc.senseEnemyHQLocation();
-        }*/
+
+        rc.setIndicatorString(1, "Target: " + target);
+
     }
 
     public void handleMessages() throws GameActionException
@@ -55,7 +54,7 @@ public class Basher extends Unit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
         {
             return new BasherRusher(rc);
         }

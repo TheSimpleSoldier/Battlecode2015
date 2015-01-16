@@ -39,12 +39,12 @@ public class HQ extends Structure
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;
         strat[2] = BuildOrderMessaging.BuildBaracks;
-        strat[3] = BuildOrderMessaging.BuildTankFactory;
+        strat[3] = BuildOrderMessaging.BuildBaracks;
         strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[5] = BuildOrderMessaging.BuildTankFactory;
-        strat[6] = BuildOrderMessaging.BuildTankFactory;
-        strat[7] = BuildOrderMessaging.BuildTankFactory;
-        strat[8] = BuildOrderMessaging.BuildTankFactory;
+        strat[5] = BuildOrderMessaging.BuildBaracks;
+        strat[6] = BuildOrderMessaging.BuildBaracks;
+        strat[7] = BuildOrderMessaging.BuildBaracks;
+        strat[8] = BuildOrderMessaging.BuildBaracks;
         strat[9] = BuildOrderMessaging.BuildSupplyDepot;
         strat[10] = BuildOrderMessaging.BuildSupplyDepot;
         strat[11] = BuildOrderMessaging.BuildSupplyDepot;
@@ -104,9 +104,13 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() > 1250)
+        else if (Clock.getRoundNum() > 750 && Clock.getRoundNum() % 250 < 3)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
+        }
+        else
+        {
+            rc.broadcast(Messaging.Attack.ordinal(), 0);
         }
 
         // even round so odd channel has data
