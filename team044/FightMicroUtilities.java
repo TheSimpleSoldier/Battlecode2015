@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Util;
 import team044.Units.Launcher;
 
 import java.util.Map;
@@ -141,6 +142,62 @@ public class FightMicroUtilities
     }
 
     /**
+     * This method looks to see if there is a location we can move to
+     * that will allow us to kite the enemy
+     */
+    public static Direction safeAttack(RobotController rc, MapLocation us, RobotInfo[] enemies, MapLocation enemyHQ, MapLocation[] towers)
+    {
+        int range = rc.getType().attackRadiusSquared;
+        Direction[] dirs = Direction.values();
+
+
+        for (int i = 8; --i>=0; )
+        {
+            MapLocation next = us.add(dirs[i]);
+
+            if (Utilities.locInRangeOfEnemyTower(next, towers, enemyHQ))
+            {
+                continue;
+            }
+
+            boolean good = false;
+
+            for (int j = enemies.length; --j>=0; )
+            {
+                if (enemies[j].type == RobotType.MISSILE)
+                {
+                    continue;
+                }
+
+                int dist = next.distanceSquaredTo(enemies[j].location);
+                int theirRange = enemies[j].type.attackRadiusSquared;
+
+                // bashers have a longer range in reality than specified in the specs
+                if (enemies[j].type == RobotType.BASHER)
+                {
+                    dist += 6;
+                }
+
+                if (dist > theirRange && dist <= range)
+                {
+                    good = true;
+                }
+                else if (dist <= theirRange)
+                {
+                    good = false;
+                }
+            }
+
+            if (good)
+            {
+                return dirs[i];
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * this method advances us towards the enemy
      */
     public static void attack(RobotController rc, RobotInfo[] enemies) throws GameActionException
@@ -186,13 +243,26 @@ public class FightMicroUtilities
             return;
         }
         RobotInfo launcher = null;
+        boolean missile = false;
+        int missile_x = 0;
+        int missile_y = 0;
+        int count = 0;
 
         for (int i = enemies.length; --i>=0; )
         {
             if (enemies[i].type == RobotType.LAUNCHER)
             {
                 launcher = enemies[i];
+                missile = false;
                 break;
+            }
+            else if (enemies[i].type == RobotType.MISSILE)
+            {
+                launcher = enemies[i];
+                missile_x += launcher.location.x;
+                missile_y += launcher.location.y;
+                count++;
+                missile = true;
             }
         }
 
@@ -200,6 +270,29 @@ public class FightMicroUtilities
         if (launcher == null)
         {
 
+        }
+        // if we see a missile we can assume their is a launcher beyond
+        else if (missile)
+        {
+            missile_x /= count;
+            missile_y /= count;
+
+            MapLocation missile_center = new MapLocation(missile_x, missile_y);
+
+            Direction dir = rc.getLocation().directionTo(missile_center);
+
+            if (rc.canMove(dir))
+            {
+                rc.move(dir);
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                rc.move(dir.rotateRight());
+            }
         }
         // lock on launcher
         else
