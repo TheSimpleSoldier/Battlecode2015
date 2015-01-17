@@ -486,11 +486,11 @@ public class FightMicroUtilities
 
 
     //==================== Methods for Bashers ========================\\
-    public static Direction bestBasherDir(RobotController rc, RobotInfo[] enemies)
+    public static Direction bestBasherDir(RobotController rc, RobotInfo[] enemies, int currentScore)
     {
         Direction[] dirs = Direction.values();
         int score;
-        int bestScore = 0;
+        int bestScore = currentScore;
         Direction best = null;
         MapLocation current;
         MapLocation us = rc.getLocation();
@@ -555,7 +555,7 @@ public class FightMicroUtilities
     //======================== Methods for launchers ============================\\
     public static Direction dirToShoot(RobotController rc, RobotInfo[] nearByEnemies, MapLocation enemyStructure)
     {
-        Direction dir;
+        Direction dir, toReturn = null;
         MapLocation us = rc.getLocation();
         if (enemyStructure != null)
         {
@@ -583,24 +583,30 @@ public class FightMicroUtilities
                 dir = us.directionTo(nearByEnemies[i].location);
                 if (!rc.canLaunch(dir))
                 {
-
                 }
                 else if (!alliesInPath(allies, dir, us))
                 {
-                    return dir;
+                    // focus launchers then commanders then tanks and finally just any enemy we can shoot at
+                    if (nearByEnemies[i].type == RobotType.LAUNCHER)
+                    {
+                        return dir;
+                    }
+                    else if (nearByEnemies[i].type == RobotType.COMMANDER)
+                    {
+                        return dir;
+                    }
+                    else if (nearByEnemies[i].type == RobotType.TANK)
+                    {
+                        toReturn = dir;
+                    }
+                    else if (toReturn == null)
+                    {
+                        toReturn = dir;
+                    }
                 }
-                /*
-                else if (!alliesInPath(allies, dir.rotateLeft(), us))
-                {
-                    return dir.rotateLeft();
-                }
-                else if (!alliesInPath(allies, dir.rotateRight(), us))
-                {
-                    return dir.rotateRight();
-                }*/
             }
         }
-        return null;
+        return toReturn;
     }
 
     public static boolean alliesInPath(RobotInfo[] nearByAllies, Direction dir, MapLocation startingSpot)
