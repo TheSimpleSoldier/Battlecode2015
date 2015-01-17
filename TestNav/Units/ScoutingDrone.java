@@ -97,7 +97,7 @@ public class ScoutingDrone extends Drone
         MapLocation next = rc.getLocation().add(dirs[rand.nextInt(8)]);
         while(!rc.canMove(rc.getLocation().directionTo(next)))
         {
-            next = rc.getLocation().add(dirs[rand.nextInt(8)]);
+            next = rc.getLocation().add(dirs[rand.nextInt(8)], 5);
         }
 
         return next;

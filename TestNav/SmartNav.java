@@ -18,7 +18,7 @@ public class SmartNav
     //this takes a spot on a void and analyzes the entire void
     public boolean analyzeVoid(int x, int y) throws GameActionException
     {
-        int round = Clock.getRoundNum();
+        //int round = Clock.getRoundNum();
         int[] dims = findBorders(x, y);
 
         if(dims == null)
@@ -33,15 +33,16 @@ public class SmartNav
             return false;
         }
 
+        int[] newDims = findAffectedRegion(dims);
 
-        int[][] newArea = createVoidMap(dims, area);
+        int[][] newArea = createVoidMap(dims, newDims, area);
 
         if(newArea == null)
         {
             return false;
         }
 
-        System.out.println("rounds: " + (Clock.getRoundNum() - round));
+        //System.out.println("rounds: " + (Clock.getRoundNum() - round));
 
         /*
         The following is purely for testing purposes
@@ -71,7 +72,19 @@ public class SmartNav
                 {
                     if(newArea[k][a] == -1)
                     {
-                        line += "9 ";
+                        line += "VVV";
+                    }
+                    else if(newArea[k][a] == -2)
+                    {
+                        line += "OOO";
+                    }
+                    else if(newArea[k][a] == 0)
+                    {
+                        line += "  ";
+                    }
+                    else if(newArea[k][a] < 10)
+                    {
+                        line += " " + newArea[k][a] + " ";
                     }
                     else
                     {
@@ -187,13 +200,7 @@ public class SmartNav
         return dims;
     }
 
-    /*
-    The goal of this function is to read in the entire affected region of the void
-    and to return a 2d int array that has values 0 for normal spaces, 1 for voids,
-    and 2 for off map. If any of the spots are unknown, the function will return
-    null since unknown spots mean we will not be able to do any more analysis.
-     */
-    private int[][] createVoidMap(int[] dims, int[][] area)
+    private int[] findAffectedRegion(int[] dims)
     {
         int height = dims[3] - dims[1] + 1;
         int width = dims[2] - dims[0] + 1;
@@ -250,8 +257,21 @@ public class SmartNav
             }
         }
 
-        height = newDims[3] - newDims[1] + 1;
-        width = newDims[2] - newDims[0] + 1;
+        return newDims;
+    }
+
+    /*
+    The goal of this function is to read in the entire affected region of the void
+    and to return a 2d int array that has values 0 for normal spaces, -1 for voids,
+    -2 for off map, and incremental numbers for virtual voids. If any of the spots
+    are unknown, the function will return null since unknown spots mean we will not
+    be able to do any more analysis.
+     */
+    private int[][] createVoidMap(int[] dims, int[] newDims, int[][] area)
+    {
+
+        int height = newDims[3] - newDims[1] + 1;
+        int width = newDims[2] - newDims[0] + 1;
 
         int[][] newArea = new int[height][width];
 
@@ -450,7 +470,7 @@ public class SmartNav
             }
         }
 
-        int number = 3;
+        int number = 10;
         for(int k = 0; k < height; k++)
         {
             for(int a = 0; a < width; a++)
@@ -487,4 +507,90 @@ public class SmartNav
         return area;
     }
 
+    private int[][] analyzeDirections(int[][] area)
+    {
+        int[][] dirArea = new int[area.length][area[0].length];
+
+        int[] wallValues = new int[8];
+        int[] offMapValues = new int[8];
+        for(int k = 0; k < wallValues.length; k++)
+        {
+            wallValues[k] = Directions.Wall.ordinal();
+            offMapValues[k] = Directions.OffMap.ordinal();
+        }
+
+        int wall = findDirInt(wallValues);
+        int offMap = findDirInt(offMapValues);
+
+        for(int k = 0; k < dirArea.length; k++)
+        {
+            for(int a = 0; a < dirArea[0].length; a++)
+            {
+                if(area[k][a] == -1)
+                {
+                    dirArea[k][a] = wall;
+                }
+                else if(area[k][a] == -2)
+                {
+                    dirArea[k][a] = offMap;
+                }
+            }
+        }
+
+        for(int k = 0; k < dirArea.length; k++)
+        {
+            for(int a = 0; a < dirArea.length; a++)
+            {
+                if(dirArea[k][a] != wall && dirArea[k][a] != offMap)
+                {
+                    int[] dirs = new int[8];
+                    for(int t = 0; t < dirs.length; t++)
+                    {
+                        dirs[t] = findDirection(dirArea, wall, offMap, a, k, t);
+                    }
+                    dirArea[k][a] = findDirInt(dirs);
+                }
+            }
+        }
+
+        return dirArea;
+    }
+
+    private int findDirection(int[][] area, int wall, int offMap, int x, int y, int dir)
+    {
+        int toReturn = 0;
+
+
+
+        return toReturn;
+    }
+
+    private int findDirInt(int[] dirs)
+    {
+        int toReturn = 0;
+
+        for(int k = 0; k < dirs.length; k++)
+        {
+            dirs[k] = dirs[k] << (k * 4);
+            toReturn = toReturn | dirs[k];
+        }
+
+        return toReturn;
+    }
+
+    private int[] getIntsFromDirInt(int values)
+    {
+        int[] toReturn = new int[8];
+
+        for(int k = 0; k < toReturn.length; k++)
+        {
+            int temp = values << ((toReturn.length - k - 1) * 4);
+            System.out.println(Integer.toBinaryString(temp));
+            temp = temp >>> ((toReturn.length - 1) * 4);
+            System.out.println(Integer.toBinaryString(temp));
+            toReturn[k] = temp;
+        }
+
+        return toReturn;
+    }
 }
