@@ -1,32 +1,27 @@
 package team044.Units;
 
-
 import battlecode.common.*;
-import team044.*;
 
 public class Missile
 {
     public static void run(RobotController rc)
     {
-        rc.setIndicatorString(2, "Ready to run: " + Clock.getBytecodeNum() + ", " + Clock.getBytecodeNum());
-
         RobotInfo[] nearByEnemies;
-        MapLocation enemyHQ = rc.senseEnemyHQLocation();
-        Direction dir = null;
-        MapLocation target = null;
+        Direction dir;
+        MapLocation target;
         boolean foundLauncher = false;
         MapLocation us;
+        int ally_x, ally_y;
+        int enemy_x, enemy_y;
+        int count;
+        RobotType enemy;
+        RobotInfo[] nearByAllies;
+        MapLocation ally;
 
         while (true)
         {
             try
             {
-                if (!rc.isCoreReady())
-                {
-                    continue;
-                }
-
-                target = null;
                 nearByEnemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
 
                 if (nearByEnemies.length == 0)
@@ -40,6 +35,11 @@ public class Missile
                     if (us.distanceSquaredTo(closest) < 64)
                     {
                         dir = us.directionTo(closest);
+
+                        if (!rc.isCoreReady())
+                        {
+                            rc.yield();
+                        }
 
                         if (rc.canMove(dir))
                         {
@@ -61,22 +61,33 @@ public class Missile
                         {
                             rc.move(dir.rotateRight().rotateRight());
                         }
+                        //rc.setIndicatorString(1, "us.distanceSquaredTo(Closest) < 64");
                     }
                     else
                     {
-                        RobotInfo[] nearByAllies = rc.senseNearbyRobots(15, rc.getTeam());
+                        nearByAllies = rc.senseNearbyRobots(8, rc.getTeam());
+                        count = 0;
+                        ally_x = 0;
+                        ally_y = 0;
 
                         for (int i = nearByAllies.length; --i>=0; )
                         {
                             if (nearByAllies[i].type == RobotType.LAUNCHER)
                             {
-                                dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
-                                break;
+                                count++;
+                                ally = nearByAllies[i].location;
+                                ally_x += ally.x;
+                                ally_y += ally.y;
                             }
-                            else if (dir != null && nearByAllies[i].type != RobotType.MISSILE)
-                            {
-                                dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
-                            }
+                        }
+
+                        ally_x /= count;
+                        ally_y /= count;
+                        dir = rc.getLocation().directionTo(new MapLocation(ally_x, ally_y)).opposite();
+
+                        if (!rc.isCoreReady())
+                        {
+                            rc.yield();
                         }
 
                         if (dir == null)
@@ -95,77 +106,81 @@ public class Missile
                         {
                             rc.move(dir.rotateLeft());
                         }
-                        else if (rc.canMove(dir.rotateLeft().rotateLeft()))
-                        {
-                            rc.move(dir.rotateLeft().rotateLeft());
-                        }
-                        else if (rc.canMove(dir.rotateRight().rotateRight()))
-                        {
-                            rc.move(dir.rotateRight().rotateRight());
-                        }
+                        //rc.setIndicatorString(1, "no enemies in sight");
                     }
                 }
                 else
                 {
+                    count = 0;
+                    enemy_x = 0;
+                    enemy_y = 0;
                     for (int i = nearByEnemies.length; --i>=0;)
                     {
-                        if (nearByEnemies[i].type == RobotType.LAUNCHER)
+                        enemy = nearByEnemies[i].type;
+                        if (enemy == RobotType.LAUNCHER)
                         {
+                            if (!rc.isCoreReady())
+                            {
+                                rc.yield();
+                            }
                             dir = rc.getLocation().directionTo(nearByEnemies[i].location);
                             foundLauncher = true;
+                            //rc.setIndicatorString(1, "Found launcher");
                             if (rc.canMove(dir))
                             {
                                 rc.move(dir);
-                                continue;
+                                break;
                             }
 
                             if (rc.canMove(dir.rotateRight()))
                             {
                                 rc.move(dir.rotateRight());
-                                continue;
+                                break;
                             }
 
                             if (rc.canMove(dir.rotateLeft()))
                             {
                                 rc.move(dir.rotateLeft());
-                                continue;
-                            }
-
-                            if (rc.canMove(dir.rotateLeft().rotateLeft()))
-                            {
-                                rc.move(dir.rotateLeft().rotateLeft());
-                                continue;
-                            }
-
-                            if (rc.canMove(dir.rotateRight().rotateRight()))
-                            {
-                                rc.move(dir.rotateRight().rotateRight());
-                                continue;
+                                break;
                             }
                         }
-                        else if (nearByEnemies[i].type != RobotType.MISSILE)
+                        else if (enemy != RobotType.MISSILE)
                         {
-                            target = nearByEnemies[i].location;
+                            count++;
+                            MapLocation enemySpot = nearByEnemies[i].location;
+                            enemy_x += enemySpot.x;
+                            enemy_y += enemySpot.y;
                         }
                     }
 
                     if (!foundLauncher)
                     {
-                        if (target == null)
+                        if (count == 0)
                         {
-                            RobotInfo[] nearByAllies = rc.senseNearbyRobots(15, rc.getTeam());
+                            nearByAllies = rc.senseNearbyRobots(8, rc.getTeam());
+                            count = 0;
+                            ally_x = 0;
+                            ally_y = 0;
 
                             for (int i = nearByAllies.length; --i>=0; )
                             {
                                 if (nearByAllies[i].type == RobotType.LAUNCHER)
                                 {
-                                    dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
-                                    break;
+                                    count++;
+                                    ally = nearByAllies[i].location;
+                                    ally_x += ally.x;
+                                    ally_y += ally.y;
                                 }
-                                else if (dir != null && nearByAllies[i].type != RobotType.MISSILE)
-                                {
-                                    dir = rc.getLocation().directionTo(nearByAllies[i].location).opposite();
-                                }
+                            }
+
+                            ally_x /= count;
+                            ally_y /= count;
+                            dir = rc.getLocation().directionTo(new MapLocation(ally_x, ally_y)).opposite();
+
+
+                            if (!rc.isCoreReady())
+                            {
+                                rc.yield();
                             }
 
                             if (dir == null)
@@ -184,19 +199,20 @@ public class Missile
                             {
                                 rc.move(dir.rotateLeft());
                             }
-                            else if (rc.canMove(dir.rotateLeft().rotateLeft()))
-                            {
-                                rc.move(dir.rotateLeft().rotateLeft());
-                            }
-                            else if (rc.canMove(dir.rotateRight().rotateRight()))
-                            {
-                                rc.move(dir.rotateRight().rotateRight());
-                            }
+                            //rc.setIndicatorString(1, "Found no target");
                         }
                         else
                         {
+                            enemy_x /= count;
+                            enemy_y /= count;
+                            target = new MapLocation(enemy_x, enemy_y);
                             dir = rc.getLocation().directionTo(target);
-                            foundLauncher = false;
+
+                            if (!rc.isCoreReady())
+                            {
+                                rc.yield();
+                            }
+
                             if (rc.canMove(dir))
                             {
                                 rc.move(dir);
@@ -212,20 +228,10 @@ public class Missile
                                 rc.move(dir.rotateLeft());
                             }
 
-                            else if (rc.canMove(dir.rotateLeft().rotateLeft()))
-                            {
-                                rc.move(dir.rotateLeft().rotateLeft());
-                            }
-
-                            else if (rc.canMove(dir.rotateRight().rotateRight()))
-                            {
-                                rc.move(dir.rotateRight().rotateRight());
-                            }
+                            //rc.setIndicatorString(1, "Heading towards target");
                         }
                     }
                 }
-
-                rc.yield();
             }
             catch (Exception e)
             {
