@@ -866,7 +866,14 @@ public class Utilities
 
         // we want to rally in front of our tower so the enemy launchers
         // don't have the advantage of knowing where we are
-        bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
+        if (bestTower != null)
+        {
+            bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
+        }
+        else
+        {
+            bestTower = rc.senseHQLocation().add(rc.senseHQLocation().directionTo(enemyHQ), 10);
+        }
 
         return bestTower;
     }

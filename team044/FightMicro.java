@@ -90,7 +90,14 @@ public class FightMicro
 
             MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
             MapLocation enemyHQ = rc.senseEnemyHQLocation();
-            MapLocation us = rc.senseHQLocation();
+            MapLocation us = rc.getLocation();
+            int dist = 9999999;
+
+
+            if (closestTower != null)
+            {
+                dist = us.distanceSquaredTo(closestTower);
+            }
 
             if (enemies.length == 0)
             {
@@ -116,15 +123,11 @@ public class FightMicro
                         return false;
                     }
                 }
-                else if (closestTower != null)
+                else if (closestTower != null && dist <= 49)
                 {
-                    int dist = rc.getLocation().distanceSquaredTo(closestTower);
-                    if (dist < 49 && dist > 24)
+                    if (dist > 24 && balance > 10000)
                     {
-                        if (balance > 10000)
-                        {
-                            dir = us.directionTo(closestTower);
-                        }
+                        dir = us.directionTo(closestTower);
                     }
                     else if (dist <= 24)
                     {
@@ -152,8 +155,6 @@ public class FightMicro
 
                 if (safeAdvance == null)
                 {
-                    int dist = us.distanceSquaredTo(closestTower);
-
                     if (dist < 49)
                     {
                         balance -= 8000;
@@ -164,7 +165,13 @@ public class FightMicro
                         balance -= 15000;
                     }
 
-                    if (dist <= 24)
+                    // if in range of enemies no need to advance
+                    if (nearByEnemies.length > 0)
+                    {
+                        // we will stand our ground!
+                        return true;
+                    }
+                    else if (dist <= 24)
                     {
                         dir = us.directionTo(closestTower);
                     }

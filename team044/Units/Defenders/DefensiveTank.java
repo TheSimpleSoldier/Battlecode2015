@@ -3,6 +3,7 @@ package team044.Units.Defenders;
 import battlecode.common.*;
 import team044.Units.DefensiveUnits;
 import team044.*;
+import team044.Units.Rushers.TankRusher;
 import team044.Units.Tank;
 
 import java.util.Random;
@@ -17,7 +18,7 @@ public class DefensiveTank extends DefensiveUnits
         rc.setIndicatorString(0, "Defensive Tank");
         random = new Random(rc.getID());
 
-        if (rc.getLocation().distanceSquaredTo(ourHQ) > -100)
+        if (rc.getID() % 3 == 0)
         {
             mineDefender = true;
         }
@@ -29,14 +30,12 @@ public class DefensiveTank extends DefensiveUnits
         {
             do {
                 target = rc.getLocation().add(dirs[random.nextInt(8)], 3);
-            } while (!rc.isPathable(RobotType.SOLDIER, target));
+            } while (!rc.isPathable(RobotType.TANK, target));
         }
         else
         {
             target = Utilities.getTowerClosestToEnemyHQ(rc);
         }
-
-
 
         rc.setIndicatorString(1, "Target: " + target);
     }
@@ -45,7 +44,7 @@ public class DefensiveTank extends DefensiveUnits
     {
         if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
         {
-            return new Tank(rc);
+            return new TankRusher(rc);
         }
         return current;
     }
