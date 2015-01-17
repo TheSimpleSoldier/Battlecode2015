@@ -14,7 +14,7 @@ public class Barracks extends Structure
         super(rc);
         if (rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 35)
         {
-            basher = false;
+            basher = true;
         }
         rc.setIndicatorString(0, "Barracks");
     }
@@ -33,7 +33,7 @@ public class Barracks extends Structure
         /*
         if (basher)
         {
-            if (rc.getTeamOre() > 600 && Utilities.spawnUnit(RobotType.BASHER, rc))
+            if (Utilities.spawnUnit(RobotType.BASHER, rc))
             {
                 return true;
             }

@@ -594,10 +594,11 @@ public class FightMicro
                     if (enemies[i].type == RobotType.LAUNCHER)
                     {
                         flashTo = enemies[i].location;
-                        Direction dir = us.directionTo(flashTo);
-                        flashTo = us.add(dir, 3);
-                        flashTo = FightMicroUtilities.getLocation(rc, flashTo, dir, us, false);
-                        launcher = true;
+                        if (flashTo.distanceSquaredTo(us) > 10)
+                        {
+                            flashTo = FightMicroUtilities.flashToLoc(rc, flashTo);
+                            launcher = true;
+                        }
                     }
                 }
 
@@ -607,12 +608,10 @@ public class FightMicro
                     {
                         if (enemies[i].type == RobotType.MISSILE)
                         {
-                            if (enemies[i].location.distanceSquaredTo(us) <= 5)
+                            if (enemies[i].location.distanceSquaredTo(us) <= 2)
                             {
                                 flashTo = enemies[i].location;
-                                Direction dir = us.directionTo(flashTo);
-                                flashTo = us.add(dir, 3);
-                                flashTo = FightMicroUtilities.getLocation(rc, flashTo, dir, us, false);
+                                flashTo = FightMicroUtilities.flashOverMissile(rc, flashTo);
                                 rc.setIndicatorString(2, "Flash over missile: " + flashTo);
                             }
                         }
@@ -745,7 +744,7 @@ public class FightMicro
 
         if (moveTo != null && rc.isCoreReady())
         {
-            moveTo = FightMicroUtilities.moveCommander(rc, avoidStructures, moveTo);
+            moveTo = FightMicroUtilities.moveCommander(rc, true, moveTo);
             if (moveTo != null)
             {
                 rc.setIndicatorString(1, "Movement: " + moveTo);
@@ -758,15 +757,94 @@ public class FightMicro
     }
 
     /**
-     * This micro is for miners
+     * This method is for units that are harrassing, these units do not attack towers but avoid towers and the enemyHQ
+     * trying to focus on killing the enemies miners and structures and if possible avoids enemy military units
      */
-    public boolean minerMicro(RobotInfo[] nearByEnemies) throws GameActionException
-    {
+    public boolean harrassMicro(RobotInfo[] nearByEnemies) throws GameActionException {
+        if (!rc.isCoreReady() && !rc.isWeaponReady()) {
+            return false;
+        }
+
+        if (rc.isWeaponReady() && nearByEnemies.length > 0)
+        {
+            RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+            MapLocation enemySpot = enemy.location;
+
+            if (rc.canAttackLocation(enemySpot))
+            {
+                rc.attackLocation(enemySpot);
+                return true;
+            }
+        }
+        else if (rc.isCoreReady())
+        {
+            // if there are enemies in range but we can't shoot
+            // stop so we don't incur more
+            if (nearByEnemies.length > 0)
+            {
+                return true;
+            }
+
+
+            RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+
+            if (enemies.length > 0)
+            {
+                MapLocation weakEnemy = null;
+                MapLocation strongEnemy = null;
+                Direction dir = null;
+
+                for (int i = enemies.length; --i >= 0; )
+                {
+                    if (FightMicroUtilities.unitVulnerable(enemies[i]))
+                    {
+                        weakEnemy = enemies[i].location;
+                    }
+                    else
+                    {
+                        strongEnemy = enemies[i].location;
+                    }
+                }
+
+                if (weakEnemy != null)
+                {
+                    dir = rc.getLocation().directionTo(weakEnemy);
+                }
+                else if (strongEnemy != null)
+                {
+                    return false;
+                    //dir = rc.getLocation().directionTo(strongEnemy).opposite();
+                }
+
+                if (dir != null)
+                {
+                    dir = FightMicroUtilities.moveAwayFromTowers(rc, dir);
+
+                    if (dir != null && rc.canMove(dir))
+                    {
+                        rc.move(dir);
+                    }
+
+                    return true;
+                }
+            }
+            else
+            {
+                // let nav take care of avoiding towers and HQ
+                return false;
+            }
+        }
+        return false;
+    }
+
+
+   public boolean minerMicro(RobotInfo[] nearByEnemies) throws GameActionException
+   {
+        // if we can shoot and there is an enemy in sight range
         if (!rc.isCoreReady() && !rc.isWeaponReady())
         {
             return false;
         }
-        // if we can shoot and there is an enemy in sight range
         else if (rc.isWeaponReady() && nearByEnemies.length > 0)
         {
             RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
@@ -788,8 +866,35 @@ public class FightMicro
             // if there are enemies in sight but not shooting range
             if (enemies.length > 0)
             {
+                RobotInfo commander = null;
+
+                for (int i = enemies.length; --i>=0; )
+                {
+                    if (enemies[i].type == RobotType.COMMANDER)
+                    {
+                        commander = enemies[i];
+                    }
+                }
+
+                if (commander != null)
+                {
+                    Direction direction = rc.getLocation().directionTo(commander.location).opposite();
+                    if (rc.canMove(direction))
+                    {
+                        rc.move(direction);
+                    }
+                    else if (rc.canMove(direction.rotateRight()))
+                    {
+                        rc.move(direction.rotateRight());
+                    }
+                    else if (rc.canMove(direction.rotateLeft()))
+                    {
+                        rc.move(direction.rotateLeft());
+                    }
+                    return true;
+                }
                 // if there are a bunch of enemies then don't move towards them
-                if (enemies.length > 2)
+                else if (enemies.length > 2)
                 {
                     Direction direction = rc.getLocation().directionTo(enemies[0].location).opposite();
 
@@ -809,7 +914,7 @@ public class FightMicro
                         }
                     }
                     // we don't want nav to move us into a large group of enemies
-                    return false;
+                    return true;
                 }
                 // if there are only a few enemies then we are calling for help so keep going
                 // we can take a few shots

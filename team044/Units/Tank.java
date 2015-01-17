@@ -3,7 +3,9 @@ package team044.Units;
 import team044.*;
 
 import battlecode.common.*;
+import team044.Units.Defenders.DefensiveTank;
 import team044.Units.Rushers.TankRusher;
+import team044.Units.harrassers.TankHarrasser;
 
 public class Tank extends Unit
 {
@@ -70,9 +72,19 @@ public class Tank extends Unit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
+        int type = rc.readBroadcast(Messaging.TankType.ordinal());
+        rc.broadcast(Messaging.TankType.ordinal(), -1);
         if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
         {
             return new TankRusher(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildDefensiveTank.ordinal())
+        {
+            return new DefensiveTank(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildHarrassTank.ordinal())
+        {
+            return new TankHarrasser(rc);
         }
         return current;
     }
