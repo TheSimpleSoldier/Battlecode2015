@@ -1,13 +1,11 @@
 package team044.Units;
 
 import battlecode.world.Util;
-import team044.Messaging;
-import team044.Navigator;
-import team044.Unit;
+import team044.*;
+
 import java.util.*;
 
 import battlecode.common.*;
-import team044.Utilities;
 
 public class Commander extends Unit
 {
@@ -85,21 +83,25 @@ public class Commander extends Unit
                 if (Clock.getRoundNum() % 25 != 0)
                 {
                 }
+                else if (rc.getLocation().distanceSquaredTo(enemyHQ) > 100)
+                {
+                    target = enemyHQ;
+                }
                 else
                 {
                     int choice = random.nextInt(3);
 
                     if (choice == 0)
                     {
-                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ), 8);
+                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ), 6);
                     }
                     else if (choice == 1)
                     {
-                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft(), 8);
+                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft(), 6);
                     }
                     else
                     {
-                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight(), 8);
+                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight(), 6);
                     }
 
                 }//*/
@@ -134,6 +136,19 @@ public class Commander extends Unit
             return false;
         }
         rc.setIndicatorString(1, "Nav movement");
+        if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
+        {
+            if (FightMicroUtilities.commanderBlocked(rc, target))
+            {
+                Direction dir = rc.getLocation().directionTo(target);
+                MapLocation flashTo = FightMicroUtilities.flashInDir(rc, dir);
+                if (flashTo != null)
+                {
+                    rc.castFlash(flashTo);
+                    return true;
+                }
+            }
+        }
         return nav.takeNextStep(target);
 
     }

@@ -7,14 +7,14 @@ import team044.Utilities;
 
 public class Barracks extends Structure
 {
-    boolean basher = false;
+    boolean basher = true;
     int numbOfSoldiers = 0;
     public Barracks(RobotController rc)
     {
         super(rc);
         if (rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 35)
         {
-            basher = false;
+            basher = true;
         }
         rc.setIndicatorString(0, "Barracks");
     }
@@ -30,10 +30,10 @@ public class Barracks extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-
+        /*
         if (basher)
         {
-            if (rc.getTeamOre() > 600 && Utilities.spawnUnit(RobotType.BASHER, rc))
+            if (Utilities.spawnUnit(RobotType.BASHER, rc))
             {
                 return true;
             }
@@ -44,7 +44,7 @@ public class Barracks extends Structure
             {
                 return true;
             }
-        }
+        }*/
         return false;
     }
 }

@@ -6,7 +6,9 @@ import battlecode.common.*;
 import team044.Units.Defenders.DefensiveBasher;
 import team044.Units.Defenders.DefensiveSoldiers;
 import team044.Units.Defenders.DefensiveTank;
+import team044.Units.harrassers.BasherHarrass;
 import team044.Units.harrassers.SoldierHarrasser;
+import team044.Units.harrassers.TankHarrasser;
 
 public class RobotPlayer
 {
@@ -205,6 +207,10 @@ public class RobotPlayer
         {
             return new DefensiveBasher(rc);
         }
+        else if (type == BuildOrderMessaging.BuildHarrassBasher.ordinal())
+        {
+            return new BasherHarrass(rc);
+        }
         // default Basher
         return new Basher(rc);
     }
@@ -214,14 +220,17 @@ public class RobotPlayer
         int type = rc.readBroadcast(Messaging.TankType.ordinal());
         rc.broadcast(Messaging.TankType.ordinal(), -1);
 
-        if (type == BuildOrderMessaging.BuildTank.ordinal())
+        if (type == BuildOrderMessaging.BuildDefensiveTank.ordinal())
         {
-            return new Tank(rc);
+            return new DefensiveTank(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildHarrassTank.ordinal())
+        {
+            return new TankHarrasser(rc);
         }
 
-
         // default to defensive Tank
-        return new DefensiveTank(rc);
+        return new Tank(rc);
     }
 
     private static Unit getDrone(RobotController rc) throws GameActionException

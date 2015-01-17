@@ -4,7 +4,9 @@ package team044.Units;
 import team044.*;
 
 import battlecode.common.*;
+import team044.Units.Defenders.DefensiveBasher;
 import team044.Units.Rushers.BasherRusher;
+import team044.Units.harrassers.BasherHarrass;
 
 import javax.rmi.CORBA.Util;
 
@@ -65,9 +67,16 @@ public class Basher extends Unit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        int type = rc.readBroadcast(Messaging.BasherType.ordinal());
+        rc.broadcast(Messaging.BasherType.ordinal(), -1);
+
+        if (type == BuildOrderMessaging.BuildDefensiveBasher.ordinal())
         {
-            return new BasherRusher(rc);
+            return new DefensiveBasher(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildHarrassBasher.ordinal())
+        {
+            return new BasherHarrass(rc);
         }
         return current;
     }
