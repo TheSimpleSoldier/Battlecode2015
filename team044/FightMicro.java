@@ -58,59 +58,136 @@ public class FightMicro
      */
     public boolean advancedFightMicro(RobotInfo[] nearByEnemies) throws GameActionException
     {
-        boolean move = true;
-        // if we can't move then skip to shooting part
-        if (!rc.isCoreReady())
+        // if we don't have weapon delay and are in range Attack!!!
+        if (rc.isWeaponReady() && nearByEnemies.length > 0)
         {
-            // guess we can't do much except maybe shoot
-            move = false;
+            RobotInfo enemyToAttack = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+
+            // if it is a missile we may want to charge through instead of trying to shoot it down
+            if (enemyToAttack.type == RobotType.MISSILE)
+            {
+
+            }
+
+            MapLocation target = enemyToAttack.location;
+
+            if (rc.canAttackLocation(target))
+            {
+                rc.attackLocation(target);
+            }
         }
-        else
+        else if (rc.isCoreReady())
         {
-            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
-            // search for enemies in sight range
             RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
 
             // search for allies in sight range
             RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
+            Direction dir = null;
 
             int balance = FightMicroUtilities.balanceOfPower(enemies, allies);
+            balance += rc.getHealth() * rc.getType().attackPower;
+
             MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
-            int dist;
+            MapLocation enemyHQ = rc.senseEnemyHQLocation();
+            MapLocation us = rc.getLocation();
+            int dist = 9999999;
+
+
             if (closestTower != null)
             {
-                dist = rc.getLocation().distanceSquaredTo(closestTower);
+                dist = us.distanceSquaredTo(closestTower);
+            }
+
+            if (enemies.length == 0)
+            {
+                if (us.distanceSquaredTo(enemyHQ) <= 60)
+                {
+                    // when balance of power is in our favor Attack!!
+                    if (enemyTowers.length < 3)
+                    {
+                        if (balance > 10000)
+                        {
+                            dir = us.directionTo(enemyHQ);
+                        }
+                        // stand ground and wait for support to arrive
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                    // don't attack enemy HQ while lots of towers are up
+                    // use nav to go to next enemy tower
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (closestTower != null && dist <= 49)
+                {
+                    if (dist > 24 && balance > 10000)
+                    {
+                        dir = us.directionTo(closestTower);
+                    }
+                    else if (dist <= 24)
+                    {
+                        dir = us.directionTo(closestTower);
+                    }
+                    else if (FightMicroUtilities.alliesEngaged(allies, enemies, enemyTowers))
+                    {
+                        dir = us.directionTo(closestTower);
+                    }
+                    else
+                    {
+                        // sit and wait for reinforcements
+                        return true;
+                    }
+                }
+                // no enemies and far away from enemy HQ and tower so don't run fight Micro
+                else
+                {
+                    return false;
+                }
             }
             else
             {
-                dist = 9999;
-            }
+                Direction safeAdvance = FightMicroUtilities.safeAttack(rc, us, enemies, enemyHQ, enemyTowers);
 
-            if (dist > 24 && dist < 36)
-            {
-                balance -= 10000;
-            }
-
-            balance += rc.getHealth() * rc.getType().attackPower;
-
-            // if their are no enemies we can't fight
-            if (nearByEnemies.length == 0)
-            {
-                if (FightMicroUtilities.enemyTowerClose(rc, enemyTowers))
+                if (safeAdvance == null)
                 {
-                    // if we have health advantage press forward
-                    if (balance > 500)
+                    if (dist < 49)
                     {
-                        rc.setIndicatorString(1, "balance > 500");
-                        Direction dir = rc.getLocation().directionTo(Utilities.closestTower(rc, enemyTowers));
-                        if (rc.canMove(dir))
-                        {
-                            rc.move(dir);
-                        }
+                        balance -= 8000;
+                    }
+
+                    if (us.distanceSquaredTo(enemyHQ) < 60)
+                    {
+                        balance -= 15000;
+                    }
+
+                    // if in range of enemies no need to advance
+                    if (nearByEnemies.length > 0)
+                    {
+                        // we will stand our ground!
+                        return true;
+                    }
+                    else if (dist <= 24)
+                    {
+                        dir = us.directionTo(closestTower);
                     }
                     else if (FightMicroUtilities.alliesEngaged(allies, enemies, enemyTowers))
                     {
                         rc.setIndicatorString(1, "Allies Engaged");
+                        FightMicroUtilities.attack(rc, enemies);
+                        return true;
+                    }
+                    else if (FightMicroUtilities.enemyHasLaunchers(enemies))
+                    {
+                        FightMicroUtilities.lockOntoLauncher(rc, enemies);
+                        return true;
+                    }
+                    else if (balance > 500)
+                    {
                         FightMicroUtilities.attack(rc, enemies);
                         return true;
                     }
@@ -120,59 +197,36 @@ public class FightMicro
                         FightMicroUtilities.attack(rc, enemies);
                         return true;
                     }
-                    // else wait
+                    // if we have no advantage then stand your ground!
                     else
                     {
-                        // wait
+                        return true;
                     }
-                    return true;
                 }
-                else if (FightMicroUtilities.enemyKitingUs(rc, enemies))
+                // if we can advance to gain tactical advantage then do so!
+                else
                 {
-                    rc.setIndicatorString(1, " Enemy kiting us");
-                    FightMicroUtilities.attack(rc, enemies);
+                    dir = safeAdvance;
                 }
-                return false;
             }
 
-            // there are enemies in range of us
-
-            // if enemy is significantly more powerful retreat
-            // unless we are near a tower in which we will die before we get out of range
-            if (FightMicroUtilities.alliesEngaged(allies, enemies, enemyTowers))
+            if (dir != null)
             {
-                // stand your ground!!!
-            }
-            else if (balance < -500 && dist > 24)
-            {
-                rc.setIndicatorString(1, "retreat!");
-                FightMicroUtilities.retreat(rc, enemies);
-
-            }
-            // if we are against launchers just die ;)
-            // we focus on killing the enemy launcher instead of shooting at missiles
-            else if (FightMicroUtilities.enemyHasLaunchers(enemies))
-            {
-                rc.setIndicatorString(1, "enemy launchers");
-                FightMicroUtilities.lockOntoLauncher(rc, enemies);
-            }
-
-            // otherwise we shoot
-        }
-
-        // if we don't have weapon delay and are in range Attack!!!
-        if (rc.isWeaponReady() && nearByEnemies.length > 0)
-        {
-            RobotInfo enemyToAttack = FightMicroUtilities.prioritizeTargets(nearByEnemies);
-            MapLocation target = enemyToAttack.location;
-
-            if (rc.canAttackLocation(target))
-            {
-                rc.attackLocation(target);
+                if (rc.canMove(dir))
+                {
+                    rc.move(dir);
+                }
+                else if (rc.canMove(dir.rotateLeft()))
+                {
+                    rc.move(dir.rotateLeft());
+                }
+                else if (rc.canMove(dir.rotateRight()))
+                {
+                    rc.move(dir.rotateRight());
+                }
             }
         }
-
-        return true;
+        return false;
     }
 
 

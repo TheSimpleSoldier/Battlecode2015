@@ -90,11 +90,13 @@ public abstract class DefensiveUnits extends Unit
 
     public boolean fight() throws GameActionException
     {
+        rc.setIndicatorString(1, "We are in fightMicro");
         return fighter.advancedFightMicro(nearByEnemies);
     }
 
     public boolean takeNextStep() throws GameActionException
     {
+        rc.setIndicatorString(1, "We are in navigator");
         if (target == null)
         {
             return false;

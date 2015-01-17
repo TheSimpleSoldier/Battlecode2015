@@ -50,7 +50,7 @@ public class Messenger
         soldierStrat[0] = BuildOrderMessaging.BuildHarrassSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
-        tankStrat[0] = BuildOrderMessaging.BuildHarrassTank;
+        tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
 
         droneStrat = new BuildOrderMessaging[1];
         droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
