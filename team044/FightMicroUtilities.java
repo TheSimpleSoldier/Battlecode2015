@@ -884,10 +884,10 @@ public class FightMicroUtilities
         MapLocation right = us.add(dir.rotateRight());
         MapLocation left = us.add(dir.rotateLeft());
 
-        if (rc.isPathable(rc.getType(), next) && rc.isPathable(rc.getType(), right) && rc.isPathable(rc.getType(), left))
+        /*if (rc.isPathable(rc.getType(), next) && rc.isPathable(rc.getType(), right) && rc.isPathable(rc.getType(), left))
         {
             return false;
-        }
+        }*/
 
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
@@ -1020,6 +1020,11 @@ public class FightMicroUtilities
 
         for (int i = enemies.length; --i >=0; )
         {
+            if (enemies[i].type == RobotType.DRONE)
+            {
+                continue;
+            }
+
             inRange = true;
             MapLocation enemy = enemies[i].location;
 
@@ -1156,6 +1161,61 @@ public class FightMicroUtilities
             }
         }
         return null;
+    }
+
+    /**
+     * This method finds the direction in the opposite of the center of mass of the visible enemies
+     */
+    public static Direction awayFromOpponents(RobotController rc, RobotInfo[] enemies)
+    {
+        int x = 0;
+        int y = 0;
+        int count = 0;
+        MapLocation enemy;
+
+        for (int i = enemies.length; --i>=0; )
+        {
+            if (!unitVulnerable(enemies[i]))
+            {
+                enemy = enemies[i].location;
+                x += enemy.x;
+                y += enemy.y;
+                count++;
+            }
+        }
+
+        x /= count;
+        y /= count;
+
+        MapLocation center = new MapLocation(x,y);
+        Direction dir = center.directionTo(rc.getLocation());
+
+        return dir;
+    }
+
+    /**
+     * This method will move us towards the center of mass of the enemy
+     */
+    public static Direction toTheEnemy(RobotController rc, RobotInfo[] enemies)
+    {
+        int x = 0;
+        int y = 0;
+        MapLocation enemy;
+        for (int i = enemies.length; --i>=0; )
+        {
+            enemy = enemies[i].location;
+            x += enemy.x;
+            y += enemy.y;
+
+        }
+
+        x /= enemies.length;
+        y /= enemies.length;
+
+        MapLocation center = new MapLocation(x,y);
+        Direction dir = rc.getLocation().directionTo(center);
+
+        return dir;
     }
 }
 

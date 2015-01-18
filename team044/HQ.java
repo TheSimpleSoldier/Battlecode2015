@@ -37,13 +37,13 @@ public class HQ extends Structure
 
         strat = new BuildOrderMessaging[35];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        strat[2] = BuildOrderMessaging.BuildBaracks;
-        strat[3] = BuildOrderMessaging.BuildTankFactory;
-        strat[4] = BuildOrderMessaging.BuildTankFactory;
-        strat[5] = BuildOrderMessaging.BuildTankFactory;
-        strat[6] = BuildOrderMessaging.BuildTankFactory;
-        strat[7] = BuildOrderMessaging.BuildTankFactory;
+        strat[1] = BuildOrderMessaging.BuildTechnologyInstitute;
+        strat[2] = BuildOrderMessaging.BuildTrainingField;
+        strat[3] = BuildOrderMessaging.BuildMinerFactory;
+        strat[4] = BuildOrderMessaging.BuildHelipad;
+        strat[5] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[6] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[7] = BuildOrderMessaging.BuildAerospaceLab;
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
