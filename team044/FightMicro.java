@@ -296,7 +296,6 @@ public class FightMicro
             if (rc.isCoreReady() && nearByEnemies.length > 0) {
                 MapLocation missile = null;
                 MapLocation commander = null;
-                MapLocation weakEnemy = null;
 
                 for (int i = nearByEnemies.length; --i >= 0; )
                 {
@@ -307,10 +306,6 @@ public class FightMicro
                     else if (nearByEnemies[i].type == RobotType.COMMANDER)
                     {
                         commander = nearByEnemies[i].location;
-                    }
-                    else if (FightMicroUtilities.unitVulnerable(nearByEnemies[i]))
-                    {
-                        weakEnemy = nearByEnemies[i].location;
                     }
                 }
                 MapLocation us = rc.getLocation();
@@ -348,23 +343,6 @@ public class FightMicro
                         rc.move(dir.rotateLeft());
                     }
                     else if (rc.canMove(dir.rotateRight())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight()), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir.rotateRight());
-                    }
-                    return true;
-                }
-                else if (weakEnemy != null)
-                {
-                    dir = us.directionTo(weakEnemy);
-                    if (rc.canMove(dir) && !Utilities.locInRangeOfEnemyTower(us.add(dir), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir);
-                    }
-                    else if (rc.canMove(dir.rotateLeft()) && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateLeft()), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir.rotateLeft());
-                    }
-                    else if (rc.canMove(dir.rotateRight()) && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight()), enemyTowers, enemyHQ))
                     {
                         rc.move(dir.rotateRight());
                     }

@@ -3,7 +3,7 @@ package team044;
 import battlecode.common.*;
 
 /**
- * This class is for common behaviou
+ * This class is for common behavior
  */
 public abstract class Structure extends Unit
 {

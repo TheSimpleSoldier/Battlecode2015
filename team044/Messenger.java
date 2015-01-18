@@ -13,6 +13,52 @@ public class Messenger
     private int numbOfTanks = 0;
     private int numbOfDrones = 0;
 
+    // these variables are for our groups
+    // group 1
+    int group1Launchers = 10;
+    int group1Tanks = 0;
+    int group1Soldiers = 10;
+    int group1Bashers = 0;
+    boolean group1Launched = false;
+    boolean group1LauncherGroup = true;
+    int group1LauncherCount = 0;
+    int group1TankCount = 0;
+    int group1SoldierCount = 0;
+    int group1BasherCount = 0;
+    MapLocation group1InitialSpot;
+    MapLocation group1CurrentSpot;
+    MapLocation group1Goal;
+
+    // group 2
+    int group2Launchers = 0;
+    int group2Tanks = 10;
+    int group2Soldiers = 0;
+    int group2Bashers = 20;
+    boolean group2Launched = false;
+    boolean group2LauncherGroup = false;
+    int group2LauncherCount = 0;
+    int group2TankCount = 0;
+    int group2SoldierCount = 0;
+    int group2BasherCount = 0;
+    MapLocation group2InitialSpot;
+    MapLocation group2CurrentSpot;
+    MapLocation group2Goal;
+
+    // group 3
+    int group3Launchers = 10;
+    int group3Tanks = 0;
+    int group3Soldiers = 10;
+    int group3Bashers = 0;
+    boolean group3Launched = false;
+    boolean group3LauncherGroup = true;
+    int group3LauncherCount = 0;
+    int group3TankCount = 0;
+    int group3SoldierCount = 0;
+    int group3BasherCount = 0;
+    MapLocation group3InitialSpot;
+    MapLocation group3CurrentSpot;
+    MapLocation group3Goal;
+
     private BuildOrderMessaging[] basherStrat;
     private BuildOrderMessaging[] computerStrat;
     private BuildOrderMessaging[] launcherStrat;
@@ -35,25 +81,40 @@ public class Messenger
 
         // initialize strategies
         basherStrat = new BuildOrderMessaging[1];
-        basherStrat[0] = BuildOrderMessaging.BuildHarrassBasher;
+        basherStrat[0] = BuildOrderMessaging.BuildSquadBasher;
 
         computerStrat = new BuildOrderMessaging[1];
         computerStrat[0] = BuildOrderMessaging.BuildComputer;
 
         launcherStrat = new BuildOrderMessaging[1];
-        launcherStrat[0] = BuildOrderMessaging.BuildLauncher;
+        launcherStrat[0] = BuildOrderMessaging.BuildSquadLauncher;
 
         minerStrat = new BuildOrderMessaging[1];
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
         soldierStrat = new BuildOrderMessaging[1];
-        soldierStrat[0] = BuildOrderMessaging.BuildHarrassSoldier;
+        soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
-        tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
+        tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
 
         droneStrat = new BuildOrderMessaging[1];
         droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+
+        MapLocation[] towers = rc.senseTowerLocations();
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        group1InitialSpot = Utilities.getCentralTower(rc, towers);
+        group1Goal = Utilities.closestTower(rc, enemyTowers);
+        group2InitialSpot = Utilities.getRightFlank(rc, towers);
+        group2Goal = Utilities.enemyTowerOnRightFlank(rc, enemyTowers);
+        int x = (group2InitialSpot.x + group2Goal.x) / 2;
+        int y = (group2InitialSpot.y + group2Goal.y) / 2;
+        group2InitialSpot = new MapLocation(x,y);
+        group3InitialSpot = Utilities.getLeftFlank(rc, towers);
+        group3Goal = Utilities.enemyTowerOnLeftFlank(rc, enemyTowers);
+        x = (group3InitialSpot.x + group3Goal.x) / 2;
+        y = (group3InitialSpot.y + group3Goal.y) / 2;
+        group3InitialSpot = new MapLocation(x,y);
     }
 
     /**
@@ -123,6 +184,364 @@ public class Messenger
         }
     }
 
+    /**
+     * This method is for handling group orders
+     */
+    public void manageGroups() throws GameActionException
+    {
+        // this code determines where the groups rally point should be \\
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+
+        if (group1Launched)
+        {
+            if (group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
+            {
+                group1Goal = Utilities.closestTower(rc, enemyTowers);
+                if (group1Goal == null)
+                {
+                    group1Goal = rc.senseEnemyHQLocation();
+                }
+            }
+            group1CurrentSpot = setTarget(group1LauncherGroup, group1CurrentSpot, group1Goal);
+            rc.broadcast(Messaging.FirstGroupX.ordinal(), group1CurrentSpot.x);
+            rc.broadcast(Messaging.FirstGroupY.ordinal(), group1CurrentSpot.y);
+        }
+        else
+        {
+            if (group1LauncherGroup && group1LauncherCount >= group1Launchers)
+            {
+                group1CurrentSpot = group1InitialSpot;
+                group1Launched = true;
+            }
+            else if (!group1LauncherGroup && group1TankCount >= group1Tanks)
+            {
+                group1CurrentSpot = group1InitialSpot;
+                group1Launched = true;
+            }
+            rc.broadcast(Messaging.FirstGroupX.ordinal(), group1InitialSpot.x);
+            rc.broadcast(Messaging.FirstGroupY.ordinal(), group1InitialSpot.y);
+            cutProd(rc, group1Tanks, group1TankCount, group1Soldiers, group1SoldierCount, group1Bashers, group1BasherCount);
+
+        }
+
+
+        if (group2Launched)
+        {
+            if (group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
+            {
+                group2Goal = Utilities.closestTower(rc, enemyTowers);
+                if (group2Goal == null)
+                {
+                    group2Goal = rc.senseEnemyHQLocation();
+                }
+            }
+            group2CurrentSpot = setTarget(group2LauncherGroup, group2CurrentSpot, group2Goal);
+            rc.broadcast(Messaging.SeconGroupX.ordinal(), group2CurrentSpot.x);
+            rc.broadcast(Messaging.SecondGroupY.ordinal(), group2CurrentSpot.y);
+        }
+        else
+        {
+            if (group2LauncherGroup && group2LauncherCount >= group2Launchers)
+            {
+                group2CurrentSpot = group2InitialSpot;
+                group2Launched = true;
+            }
+            else if (!group2LauncherGroup && group2TankCount >= group2Tanks)
+            {
+                group2CurrentSpot = group2InitialSpot;
+                group2Launched = true;
+            }
+            rc.broadcast(Messaging.SeconGroupX.ordinal(), group2InitialSpot.x);
+            rc.broadcast(Messaging.SecondGroupY.ordinal(), group2InitialSpot.y);
+
+            if (group1Launched)
+            {
+                cutProd(rc, group2Tanks, group2TankCount, group2Soldiers, group2SoldierCount, group2Bashers, group2BasherCount);
+            }
+        }
+
+        if (group3Launched)
+        {
+            if (group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
+            {
+                group3Goal = Utilities.closestTower(rc, enemyTowers);
+                if (group3Goal == null)
+                {
+                    group3Goal = rc.senseEnemyHQLocation();
+                }
+            }
+            group3CurrentSpot = setTarget(group3LauncherGroup, group3CurrentSpot, group3Goal);
+            rc.broadcast(Messaging.ThirdGroupX.ordinal(), group3CurrentSpot.x);
+            rc.broadcast(Messaging.ThirdGroupY.ordinal(), group3CurrentSpot.y);
+        }
+        else
+        {
+            if (group3LauncherGroup && group3LauncherCount >= group3Launchers)
+            {
+                group3CurrentSpot = group3InitialSpot;
+                group3Launched = true;
+            }
+            else if (!group3LauncherGroup && group3TankCount >= group3Tanks)
+            {
+                group3CurrentSpot = group3InitialSpot;
+                group3Launched = true;
+            }
+            rc.broadcast(Messaging.ThirdGroupX.ordinal(), group3InitialSpot.x);
+            rc.broadcast(Messaging.ThirdGroupY.ordinal(), group3InitialSpot.y);
+
+            if (group2Launched)
+            {
+                cutProd(rc, group3Tanks, group3TankCount, group3Soldiers, group3SoldierCount, group3Bashers, group3BasherCount);
+            }
+        }
+
+        // this code tells a unit which group it should be in
+        int newLauncher = rc.readBroadcast(Messaging.LauncherGroup.ordinal());
+        int newTank = rc.readBroadcast(Messaging.TankGroup.ordinal());
+        int newSoldier = rc.readBroadcast(Messaging.SoldierGroup.ordinal());
+        int newBasher = rc.readBroadcast(Messaging.BasherGroup.ordinal());
+
+        if (newLauncher == -1)
+        {
+            if (group1LauncherCount < group1Launchers)
+            {
+                group1LauncherCount++;
+                rc.broadcast(Messaging.LauncherGroup.ordinal(), 1);
+            }
+            else if (group2LauncherCount < group2Launchers)
+            {
+                group2LauncherCount++;
+                rc.broadcast(Messaging.LauncherGroup.ordinal(), 2);
+            }
+            else if (group3LauncherCount < group3Launchers)
+            {
+                group3LauncherCount++;
+                rc.broadcast(Messaging.LauncherGroup.ordinal(), 3);
+            }
+            else if (group1Launched)
+            {
+                // once we have filled all the categories rebuild units for group1
+                group1LauncherCount = 0;
+            }
+        }
+
+        if (newTank == -1)
+        {
+            if (group1TankCount < group1Tanks)
+            {
+                group1TankCount++;
+                rc.broadcast(Messaging.TankGroup.ordinal(), 1);
+            }
+            else if (group2TankCount < group2Tanks)
+            {
+                group2TankCount++;
+                rc.broadcast(Messaging.TankGroup.ordinal(), 2);
+            }
+            else if (group3TankCount < group3Tanks)
+            {
+                group3TankCount++;
+                rc.broadcast(Messaging.TankGroup.ordinal(), 3);
+            }
+            else if (group1Launched)
+            {
+                group1TankCount = 0;
+            }
+        }
+
+        if (newSoldier == -1)
+        {
+            if (group1SoldierCount < group1Soldiers)
+            {
+                group1SoldierCount++;
+                rc.broadcast(Messaging.SoldierGroup.ordinal(), 1);
+            }
+            else if (group2SoldierCount < group2Soldiers)
+            {
+                group2LauncherCount++;
+                rc.broadcast(Messaging.SoldierGroup.ordinal(), 2);
+            }
+            else if (group3SoldierCount < group3Soldiers)
+            {
+                group3SoldierCount++;
+                rc.broadcast(Messaging.SoldierGroup.ordinal(), 3);
+            }
+            else if (group1Launched)
+            {
+                group1SoldierCount = 0;
+            }
+        }
+
+        if (newBasher == -1)
+        {
+            if (group1BasherCount < group1Bashers)
+            {
+                group1BasherCount++;
+                rc.broadcast(Messaging.BasherGroup.ordinal(), 1);
+            }
+            else if (group2BasherCount < group2Bashers)
+            {
+                group2BasherCount++;
+                rc.broadcast(Messaging.BasherGroup.ordinal(), 2);
+            }
+            else if (group3BasherCount < group3Bashers)
+            {
+                group3BasherCount++;
+                rc.broadcast(Messaging.BasherGroup.ordinal(), 3);
+            }
+            else if (group1Launched)
+            {
+                group1BasherCount = 0;
+            }
+        }
+    }
+
+    /**
+     * this method is for setting group1
+     */
+    public void setGroup1(int launchers, int tanks, int soldiers, int bashers)
+    {
+        group1Launchers = launchers;
+        group1Tanks = tanks;
+        group1Soldiers = soldiers;
+        group1Bashers = bashers;
+
+        if (launchers > 0)
+        {
+            group1LauncherGroup = true;
+        }
+        else
+        {
+            group1LauncherGroup = false;
+        }
+    }
+
+    /**
+     * This method is for setting group2
+     */
+    public void setGroup2(int launchers, int tanks, int soldiers, int bashers)
+    {
+        group2Launchers = launchers;
+        group2Tanks = tanks;
+        group2Soldiers = soldiers;
+        group2Bashers = bashers;
+
+        if (launchers > 0)
+        {
+            group2LauncherGroup = true;
+        }
+        else
+        {
+            group2LauncherGroup = false;
+        }
+    }
+
+    /**
+     * this method is for setting group3
+     */
+    public void setGroup3(int launchers, int tanks, int soldiers, int bashers)
+    {
+        group3Launchers = launchers;
+        group3Tanks = tanks;
+        group3Soldiers = soldiers;
+        group3Bashers = bashers;
+
+        if (launchers > 0)
+        {
+            group3LauncherGroup = true;
+        }
+        else
+        {
+            group3LauncherGroup = false;
+        }
+    }
+
+    /**
+     * This method determines the new location for an advancing group
+     */
+    public MapLocation setTarget(boolean launcher, MapLocation current, MapLocation goal)
+    {
+        RobotInfo[] allies = rc.senseNearbyRobots(current, 10, rc.getTeam());
+
+        if (launcher)
+        {
+            int numbOfLaunchers = 0;
+
+            for (int i = allies.length; --i>=0; )
+            {
+                if (allies[i].type == RobotType.LAUNCHER)
+                {
+                    numbOfLaunchers++;
+                }
+            }
+
+            // if we have a group of launchers near current rally point
+            if (numbOfLaunchers >= 3)
+            {
+                do
+                {
+                    current = current.add(current.directionTo(goal));
+
+                } while (!rc.isPathable(RobotType.LAUNCHER, current) && rc.canSenseLocation(current));
+            }
+        }
+        else
+        {
+            int numbOfTanks = 0;
+
+            for (int i = allies.length; --i>=0; )
+            {
+                if (allies[i].type == RobotType.TANK)
+                {
+                    numbOfTanks++;
+                }
+            }
+
+            // if we have a group of launchers near current rally point
+            if (numbOfTanks >= 3)
+            {
+                do
+                {
+                    current = current.add(current.directionTo(goal));
+
+                } while (!rc.isPathable(RobotType.TANK, current) && rc.canSenseLocation(current));
+            }
+        }
+
+        return current;
+    }
+
+    /**
+     * This method cuts production except for the current group
+     */
+    public void cutProd(RobotController rc, int tanks, int tankCount, int soldiers, int soldierCount, int bashers, int basherCount) throws GameActionException
+    {
+        if (tankCount < tanks)
+        {
+            rc.broadcast(Messaging.ShutOffTankProd.ordinal(), 0);
+        }
+        else
+        {
+            rc.broadcast(Messaging.ShutOffTankProd.ordinal(), 1);
+        }
+
+        if (soldierCount < soldiers)
+        {
+            rc.broadcast(Messaging.ShutOffSoldierProd.ordinal(), 0);
+        }
+        else
+        {
+            rc.broadcast(Messaging.ShutOffSoldierProd.ordinal(), 1);
+        }
+
+        if (basherCount < bashers)
+        {
+            rc.broadcast(Messaging.ShutOffBasherProd.ordinal(), 0);
+        }
+        else
+        {
+            rc.broadcast(Messaging.ShutOffBasherProd.ordinal(), 1);
+        }
+    }
 
     /**
      * This functions allow the HQ to change the unit strategies

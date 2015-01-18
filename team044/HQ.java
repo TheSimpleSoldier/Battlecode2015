@@ -51,6 +51,7 @@ public class HQ extends Structure
     {
         //rc.setIndicatorString(0, "Messaging");
         messenger.giveUnitOrders();
+        messenger.manageGroups();
         //rc.setIndicatorString(0, "after give unit orders");
 
         // reset tower under attack channel every round
@@ -69,8 +70,8 @@ public class HQ extends Structure
         rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), 0);
 
         // reset commander position
-        //rc.broadcast(Messaging.CommanderLocX.ordinal(), 0);
-        //rc.broadcast(Messaging.CommanderLocY.ordinal(), 0);
+        rc.broadcast(Messaging.CommanderLocX.ordinal(), 0);
+        rc.broadcast(Messaging.CommanderLocY.ordinal(), 0);
 
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
         if (Clock.getRoundNum() > 1800)
@@ -413,7 +414,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 250)
+        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 750)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
