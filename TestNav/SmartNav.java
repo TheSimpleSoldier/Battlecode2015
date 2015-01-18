@@ -18,7 +18,6 @@ public class SmartNav
     //this takes a spot on a void and analyzes the entire void
     public boolean analyzeVoid(int x, int y) throws GameActionException
     {
-        int round = Clock.getRoundNum();
         int[] dims = findBorders(x, y);
 
         if(dims == null)
@@ -26,9 +25,7 @@ public class SmartNav
             return false;
         }
 
-        int[] newDims = findAffectedRegion(dims);
-
-        if(isPosted(newDims))
+        if(isPosted(dims))
         {
             return false;
         }
@@ -40,75 +37,13 @@ public class SmartNav
             return false;
         }
 
-        int[][] newArea = createVoidMap(dims, newDims, area);
-
-        if(newArea == null)
-        {
-            return false;
-        }
-
         rc.yield();
-        if(isPosted(newDims))
+        if(isPosted(dims))
         {
             return false;
         }
 
-        post(newArea, newDims);
-
-        /*
-        The following is purely for testing purposes
-        */
-        if(rc.readBroadcast(6865) != 1)
-        {
-            rc.broadcast(6865, 1);
-            //System.out.println("start");
-            System.out.println("rounds: " + (Clock.getRoundNum() - round));
-            /*for(int k = 0; k < dims.length; k++)
-            {
-                System.out.println(dims[k]);
-            }*/
-            /*for(int k = 0; k < area.length; k++)
-            {
-                String line = "";
-                for(int a = 0; a < area[0].length; a++)
-                {
-                    line += area[k][a] + " ";
-                }
-                System.out.println(line);
-            }*/
-
-            /*for(int k = 0; k < newArea.length; k++)
-            {
-                String line = "";
-                for(int a = 0; a < newArea[0].length; a++)
-                {
-                    if(newArea[k][a] == -1)
-                    {
-                        line += "VVV";
-                    }
-                    else if(newArea[k][a] == -2)
-                    {
-                        line += "OOO";
-                    }
-                    else if(newArea[k][a] == 0)
-                    {
-                        line += "   ";
-                    }
-                    else if(newArea[k][a] < 10)
-                    {
-                        line += " " + newArea[k][a] + " ";
-                    }
-                    else
-                    {
-                        line += newArea[k][a] + " ";
-                    }
-                }
-                System.out.println(line);
-            }*/
-
-            rc.broadcast(6865, 0);
-        }
-
+        post(area, dims);
 
         return true;
     }
@@ -213,121 +148,6 @@ public class SmartNav
         return dims;
     }
 
-    private int[] findAffectedRegion(int[] dims)
-    {
-        int height = dims[3] - dims[1] + 1;
-        int width = dims[2] - dims[0] + 1;
-
-        int[] newDims = new int[4];
-
-        //update max and min so entire area being read is known
-        newDims[0] = (int)(dims[0] - (height / 2. - .1));
-        newDims[1] = (int)(dims[1] - (width / 2. - .1));
-        newDims[2] = (int)(dims[2] + (height / 2. + .9));
-        newDims[3] = (int)(dims[3] + (width / 2. + .9));
-
-        for(int k = 0; k < newDims.length; k++)
-        {
-            if(newDims[k] < 0)
-            {
-                newDims[k]--;
-            }
-        }
-
-        //These for loops are checks for the edge of the map, because beyond the edge
-        //of map spots are continued by unknowns deeper, this ensures we do not have
-        //a false negative
-        for(int k = dims[0]; k > newDims[0]; k--)
-        {
-            if(rc.senseTerrainTile(new MapLocation(k, dims[1])) == TerrainTile.OFF_MAP)
-            {
-                newDims[0] = k;
-                break;
-            }
-        }
-        for(int k = dims[1]; k > newDims[1]; k--)
-        {
-            if(rc.senseTerrainTile(new MapLocation(dims[0], k)) == TerrainTile.OFF_MAP)
-            {
-                newDims[1] = k;
-                break;
-            }
-        }
-        for(int k = dims[2]; k < newDims[2]; k++)
-        {
-            if(rc.senseTerrainTile(new MapLocation(k, dims[3])) == TerrainTile.OFF_MAP)
-            {
-                newDims[2] = k;
-                break;
-            }
-        }
-        for(int k = dims[3]; k < newDims[3]; k++)
-        {
-            if(rc.senseTerrainTile(new MapLocation(dims[2], k)) == TerrainTile.OFF_MAP)
-            {
-                newDims[3] = k;
-                break;
-            }
-        }
-
-        return newDims;
-    }
-
-    /*
-    The goal of this function is to read in the entire affected region of the void
-    and to return a 2d int array that has values 0 for normal spaces, -1 for voids,
-    -2 for off map, and incremental numbers for virtual voids. If any of the spots
-    are unknown, the function will return null since unknown spots mean we will not
-    be able to do any more analysis.
-     */
-    private int[][] createVoidMap(int[] dims, int[] newDims, int[][] area)
-    {
-
-        int height = newDims[3] - newDims[1] + 1;
-        int width = newDims[2] - newDims[0] + 1;
-
-        int[][] newArea = new int[height][width];
-
-        for(int k = 0; k < height; k++)
-        {
-            for(int a = 0; a < width; a++)
-            {
-                int currentX = a + newDims[0];
-                int currentY = k + newDims[1];
-
-                if(currentX >= dims[0] && currentX <= dims[2] &&
-                   currentY >= dims[1] && currentY <= dims[3])
-                {
-                    newArea[k][a] = area[k - (dims[1] - newDims[1])][a - (dims[0] - newDims[0])];
-                }
-                else
-                {
-                    TerrainTile tile = rc.senseTerrainTile(new MapLocation(currentX, currentY));
-
-                    if(tile == TerrainTile.NORMAL)
-                    {
-                        newArea[k][a] = 0;
-                    }
-                    else if(tile == TerrainTile.VOID)
-                    {
-                        newArea[k][a] = -1;
-                    }
-                    else if(tile == TerrainTile.OFF_MAP)
-                    {
-                        newArea[k][a] = -2;
-                    }
-                    else
-                    {
-                        //spot is unknown, so the function cannot finish
-                        return null;
-                    }
-                }
-            }
-        }
-
-        return newArea;
-    }
-
     /*
     This method takes in the void feature and sets up virtual voids wherever
     there are bowls or inside corners so the bot will know to avoid them
@@ -343,9 +163,12 @@ public class SmartNav
     own number.
     There is one known bug which is that if there is another void that falls in
     the main void's rectangle, it may think there should be a virtual void.
+    The current solution to it is to go through the map again in each direction
+    and when there is a full path through, clear it out.
      */
     private int[][] analyzeVirtualVoids(int[] dims)
     {
+        boolean shouldPost = false;
         int height = dims[3] - dims[1] + 1;
         int width = dims[2] - dims[0] + 1;
 
@@ -353,8 +176,6 @@ public class SmartNav
 
         int max = Math.max(height, width);
 
-        //this is somewhat redundant as it was done higher up for a larger size, but seemed
-        //more efficient than rediscovering the void barriers and creating a new array from that
         for(int k = 0; k < height; k++)
         {
             for(int a = 0; a < width; a++)
@@ -395,6 +216,7 @@ public class SmartNav
                     if(voidArea[k][a] != -1)
                     {
                         voidArea[k][a] = 1;
+                        shouldPost = true;
                     }
                 }
             }
@@ -422,6 +244,7 @@ public class SmartNav
                     if(voidArea[a][k] != -1)
                     {
                         voidArea[a][k] = 1;
+                        shouldPost = true;
                     }
                 }
             }
@@ -449,6 +272,7 @@ public class SmartNav
                     if(voidArea[k + a][a] != -1)
                     {
                         voidArea[k + a][a] = 1;
+                        shouldPost = true;
                     }
                 }
             }
@@ -478,9 +302,15 @@ public class SmartNav
                     if(voidArea[k - a][a] != -1)
                     {
                         voidArea[k - a][a] = 1;
+                        shouldPost = true;
                     }
                 }
             }
+        }
+
+        if(!shouldPost)
+        {
+            return null;
         }
 
         //The following four break holes in the voids where there shouldn't be one
