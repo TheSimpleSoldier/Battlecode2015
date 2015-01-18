@@ -18,10 +18,17 @@ public class SmartNav
     //this takes a spot on a void and analyzes the entire void
     public boolean analyzeVoid(int x, int y) throws GameActionException
     {
-        //int round = Clock.getRoundNum();
+        int round = Clock.getRoundNum();
         int[] dims = findBorders(x, y);
 
         if(dims == null)
+        {
+            return false;
+        }
+
+        int[] newDims = findAffectedRegion(dims);
+
+        if(isPosted(newDims))
         {
             return false;
         }
@@ -33,8 +40,6 @@ public class SmartNav
             return false;
         }
 
-        int[] newDims = findAffectedRegion(dims);
-
         int[][] newArea = createVoidMap(dims, newDims, area);
 
         if(newArea == null)
@@ -42,15 +47,22 @@ public class SmartNav
             return false;
         }
 
-        //System.out.println("rounds: " + (Clock.getRoundNum() - round));
+        rc.yield();
+        if(isPosted(newDims))
+        {
+            return false;
+        }
+
+        post(newArea, newDims);
 
         /*
         The following is purely for testing purposes
         */
-        if(rc.readBroadcast(12865) != 1)
+        if(rc.readBroadcast(6865) != 1)
         {
-            rc.broadcast(12865, 1);
+            rc.broadcast(6865, 1);
             //System.out.println("start");
+            System.out.println("rounds: " + (Clock.getRoundNum() - round));
             /*for(int k = 0; k < dims.length; k++)
             {
                 System.out.println(dims[k]);
@@ -80,7 +92,7 @@ public class SmartNav
                     }
                     else if(newArea[k][a] == 0)
                     {
-                        line += "  ";
+                        line += "   ";
                     }
                     else if(newArea[k][a] < 10)
                     {
@@ -93,15 +105,8 @@ public class SmartNav
                 }
                 System.out.println(line);
             }*/
-            /*for(int k = 0; k < dirMap.length; k++)
-            {
-                for(int a = 0; a < dirMap[0].length; a++)
-                {
-                    System.out.println("(" + a + "," + k + "): " + Integer.toBinaryString(dirMap[k][a]));
-                }
-            }*/
 
-            rc.broadcast(12865, 0);
+            rc.broadcast(6865, 0);
         }
 
 
@@ -346,6 +351,8 @@ public class SmartNav
 
         int[][] voidArea = new int[height][width];
 
+        int max = Math.max(height, width);
+
         //this is somewhat redundant as it was done higher up for a larger size, but seemed
         //more efficient than rediscovering the void barriers and creating a new array from that
         for(int k = 0; k < height; k++)
@@ -421,7 +428,7 @@ public class SmartNav
         }
 
         //diagonal \
-        for(int k = height * -1 + 1; k < height; k++)
+        for(int k = max * -1 + 1; k < height; k++)
         {
             int start = 0;
             int end = width - 1;
@@ -448,18 +455,18 @@ public class SmartNav
         }
 
         //diagonal /
-        for(int k = height * -1 + 1; k < height; k++)
+        for(int k = 0; k < max * 2; k++)
         {
             int start = 0;
             int end = width - 1;
 
-            while((height - 1 - (k + start) < 0 || height - 1 - (k + start) >= height ||
-                   voidArea[height - 1 - (k + start)][start] != -1) && start < end)
+            while((k - start < 0 || k - start >= height ||
+                   voidArea[k - start][start] != -1) && start < end)
             {
                 start++;
             }
-            while((height - 1 - (k + end) < 0 || height - 1 - (k + end) >= height ||
-                   voidArea[height - 1 - (k + end)][end] != -1) && start < end)
+            while((k - end < 0 || k - end >= height ||
+                   voidArea[k - end][end] != -1) && start < end)
             {
                 end--;
             }
@@ -468,10 +475,99 @@ public class SmartNav
             {
                 for(int a = start + 1; a < end; a++)
                 {
-                    if(voidArea[height - 1 - (k + a)][a] != -1)
+                    if(voidArea[k - a][a] != -1)
                     {
-                        voidArea[height - 1 - (k + a)][a] = 1;
+                        voidArea[k - a][a] = 1;
                     }
+                }
+            }
+        }
+
+        //The following four break holes in the voids where there shouldn't be one
+        //This is an attempt to fix the bug mentioned at the beginning of the method
+        //horizontal
+        for(int k = 0; k < height; k++)
+        {
+            int start = 0;
+
+            while(start < width && voidArea[k][start] != -1)
+            {
+                start++;
+            }
+            if(start == width)
+            {
+                start = 0;
+                while(start < width && voidArea[k][start] != -1)
+                {
+                    voidArea[k][start] = 0;
+                    start++;
+                }
+            }
+        }
+
+        //vertical
+        for(int k = 0; k < width; k++)
+        {
+            int start = 0;
+
+            while(start < height && voidArea[start][k] != -1)
+            {
+                start++;
+            }
+            if(start == height)
+            {
+                start = 0;
+                while(start < height && voidArea[start][k] != -1)
+                {
+                    voidArea[start][k] = 0;
+                    start++;
+                }
+            }
+        }
+
+        //diagonal \
+        for(int k = max * -1 + 1; k < height; k++)
+        {
+            int start = 0;
+
+            while(start < width && (k + start < 0 || k + start >= height || voidArea[k + start][start] != -1))
+            {
+                start++;
+            }
+            if(start == width)
+            {
+                start = 0;
+                while(start < width && (k + start < 0 || k + start >= height || voidArea[k + start][start] != -1))
+                {
+                    if(k + start >= 0 && k + start < height)
+                    {
+                        voidArea[k + start][start] = 0;
+                    }
+                    start++;
+                }
+            }
+        }
+
+        //diagonal /
+        for(int k = 0; k < max * 2; k++)
+        {
+            int start = 0;
+
+            while(start < width && (k - start < 0 || k - start >= height || voidArea[k - start][start] != -1))
+            {
+                start++;
+            }
+            if(start == width)
+            {
+                start = 0;
+                while(start < width && (k - start < 0 || k - start >= height ||
+                                        voidArea[k - start][start] != -1))
+                {
+                    if(k - start >= 0 && k - start < height)
+                    {
+                        voidArea[k - start][start] = 0;
+                    }
+                    start++;
                 }
             }
         }
@@ -511,5 +607,75 @@ public class SmartNav
         }
 
         return area;
+    }
+
+    /*
+    This function posts a fully created area to the broadcast channels and fills in
+    header information. The channels will be organized as follows.
+    The first channel is the next spot header information should go.
+    The next channel is the next spot area information should go.
+    The next 1000 channels store header information, which uses 5 channels each.
+    1 is start channel for area, next is start x, next start y, then width, and last
+    is height.
+    The area information is just all the values, stored in a linear order, but easy
+    to parse knowing the dimensions of the area.
+     */
+    private void post(int[][] area, int[] dims) throws GameActionException
+    {
+        int startChannel = Constants.startNavChannels;
+        int nextHeader = rc.readBroadcast(startChannel);
+        int nextArea = rc.readBroadcast(startChannel + 1);
+
+        if(nextHeader == 0)
+        {
+            nextHeader = startChannel + 2;
+        }
+        if(nextArea == 0)
+        {
+            nextArea = startChannel + 2 + 1000;
+        }
+
+        int width = dims[2] - dims[0];
+        int height = dims[3] - dims[1];
+
+        rc.broadcast(nextHeader, nextArea);
+        rc.broadcast(nextHeader + 1, dims[0]);
+        rc.broadcast(nextHeader + 2, dims[1]);
+        rc.broadcast(nextHeader + 3, width);
+        rc.broadcast(nextHeader + 4, height);
+        rc.broadcast(startChannel, nextHeader + 5);
+        rc.broadcast(startChannel + 1, nextArea + height * width);
+
+        int counter = 0;
+        for(int k = 0; k < height; k++)
+        {
+            for(int a = 0; a < width; a++)
+            {
+                rc.broadcast(nextArea + counter, area[k][a]);
+                counter++;
+            }
+        }
+    }
+
+    private boolean isPosted(int[] dims) throws GameActionException
+    {
+        int startChannel = Constants.startNavChannels;
+        int lastHeader = rc.readBroadcast(startChannel);
+
+        int width = dims[2] - dims[0];
+        int height = dims[3] - dims[1];
+
+        for(int k = 0; k < lastHeader; k += 5)
+        {
+            if(rc.readBroadcast(startChannel + 2 + k + 1) == dims[0] &&
+               rc.readBroadcast(startChannel + 2 + k + 2) == dims[1] &&
+               rc.readBroadcast(startChannel + 2 + k + 3) == width &&
+               rc.readBroadcast(startChannel + 2 + k + 4) == height)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
