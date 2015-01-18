@@ -53,13 +53,13 @@ public class Commander extends Unit
         if (Clock.getRoundNum() % 25 != 0 && (!rc.canSenseLocation(target) || rc.isPathable(rc.getType(), target)))
         {
         }
-        else if (rc.getLocation().distanceSquaredTo(enemyHQ) > 100)
+        else if (rc.getLocation().distanceSquaredTo(enemyHQ) > 1000000)
         {
             target = enemyHQ;
         }
         else
         {
-            int choice = random.nextInt(3);
+            int choice = random.nextInt(5);
 
             if (choice == 0)
             {
@@ -69,9 +69,17 @@ public class Commander extends Unit
             {
                 target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft(), 6);
             }
-            else
+            else if (choice == 2)
             {
                 target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight(), 6);
+            }
+            else if (choice == 3)
+            {
+                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft().rotateLeft(), 6);
+            }
+            else if (choice == 4)
+            {
+                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight().rotateRight(), 6);
             }
         }
     }
@@ -83,9 +91,28 @@ public class Commander extends Unit
             return false;
         }
         rc.setIndicatorString(1, "Nav movement");
-        if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
+        if (FightMicroUtilities.commanderBlocked(rc, target))
         {
-            if (FightMicroUtilities.commanderBlocked(rc, target))
+            if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
+            {
+                Direction dir = rc.getLocation().directionTo(target);
+                MapLocation flashTo = FightMicroUtilities.flashInDir(rc, dir);
+                if (flashTo != null)
+                {
+                    rc.setIndicatorString(2, "Flash to: " + flashTo);
+                    rc.castFlash(flashTo);
+                    return true;
+                }
+            }
+            else if (rc.getFlashCooldown() >= 1)
+            {
+                return false;
+            }
+        }
+        // if we are more than 20 square away then flash towards target
+        else if (rc.getLocation().distanceSquaredTo(target) > 400)
+        {
+            if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
             {
                 Direction dir = rc.getLocation().directionTo(target);
                 MapLocation flashTo = FightMicroUtilities.flashInDir(rc, dir);
