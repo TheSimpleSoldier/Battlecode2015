@@ -33,17 +33,21 @@ public class HQ extends Structure
         fighter = new FightMicro(rc);
         messenger = new Messenger(rc);
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
-        strat = Strategy.initialStrategy(rc);
+        strat = Strategy.initialStrategy(rc, messenger);
 
         strat = new BuildOrderMessaging[35];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildTechnologyInstitute;
-        strat[2] = BuildOrderMessaging.BuildTrainingField;
-        strat[3] = BuildOrderMessaging.BuildMinerFactory;
-        strat[4] = BuildOrderMessaging.BuildHelipad;
-        strat[5] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[1] = BuildOrderMessaging.BuildMinerFactory;
+        strat[2] = BuildOrderMessaging.BuildTechnologyInstitute;
+        strat[3] = BuildOrderMessaging.BuildTrainingField;
+        strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[5] = BuildOrderMessaging.BuildHelipad;
         strat[6] = BuildOrderMessaging.BuildAerospaceLab;
         strat[7] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[8] = BuildOrderMessaging.BuildBaracks;
+        strat[9] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[10] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[11] = BuildOrderMessaging.BuildAerospaceLab;
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
@@ -81,10 +85,10 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() > 750)
+        /*else if (Clock.getRoundNum() > 750)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
-        }
+        }*/
 
         // even round so odd channel has data
         if (Clock.getRoundNum() % 2 == 0)

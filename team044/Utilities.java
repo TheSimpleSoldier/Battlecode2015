@@ -1161,6 +1161,10 @@ public class Utilities
         {
             closest = ourHQ.add(ourHQ.directionTo(enemyHQ), 15);
         }
+        else
+        {
+            closest = closest.add(ourHQ.directionTo(enemyHQ), 5);
+        }
 
         return closest;
     }
