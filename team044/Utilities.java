@@ -435,6 +435,12 @@ public class Utilities
                 {
                     continue;
                 }
+                else if (ally == RobotType.COMMANDER)
+                {
+                    int supply = (int) rc.getSupplyLevel() - 1;
+                    rc.transferSupplies(supply, nearByAllies[i].location);
+                    return;
+                }
                 int allySupply = (int) nearByAllies[i].supplyLevel;
                 if (allySupply < ourSupply)
                 {

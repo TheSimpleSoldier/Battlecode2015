@@ -20,9 +20,10 @@ public class Commander extends Unit
     public Commander(RobotController rc)
     {
         super(rc);
-        nav.setAvoidTowers(false);
         target = enemyHQ;
         random = new Random(rc.getID());
+
+        avoidStructures = true;
     }
 
     public void collectData() throws GameActionException
@@ -35,97 +36,51 @@ public class Commander extends Unit
 
         enemies = rc.senseNearbyRobots(35, opponent);
         // when we hit 100 health we head back to the battlefield
-        if (regenerating && rc.getHealth() >= 100)
+        if (regenerating && rc.getHealth() >= 150)
         {
             rc.setIndicatorString(1, "Attacking");
             regenerating = false;
         }
 
         // when our health gets too low we head away from the battlefield
-        if (!regenerating && (rc.getHealth() <= 60))
+        if (!regenerating && (rc.getHealth() <= 75))
         {
             rc.setIndicatorString(1, "Regenerating");
             regenerating = true;
         }
 
-        if (regenerating)
+        // change target every 25 turns
+        if (Clock.getRoundNum() % 20 != 0 && (!rc.canSenseLocation(target) || rc.isPathable(rc.getType(), target)))
         {
-            if (rushing)
-            {
-                target = Utilities.getRushLocation(rc);
-                target = target.add(rc.getLocation().directionTo(ourHQ), 10);
-            }
-            else
-            {
-                target = ourHQ.add(enemyHQ.directionTo(ourHQ), 3);
-            }
-
-            avoidStructures = true;
-            nav.setAvoidHQ(true);
-            nav.setAvoidTowers(true);
+        }
+        else if (rc.getLocation().distanceSquaredTo(enemyHQ) > 400)
+        {
+            target = enemyHQ;
         }
         else
         {
+            int choice = random.nextInt(5);
 
-            if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
+            if (choice == 0)
             {
-                rushing = true;
-                target = Utilities.getRushLocation(rc);
-                target = target.add(rc.getLocation().directionTo(target), 5);
+                target = enemyHQ.add(enemyHQ.directionTo(ourHQ), 6);
             }
-            else
+            else if (choice == 1)
             {
-                avoidStructures = true;
-                nav.setAvoidTowers(true);
-                nav.setAvoidTowers(true);
-
-                // change target every 25 turns
-                if (Clock.getRoundNum() % 25 != 0)
-                {
-                }
-                else if (rc.getLocation().distanceSquaredTo(enemyHQ) > 100)
-                {
-                    target = enemyHQ;
-                }
-                else
-                {
-                    int choice = random.nextInt(3);
-
-                    if (choice == 0)
-                    {
-                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ), 6);
-                    }
-                    else if (choice == 1)
-                    {
-                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft(), 6);
-                    }
-                    else
-                    {
-                        target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight(), 6);
-                    }
-
-                }//*/
+                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft(), 6);
             }
-        }
-
-        RobotInfo[] allies = rc.senseNearbyRobots(24, rc.getTeam());
-        if (!regenerating && rc.readBroadcast(Messaging.Attack.ordinal()) == 1 && allies.length >= 3)
-        {
-            avoidStructures = false;
-            nav.setAvoidTowers(false);
-            nav.setAvoidHQ(false);
-        }
-    }
-
-    public void handleMessages() throws GameActionException
-    {
-        super.handleMessages();
-
-        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
-        {
-            MapLocation toBroadcast = rc.getLocation().add(rc.getLocation().directionTo(target), 3);
-            rc.broadcast(Messaging.CommanderLocX.ordinal(), toBroadcast.x);
-            rc.broadcast(Messaging.CommanderLocY.ordinal(), toBroadcast.y);
+            else if (choice == 2)
+            {
+                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight(), 6);
+            }
+            else if (choice == 3)
+            {
+                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft().rotateLeft(), 6);
+            }
+            else if (choice == 4)
+            {
+                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight().rotateRight(), 6);
+            }
         }
     }
 
@@ -136,14 +91,34 @@ public class Commander extends Unit
             return false;
         }
         rc.setIndicatorString(1, "Nav movement");
-        if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
+        if (FightMicroUtilities.commanderBlocked(rc, target))
         {
-            if (FightMicroUtilities.commanderBlocked(rc, target))
+            if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
             {
                 Direction dir = rc.getLocation().directionTo(target);
                 MapLocation flashTo = FightMicroUtilities.flashInDir(rc, dir);
                 if (flashTo != null)
                 {
+                    rc.setIndicatorString(2, "Flash to: " + flashTo);
+                    rc.castFlash(flashTo);
+                    return true;
+                }
+            }
+            else if (rc.getFlashCooldown() >= 1)
+            {
+                return false;
+            }
+        }
+        // if we are more than 20 square away then flash towards target
+        else if (rc.getLocation().distanceSquaredTo(target) > 400)
+        {
+            if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
+            {
+                Direction dir = rc.getLocation().directionTo(target);
+                MapLocation flashTo = FightMicroUtilities.flashInDir(rc, dir);
+                if (flashTo != null)
+                {
+                    rc.setIndicatorString(2, "Flash to: " + flashTo);
                     rc.castFlash(flashTo);
                     return true;
                 }
@@ -167,5 +142,9 @@ public class Commander extends Unit
     public boolean carryOutAbility() throws GameActionException
     {
         return false;
+    }
+
+    public void distributeSupply() throws GameActionException
+    {
     }
 }

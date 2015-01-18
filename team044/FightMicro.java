@@ -296,7 +296,6 @@ public class FightMicro
             if (rc.isCoreReady() && nearByEnemies.length > 0) {
                 MapLocation missile = null;
                 MapLocation commander = null;
-                MapLocation weakEnemy = null;
 
                 for (int i = nearByEnemies.length; --i >= 0; )
                 {
@@ -658,6 +657,10 @@ public class FightMicro
                             flashTo = FightMicroUtilities.flashToLoc(rc, flashTo);
                             launcher = true;
                         }
+                        else
+                        {
+                            flashTo = null;
+                        }
                     }
                 }
 
@@ -676,6 +679,33 @@ public class FightMicro
                         }
                     }
                 }
+
+                if (flashTo == null && rc.getHealth() >= 150 && enemies.length > 0 && nearByEnemies.length == 0)
+                {
+                    boolean onlyWeak = true;
+                    int x = 0;
+                    int y = 0;
+
+                    for (int i = enemies.length; --i>=0;)
+                    {
+                        if (!FightMicroUtilities.unitVulnerable(enemies[i]))
+                        {
+                            onlyWeak = false;
+                            break;
+                        }
+                        else
+                        {
+                            x += enemies[i].location.x;
+                            y += enemies[i].location.y;
+                        }
+                    }
+
+                    if (onlyWeak)
+                    {
+                        MapLocation center = new MapLocation(x,y);
+                        flashTo = FightMicroUtilities.flashToLoc(rc, center);
+                    }
+                }
             }
         }
         // if we aren't flashing then c if we should move
@@ -689,29 +719,45 @@ public class FightMicro
                     if (enemies.length == 0)
                     {
                         // sit tight
+                        return true;
                     }
                     else
                     {
-                        moveTo = rc.getLocation().directionTo(enemies[0].location).opposite();
+                        boolean onlyWeak = true;
+
+                        for (int i = enemies.length; --i>=0; )
+                        {
+                            if (!FightMicroUtilities.unitVulnerable(enemies[i]))
+                            {
+                                onlyWeak = false;
+                            }
+                        }
+
+                        if (!onlyWeak)
+                        {
+                            moveTo = FightMicroUtilities.awayFromOpponents(rc, enemies);
+                        }
+                        else
+                        {
+                            moveTo = FightMicroUtilities.toTheEnemy(rc, enemies);
+                        }
                     }
                 }
                 else
                 {
-                    boolean enemyMissile = false;
+                    boolean onlyWeak = true;
 
                     for (int i = enemies.length; --i>=0; )
                     {
-                        if (enemies[i].type == RobotType.MISSILE)
+                        if (!FightMicroUtilities.unitVulnerable(enemies[i]))
                         {
-                            enemyMissile = true;
-                            i = 0;
-                            moveTo = rc.getLocation().directionTo(enemies[i].location).opposite();
+                            onlyWeak = false;
                         }
                     }
 
-                    if (!enemyMissile)
+                    if (!onlyWeak)
                     {
-                        moveTo = rc.getLocation().directionTo(nearByEnemies[0].location).opposite();
+                        moveTo = FightMicroUtilities.awayFromOpponents(rc, enemies);
                     }
                 }
             }
@@ -720,13 +766,24 @@ public class FightMicro
             {
                 if (nearByEnemies.length > 0)
                 {
+                    boolean launcher = false;
+                    int numbOfMissiles = 0;
                     for (int i = enemies.length; --i>=0; )
                     {
                         if (enemies[i].type == RobotType.MISSILE)
                         {
-                            i = 0;
                             moveTo = rc.getLocation().directionTo(enemies[i].location).opposite();
+                            numbOfMissiles++;
                         }
+                        else if (enemies[i].type == RobotType.LAUNCHER)
+                        {
+                            launcher = true;
+                        }
+                    }
+
+                    if (launcher && numbOfMissiles <= 2)
+                    {
+                        moveTo = null;
                     }
                 }
                 else
@@ -734,18 +791,24 @@ public class FightMicro
                     if (enemies.length > 0)
                     {
                         boolean enemyMissile = false;
+                        boolean launcher = false;
+                        int numbOfMissiles = 0;
 
                         for (int i = enemies.length; --i>=0; )
                         {
                             if (enemies[i].type == RobotType.MISSILE)
                             {
                                 enemyMissile = true;
-                                i = 0;
+                                numbOfMissiles++;
                                 moveTo = rc.getLocation().directionTo(enemies[i].location).opposite();
+                            }
+                            else if (enemies[i].type == RobotType.LAUNCHER)
+                            {
+                                launcher = true;
                             }
                         }
 
-                        if (!enemyMissile)
+                        if (!enemyMissile || (launcher && numbOfMissiles <= 2))
                         {
                             if (avoidStructures)
                             {
@@ -761,7 +824,7 @@ public class FightMicro
                             }
                             else
                             {
-                                moveTo = rc.getLocation().directionTo(enemies[0].location);
+                                moveTo = FightMicroUtilities.toTheEnemy(rc, enemies);
                             }
                         }
                     }
@@ -771,6 +834,7 @@ public class FightMicro
 
 
         RobotInfo target = null;
+        boolean returnVal = false;
 
         if (rc.isWeaponReady() && nearByEnemies.length > 0)
         {
@@ -780,8 +844,10 @@ public class FightMicro
                 attack = target.location;
             }
         }
-
-        boolean returnVal = false;
+        else if (nearByEnemies.length > 0)
+        {
+            returnVal = true;
+        }
 
         // if we picked a spot to flash to then flash!
         if (flashTo != null && flashTo.distanceSquaredTo(rc.getLocation()) <= 10 && rc.isPathable(rc.getType(), flashTo) && rc.isCoreReady())
@@ -935,7 +1001,7 @@ public class FightMicro
                     }
                 }
 
-                if (commander != null)
+                if (commander != null && rc.isCoreReady())
                 {
                     Direction direction = rc.getLocation().directionTo(commander.location).opposite();
                     if (rc.canMove(direction))
@@ -949,6 +1015,14 @@ public class FightMicro
                     else if (rc.canMove(direction.rotateLeft()))
                     {
                         rc.move(direction.rotateLeft());
+                    }
+                    else if (rc.canMove(direction.rotateLeft().rotateLeft()))
+                    {
+                        rc.move(direction.rotateLeft().rotateLeft());
+                    }
+                    else if (rc.canMove(direction.rotateRight().rotateRight()))
+                    {
+                        rc.move(direction.rotateRight().rotateRight());
                     }
                     return true;
                 }

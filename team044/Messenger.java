@@ -107,14 +107,21 @@ public class Messenger
         group1Goal = Utilities.closestTower(rc, enemyTowers);
         group2InitialSpot = Utilities.getRightFlank(rc, towers);
         group2Goal = Utilities.enemyTowerOnRightFlank(rc, enemyTowers);
-        int x = (group2InitialSpot.x + group2Goal.x) / 2;
-        int y = (group2InitialSpot.y + group2Goal.y) / 2;
-        group2InitialSpot = new MapLocation(x,y);
+        int x,y;
+        if (group2Goal != null)
+        {
+            x = (group2InitialSpot.x + group2Goal.x) / 2;
+            y = (group2InitialSpot.y + group2Goal.y) / 2;
+            group2InitialSpot = new MapLocation(x,y);
+        }
         group3InitialSpot = Utilities.getLeftFlank(rc, towers);
         group3Goal = Utilities.enemyTowerOnLeftFlank(rc, enemyTowers);
-        x = (group3InitialSpot.x + group3Goal.x) / 2;
-        y = (group3InitialSpot.y + group3Goal.y) / 2;
-        group3InitialSpot = new MapLocation(x,y);
+        if (group3Goal != null)
+        {
+            x = (group3InitialSpot.x + group3Goal.x) / 2;
+            y = (group3InitialSpot.y + group3Goal.y) / 2;
+            group3InitialSpot = new MapLocation(x,y);
+        }
     }
 
     /**
@@ -194,7 +201,7 @@ public class Messenger
 
         if (group1Launched)
         {
-            if (group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
+            if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
                 group1Goal = Utilities.closestTower(rc, enemyTowers);
                 if (group1Goal == null)
@@ -227,7 +234,7 @@ public class Messenger
 
         if (group2Launched)
         {
-            if (group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
+            if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
                 group2Goal = Utilities.closestTower(rc, enemyTowers);
                 if (group2Goal == null)
@@ -262,7 +269,7 @@ public class Messenger
 
         if (group3Launched)
         {
-            if (group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
+            if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
                 group3Goal = Utilities.closestTower(rc, enemyTowers);
                 if (group3Goal == null)
