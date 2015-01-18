@@ -6,6 +6,12 @@ import battlecode.common.*;
 import team044.Units.Defenders.DefensiveBasher;
 import team044.Units.Defenders.DefensiveSoldiers;
 import team044.Units.Defenders.DefensiveTank;
+import team044.Units.DefensiveLauncher;
+import team044.Units.SquadUnits.BasherSquad;
+import team044.Units.SquadUnits.LauncherSquad;
+import team044.Units.SquadUnits.SoldierSquad;
+import team044.Units.SquadUnits.TankSquad;
+import team044.Units.SupportingUnits.SupportingSoldier;
 import team044.Units.harrassers.BasherHarrass;
 import team044.Units.harrassers.SoldierHarrasser;
 import team044.Units.harrassers.TankHarrasser;
@@ -194,6 +200,14 @@ public class RobotPlayer
         {
             return new SoldierHarrasser(rc);
         }
+        else if (type == BuildOrderMessaging.BuildSquadSoldier.ordinal())
+        {
+            return new SoldierSquad(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildSupportingSoldier.ordinal())
+        {
+            return new SupportingSoldier(rc);
+        }
         // default to defensive soldier
         return new Soldier(rc);
     }
@@ -211,6 +225,10 @@ public class RobotPlayer
         {
             return new BasherHarrass(rc);
         }
+        else if (type == BuildOrderMessaging.BuildSquadBasher.ordinal())
+        {
+            return new BasherSquad(rc);
+        }
         // default Basher
         return new Basher(rc);
     }
@@ -227,6 +245,10 @@ public class RobotPlayer
         else if (type == BuildOrderMessaging.BuildHarrassTank.ordinal())
         {
             return new TankHarrasser(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildSquadTank.ordinal())
+        {
+            return new TankSquad(rc);
         }
 
         // default to defensive Tank
@@ -259,6 +281,15 @@ public class RobotPlayer
     {
         int type = rc.readBroadcast(Messaging.LauncherType.ordinal());
         rc.broadcast(Messaging.LauncherType.ordinal(), -1);
+
+        if (type == BuildOrderMessaging.BuildSquadLauncher.ordinal())
+        {
+            return new LauncherSquad(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildDefensiveLauncher.ordinal())
+        {
+            return new DefensiveLauncher(rc);
+        }
 
         // default Launcher
         return new Launcher(rc);
