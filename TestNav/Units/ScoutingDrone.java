@@ -33,7 +33,7 @@ public class ScoutingDrone extends Drone
             Utilities.getBestSpot(rc, false);
         }
 
-        if(rc.senseTerrainTile(rc.getLocation()) == TerrainTile.VOID && Clock.getRoundNum() > 1000 || true)
+        if(rc.senseTerrainTile(rc.getLocation()) == TerrainTile.VOID && Clock.getRoundNum() > 1000)
         {
             if(smartNav.analyzeVoid(rc.getLocation().x, rc.getLocation().y))
             {

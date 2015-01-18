@@ -93,6 +93,14 @@ public class SmartNav
                 }
                 System.out.println(line);
             }*/
+            /*for(int k = 0; k < dirMap.length; k++)
+            {
+                for(int a = 0; a < dirMap[0].length; a++)
+                {
+                    System.out.println("(" + a + "," + k + "): " + Integer.toBinaryString(dirMap[k][a]));
+                }
+            }*/
+
             rc.broadcast(12865, 0);
         }
 
@@ -329,9 +337,7 @@ public class SmartNav
     to it equal to that one and propagating it around until each group has its
     own number.
     There is one known bug which is that if there is another void that falls in
-    the main void's rectangle, it may think there should be a virtual void. Instead
-    of adding checks to everything when it rarely happens, it will be handled by
-    the bug pather in that it will not enter it, but it will look through it still.
+    the main void's rectangle, it may think there should be a virtual void.
      */
     private int[][] analyzeVirtualVoids(int[] dims)
     {
@@ -505,92 +511,5 @@ public class SmartNav
         }
 
         return area;
-    }
-
-    private int[][] analyzeDirections(int[][] area)
-    {
-        int[][] dirArea = new int[area.length][area[0].length];
-
-        int[] wallValues = new int[8];
-        int[] offMapValues = new int[8];
-        for(int k = 0; k < wallValues.length; k++)
-        {
-            wallValues[k] = Directions.Wall.ordinal();
-            offMapValues[k] = Directions.OffMap.ordinal();
-        }
-
-        int wall = findDirInt(wallValues);
-        int offMap = findDirInt(offMapValues);
-
-        for(int k = 0; k < dirArea.length; k++)
-        {
-            for(int a = 0; a < dirArea[0].length; a++)
-            {
-                if(area[k][a] == -1)
-                {
-                    dirArea[k][a] = wall;
-                }
-                else if(area[k][a] == -2)
-                {
-                    dirArea[k][a] = offMap;
-                }
-            }
-        }
-
-        for(int k = 0; k < dirArea.length; k++)
-        {
-            for(int a = 0; a < dirArea.length; a++)
-            {
-                if(dirArea[k][a] != wall && dirArea[k][a] != offMap)
-                {
-                    int[] dirs = new int[8];
-                    for(int t = 0; t < dirs.length; t++)
-                    {
-                        dirs[t] = findDirection(dirArea, wall, offMap, a, k, t);
-                    }
-                    dirArea[k][a] = findDirInt(dirs);
-                }
-            }
-        }
-
-        return dirArea;
-    }
-
-    private int findDirection(int[][] area, int wall, int offMap, int x, int y, int dir)
-    {
-        int toReturn = 0;
-
-
-
-        return toReturn;
-    }
-
-    private int findDirInt(int[] dirs)
-    {
-        int toReturn = 0;
-
-        for(int k = 0; k < dirs.length; k++)
-        {
-            dirs[k] = dirs[k] << (k * 4);
-            toReturn = toReturn | dirs[k];
-        }
-
-        return toReturn;
-    }
-
-    private int[] getIntsFromDirInt(int values)
-    {
-        int[] toReturn = new int[8];
-
-        for(int k = 0; k < toReturn.length; k++)
-        {
-            int temp = values << ((toReturn.length - k - 1) * 4);
-            System.out.println(Integer.toBinaryString(temp));
-            temp = temp >>> ((toReturn.length - 1) * 4);
-            System.out.println(Integer.toBinaryString(temp));
-            toReturn[k] = temp;
-        }
-
-        return toReturn;
     }
 }
