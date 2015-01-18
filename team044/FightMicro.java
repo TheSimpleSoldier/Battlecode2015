@@ -679,6 +679,33 @@ public class FightMicro
                         }
                     }
                 }
+
+                if (flashTo == null && rc.getHealth() >= 150 && enemies.length > 0 && nearByEnemies.length == 0)
+                {
+                    boolean onlyWeak = true;
+                    int x = 0;
+                    int y = 0;
+
+                    for (int i = enemies.length; --i>=0;)
+                    {
+                        if (!FightMicroUtilities.unitVulnerable(enemies[i]))
+                        {
+                            onlyWeak = false;
+                            break;
+                        }
+                        else
+                        {
+                            x += enemies[i].location.x;
+                            y += enemies[i].location.y;
+                        }
+                    }
+
+                    if (onlyWeak)
+                    {
+                        MapLocation center = new MapLocation(x,y);
+                        flashTo = FightMicroUtilities.flashToLoc(rc, center);
+                    }
+                }
             }
         }
         // if we aren't flashing then c if we should move
@@ -988,6 +1015,14 @@ public class FightMicro
                     else if (rc.canMove(direction.rotateLeft()))
                     {
                         rc.move(direction.rotateLeft());
+                    }
+                    else if (rc.canMove(direction.rotateLeft().rotateLeft()))
+                    {
+                        rc.move(direction.rotateLeft().rotateLeft());
+                    }
+                    else if (rc.canMove(direction.rotateRight().rotateRight()))
+                    {
+                        rc.move(direction.rotateRight().rotateRight());
                     }
                     return true;
                 }

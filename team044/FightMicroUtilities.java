@@ -742,11 +742,21 @@ public class FightMicroUtilities
         }
         else
         {
+            int x = 0;
+            int y = 0;
+
             for (int i = enemies.length; --i>=0; )
             {
                 MapLocation enemy = enemies[i].location;
-
-                return flashAwayFrom(rc, enemy);
+                x += enemy.x;
+                y += enemy.y;
+            }
+            if (x != 0 && y != 0)
+            {
+                x /= enemies.length;
+                y /= enemies.length;
+                MapLocation center = new MapLocation(x,y);
+                return flashAwayFrom(rc, center);
             }
         }
 
