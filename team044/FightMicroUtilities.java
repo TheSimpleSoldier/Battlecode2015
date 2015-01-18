@@ -894,11 +894,6 @@ public class FightMicroUtilities
         MapLocation right = us.add(dir.rotateRight());
         MapLocation left = us.add(dir.rotateLeft());
 
-        /*if (rc.isPathable(rc.getType(), next) && rc.isPathable(rc.getType(), right) && rc.isPathable(rc.getType(), left))
-        {
-            return false;
-        }*/
-
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
 

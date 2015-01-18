@@ -50,10 +50,10 @@ public class Commander extends Unit
         }
 
         // change target every 25 turns
-        if (Clock.getRoundNum() % 25 != 0 && (!rc.canSenseLocation(target) || rc.isPathable(rc.getType(), target)))
+        if (Clock.getRoundNum() % 20 != 0 && (!rc.canSenseLocation(target) || rc.isPathable(rc.getType(), target)))
         {
         }
-        else if (rc.getLocation().distanceSquaredTo(enemyHQ) > 1000000)
+        else if (rc.getLocation().distanceSquaredTo(enemyHQ) > 400)
         {
             target = enemyHQ;
         }
