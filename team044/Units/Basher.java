@@ -6,6 +6,7 @@ import team044.*;
 import battlecode.common.*;
 import team044.Units.Defenders.DefensiveBasher;
 import team044.Units.Rushers.BasherRusher;
+import team044.Units.SquadUnits.BasherSquad;
 import team044.Units.harrassers.BasherHarrass;
 
 import javax.rmi.CORBA.Util;
@@ -77,6 +78,10 @@ public class Basher extends Unit
         else if (type == BuildOrderMessaging.BuildHarrassBasher.ordinal())
         {
             return new BasherHarrass(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildSquadBasher.ordinal())
+        {
+            return new BasherSquad(rc);
         }
         return current;
     }

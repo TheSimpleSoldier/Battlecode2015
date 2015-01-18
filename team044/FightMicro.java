@@ -308,10 +308,6 @@ public class FightMicro
                     {
                         commander = nearByEnemies[i].location;
                     }
-                    else if (FightMicroUtilities.unitVulnerable(nearByEnemies[i]))
-                    {
-                        weakEnemy = nearByEnemies[i].location;
-                    }
                 }
                 MapLocation us = rc.getLocation();
                 MapLocation enemyHQ = rc.senseEnemyHQLocation();
@@ -348,23 +344,6 @@ public class FightMicro
                         rc.move(dir.rotateLeft());
                     }
                     else if (rc.canMove(dir.rotateRight())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight()), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir.rotateRight());
-                    }
-                    return true;
-                }
-                else if (weakEnemy != null)
-                {
-                    dir = us.directionTo(weakEnemy);
-                    if (rc.canMove(dir) && !Utilities.locInRangeOfEnemyTower(us.add(dir), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir);
-                    }
-                    else if (rc.canMove(dir.rotateLeft()) && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateLeft()), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir.rotateLeft());
-                    }
-                    else if (rc.canMove(dir.rotateRight()) && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight()), enemyTowers, enemyHQ))
                     {
                         rc.move(dir.rotateRight());
                     }

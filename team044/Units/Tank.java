@@ -5,6 +5,8 @@ import team044.*;
 import battlecode.common.*;
 import team044.Units.Defenders.DefensiveTank;
 import team044.Units.Rushers.TankRusher;
+import team044.Units.SquadUnits.BasherSquad;
+import team044.Units.SquadUnits.TankSquad;
 import team044.Units.harrassers.TankHarrasser;
 
 public class Tank extends Unit
@@ -86,6 +88,11 @@ public class Tank extends Unit
         {
             return new TankHarrasser(rc);
         }
+        else if (type == BuildOrderMessaging.BuildSquadTank.ordinal())
+        {
+            return new TankSquad(rc);
+        }
+
         return current;
     }
 

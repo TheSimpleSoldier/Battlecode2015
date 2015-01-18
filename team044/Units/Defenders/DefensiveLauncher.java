@@ -1,15 +1,13 @@
 package team044.Units;
 
 
-import team044.*;
-
 import battlecode.common.*;
+import team044.*;
 import team044.Units.Rushers.LauncherRusher;
-import team044.Units.SquadUnits.LauncherSquad;
 
-public class Launcher extends DefensiveUnits
+public class DefensiveLauncher extends DefensiveUnits
 {
-    public Launcher(RobotController rc)
+    public DefensiveLauncher(RobotController rc)
     {
         super(rc);
         // override supers range as it is 0 but missiles can go a long ways
@@ -99,19 +97,9 @@ public class Launcher extends DefensiveUnits
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        int type = rc.readBroadcast(Messaging.LauncherType.ordinal());
-        rc.broadcast(Messaging.LauncherType.ordinal(), -1);
         if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
         {
             return new LauncherRusher(rc);
-        }
-        else if (type == BuildOrderMessaging.BuildDefensiveLauncher.ordinal())
-        {
-            return new team044.Units.DefensiveLauncher(rc);
-        }
-        else if (type == BuildOrderMessaging.BuildSquadLauncher.ordinal())
-        {
-            return new LauncherSquad(rc);
         }
         return current;
     }
