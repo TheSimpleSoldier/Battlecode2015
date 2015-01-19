@@ -10,11 +10,13 @@ import java.util.Arrays;
 public class MapDiscovery
 {
     public int[][] map;
-    public int nwX,nwY;
+    public int nwX,nwY,seX,seY;
     public MapDiscovery()
     {
         nwX = 0;
         nwY = 0;
+        seX = 0;
+        seY = 0;
     }
 
     private boolean scanner(RobotController rc, int minX, int minY, int maxX, int maxY)
@@ -50,6 +52,8 @@ public class MapDiscovery
             map = new int[yLimit][xLimit];
             nwX = minX;
             nwY = minY;
+            seX = maxX;
+            seY = maxY;
             rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
             rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
         }
@@ -57,12 +61,14 @@ public class MapDiscovery
         {
             map = new int[map.length][xLimit];
             nwX = minX;
+            seX = maxX;
             rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
         }
         else if (check == 0 && yLimit > map.length)
         {
             map = new int[yLimit][map[0].length];
             nwY = minY;
+            seY = maxY;
             rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
         }
         MapLocation point = new MapLocation(minX,minY);
@@ -330,6 +336,24 @@ public class MapDiscovery
     }
     public int unitSweep(RobotController rc, MapLocation center) throws GameActionException
     {
+        int myHP = 0;
+        int badHP = 0;
+        RobotType enemy = RobotType.HANDWASHSTATION;
+        RobotType friend = RobotType.HANDWASHSTATION;
+        int[] enemyCount = new int[5];
+        RobotInfo[] nearbyBots = rc.senseNearbyRobots(center,81,rc.getTeam().opponent());
+        RobotInfo[] nearbyBros = rc.senseNearbyRobots(center,81,rc.getTeam());
 
+        for (int i = 0; i < nearbyBots.length; i++)
+        {
+            badHP += nearbyBots[i].health;
+            if (nearbyBots[i].type.equals(RobotType.TANK))
+                enemyCount[0]++;
+            else if (nearbyBots[i].type.equals(RobotType.COMMANDER))
+                enemyCount[1]++;
+            else if (nearbyBots[i].type.equals(RobotType.LAUNCHER))
+                enemyCount[2]++;
+            else if (nearbyBots[i].type.equals(R))
+        }
     }
 }
