@@ -10,12 +10,14 @@ public class Navigator
     private MapLocation dog, target;
     private Random rand;
     private boolean goingLeft, goingAround;
-    private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog;
+    private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, virtualVoids;
     private Direction lastFacing;
     private int HQRange = 24;
+    private Void[] voids;
+    private int nextVoid;
 
     public Navigator(RobotController rc, boolean avoidTowers, boolean avoidHQ,
-                     boolean lowBytecodes, boolean badDog)
+                     boolean lowBytecodes, boolean virtualVoids)
     {
         this.rc = rc;
         dog = rc.getLocation();
@@ -27,7 +29,9 @@ public class Navigator
         this.avoidTowers = avoidTowers;
         this.avoidHQ = avoidHQ;
         this.lowBytecodes = lowBytecodes;
-        this.badDog = badDog;
+        this.virtualVoids = virtualVoids;
+        voids = new Void[200];
+        nextVoid = 0;
 
         if(rc.getType() == RobotType.DRONE || rc.getType() == RobotType.MISSILE)
         {
@@ -314,6 +318,11 @@ public class Navigator
             }
         }
 
+        if(virtualVoids)
+        {
+
+        }
+
         return false;
     }
 
@@ -410,6 +419,11 @@ public class Navigator
     public void setLowBytecodes(boolean lowBytecodes)
     {
         this.lowBytecodes = lowBytecodes;
+    }
+
+    public void setVirtualVoids(boolean virtualVoids)
+    {
+        this.virtualVoids = virtualVoids;
     }
 
     public MapLocation getTarget()

@@ -32,4 +32,15 @@ public class Void
         //-3 represents an error
         return -3;
     }
+
+    public boolean isInVoid(MapLocation location)
+    {
+        if(location.x >= startX && location.x <= endX &&
+           location.y >= startY && location.y <= endY)
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
