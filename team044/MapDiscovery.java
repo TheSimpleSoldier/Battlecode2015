@@ -334,26 +334,4 @@ public class MapDiscovery
         }
         return map;
     }
-    public int unitSweep(RobotController rc, MapLocation center) throws GameActionException
-    {
-        int myHP = 0;
-        int badHP = 0;
-        RobotType enemy = RobotType.HANDWASHSTATION;
-        RobotType friend = RobotType.HANDWASHSTATION;
-        int[] enemyCount = new int[5];
-        RobotInfo[] nearbyBots = rc.senseNearbyRobots(center,81,rc.getTeam().opponent());
-        RobotInfo[] nearbyBros = rc.senseNearbyRobots(center,81,rc.getTeam());
-
-        for (int i = 0; i < nearbyBots.length; i++)
-        {
-            badHP += nearbyBots[i].health;
-            if (nearbyBots[i].type.equals(RobotType.TANK))
-                enemyCount[0]++;
-            else if (nearbyBots[i].type.equals(RobotType.COMMANDER))
-                enemyCount[1]++;
-            else if (nearbyBots[i].type.equals(RobotType.LAUNCHER))
-                enemyCount[2]++;
-            else if (nearbyBots[i].type.equals(R))
-        }
-    }
 }
