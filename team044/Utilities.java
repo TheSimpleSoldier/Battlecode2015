@@ -254,12 +254,21 @@ public class Utilities
 
     public static MapLocation greedyBestMiningSpot(RobotController rc) throws GameActionException
     {
-        MapLocation best;
+        MapLocation best = rc.getLocation();
+        int bestOre = 2;
+        MapLocation[] availableSpots = MapLocation.getAllMapLocationsWithinRadiusSq(rc.getLocation(), 24);
 
-        best = rc.getLocation();
-        Direction[] dirs = Direction.values();
+        for (int i = availableSpots.length; --i>=0; )
+        {
+            int ore = (int) rc.senseOre(availableSpots[i]);
+            if (ore > bestOre)
+            {
+                bestOre = ore;
+                best = availableSpots[i];
+            }
+        }
 
-        MapLocation current = best;
+        /*
         for (int i = 0; i < 8; i++)
         {
             MapLocation newSpot = current.add(dirs[i]);
@@ -293,7 +302,7 @@ public class Utilities
                     }
                 }
             }
-        }
+        }*/
 
         rc.setIndicatorString(1, "Best: "+best);
         return best;
