@@ -2,6 +2,7 @@ package team044.Units;
 
 
 import team044.Messaging;
+import team044.TeamMemory;
 import team044.Unit;
 import team044.Utilities;
 
@@ -109,8 +110,12 @@ public class Miner extends Unit
 
         enemies = rc.senseNearbyRobots(24, opponent);
 
-        if (enemies.length > 0)
+        if (enemies.length > 0 && Clock.getRoundNum() < 1800)
         {
+            long[] memory = rc.getTeamMemory();
+            long numb = memory[TeamMemory.EnemyHarrass.ordinal()];
+            numb++;
+            rc.setTeamMemory(TeamMemory.EnemyHarrass.ordinal(), numb);
             rc.broadcast(Messaging.MinerUnderAttackX.ordinal(), enemies[0].location.x);
             rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), enemies[0].location.y);
         }
