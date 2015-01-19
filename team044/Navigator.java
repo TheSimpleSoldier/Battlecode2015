@@ -99,6 +99,14 @@ public class Navigator
             {
                 rc.move(dir.rotateLeft().rotateLeft());
             }
+            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight().rotateRight()))
+            {
+                rc.move(dir.rotateRight().rotateRight().rotateRight());
+            }
+            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft().rotateLeft()))
+            {
+                rc.move(dir.rotateLeft().rotateLeft().rotateLeft());
+            }
             else if(!badSpot(rc.getLocation().add(dir.opposite()), towers) && rc.canMove(dir.opposite()))
             {
                 rc.move(dir.opposite());
