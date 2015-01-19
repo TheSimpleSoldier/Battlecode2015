@@ -61,53 +61,54 @@ public class Navigator
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
         //if target changed, act like dog is next to owner
+        MapLocation myLoc = rc.getLocation();
         if(!target.equals(this.target))
         {
-            dog = rc.getLocation();
+            dog = myLoc;
             this.target = target;
         }
 
         //dog always tries to run ahead since it will sometimes be stopped early
         dogGo();
 
-        Direction dir = rc.getLocation().directionTo(dog);
+        Direction dir = myLoc.directionTo(dog);
         MapLocation[] towers = rc.senseEnemyTowerLocations();
 
         //if you can move towards the dog, do
-        if (!badSpot(rc.getLocation().add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
+        if (!badSpot(myLoc.add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
             return true;
         }
         //if it is another unit, go around it
-        else if(isUnit(rc.getLocation().add(dir)) && rc.isCoreReady())
+        else if(isUnit(myLoc.add(dir)) && rc.isCoreReady())
         {
 
-            if(!badSpot(rc.getLocation().add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
+            if(!badSpot(myLoc.add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
             {
                 rc.move(dir.rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
+            else if(!badSpot(myLoc.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
+            else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
+            else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight().rotateRight()))
+            else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight().rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft().rotateLeft()))
+            else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft().rotateLeft());
             }
-            else if(!badSpot(rc.getLocation().add(dir.opposite()), towers) && rc.canMove(dir.opposite()))
+            else if(!badSpot(myLoc.add(dir.opposite()), towers) && rc.canMove(dir.opposite()))
             {
                 rc.move(dir.opposite());
             }
@@ -117,9 +118,9 @@ public class Navigator
         {
             if(cantGetCloser())
             {
-                this.target = rc.getLocation();
+                this.target = myLoc;
             }
-            dog = rc.getLocation();
+            dog = myLoc;
         }
 
         return false;
