@@ -62,7 +62,6 @@ public class Navigator
     //The dog moves in a bug pattern, but the owner will cut corners.
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
-        rc.setIndicatorString(2, target.toString());
         //if target changed, act like dog is next to owner
         MapLocation myLoc = rc.getLocation();
         if(!target.equals(this.target))
@@ -73,7 +72,6 @@ public class Navigator
 
         if(cantGetCloser())
         {
-            rc.setIndicatorString(0, "circling");
             double radius = myLoc.distanceSquaredTo(target);
             if(circlingTime > radius)
             {
@@ -83,7 +81,6 @@ public class Navigator
         }
         else
         {
-            rc.setIndicatorString(0, "not circling");
             circlingTime = 0;
         }
 
