@@ -46,7 +46,7 @@ public class HQ extends Structure
         strat[6] = BuildOrderMessaging.BuildAerospaceLab;
         strat[7] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[8] = BuildOrderMessaging.BuildBaracks;
-        strat[9] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[9] = BuildOrderMessaging.BuildTankFactory;
         strat[10] = BuildOrderMessaging.BuildAerospaceLab;
         strat[11] = BuildOrderMessaging.BuildAerospaceLab;
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);

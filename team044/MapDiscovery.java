@@ -2,8 +2,6 @@ package team044;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
-
 /**
  * Created by David on 1/17/2015.
  */

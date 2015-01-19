@@ -1160,7 +1160,8 @@ public class Utilities
             closest = closest.add(ourHQ.directionTo(enemyHQ), 5);
         }
 
-        return closest;
+        return center;
+        //return closest;
     }
 
     /**

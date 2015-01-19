@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Robot;
 import battlecode.world.Util;
 import team044.Units.Launcher;
 
@@ -247,14 +248,20 @@ public class FightMicroUtilities
         int missile_x = 0;
         int missile_y = 0;
         int count = 0;
+        int closestDist = 999;
+        int dist = 0;
+        MapLocation us = rc.getLocation();
 
         for (int i = enemies.length; --i>=0; )
         {
             if (enemies[i].type == RobotType.LAUNCHER)
             {
-                launcher = enemies[i];
-                missile = false;
-                break;
+                dist = us.distanceSquaredTo(enemies[i].location);
+                if (dist < closestDist)
+                {
+                    launcher = enemies[i];
+                    closestDist = dist;
+                }
             }
             else if (enemies[i].type == RobotType.MISSILE)
             {
@@ -266,13 +273,13 @@ public class FightMicroUtilities
             }
         }
 
-        // if all we can c are missiles
-        if (launcher == null)
+        if (launcher != null)
         {
-
+            missile = false;
         }
+
         // if we see a missile we can assume their is a launcher beyond
-        else if (missile)
+        if (missile)
         {
             missile_x /= count;
             missile_y /= count;
@@ -295,7 +302,7 @@ public class FightMicroUtilities
             }
         }
         // lock on launcher
-        else
+        else if (launcher != null && closestDist > 2)
         {
             Direction dir = rc.getLocation().directionTo(launcher.location);
 
@@ -716,6 +723,37 @@ public class FightMicroUtilities
             }
         }
         return false;
+    }
+
+    /**
+     * this method moves us in a direction that is safe from enemy towers
+     */
+    public static void moveInDir(RobotController rc, MapLocation enemyHQ, MapLocation[] enemyTowers, Direction dir, MapLocation us) throws GameActionException
+    {
+        if (!rc.isCoreReady())
+        {
+
+        }
+        else if (rc.canMove(dir)  && !Utilities.locInRangeOfEnemyTower(us.add(dir), enemyTowers, enemyHQ))
+        {
+            rc.move(dir);
+        }
+        else if (rc.canMove(dir.rotateRight())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight()), enemyTowers, enemyHQ))
+        {
+            rc.move(dir.rotateRight());
+        }
+        else if (rc.canMove(dir.rotateLeft())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateLeft()), enemyTowers, enemyHQ))
+        {
+            rc.move(dir.rotateLeft());
+        }
+        else if (rc.canMove(dir.rotateLeft().rotateLeft())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateLeft().rotateLeft()), enemyTowers, enemyHQ))
+        {
+            rc.move(dir.rotateLeft().rotateLeft());
+        }
+        else if (rc.canMove(dir.rotateRight().rotateRight())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight().rotateRight()), enemyTowers, enemyHQ))
+        {
+            rc.move(dir.rotateRight().rotateRight());
+        }
     }
 
     //======================= Commander Methods =========================\\

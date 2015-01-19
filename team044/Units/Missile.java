@@ -114,6 +114,7 @@ public class Missile
                     count = 0;
                     enemy_x = 0;
                     enemy_y = 0;
+                    MapLocation enemyUnit = null;
                     for (int i = nearByEnemies.length; --i>=0;)
                     {
                         enemy = nearByEnemies[i].type;
@@ -150,6 +151,7 @@ public class Missile
                             MapLocation enemySpot = nearByEnemies[i].location;
                             enemy_x += enemySpot.x;
                             enemy_y += enemySpot.y;
+                            enemyUnit = enemySpot;
                         }
                     }
 
@@ -203,10 +205,18 @@ public class Missile
                         }
                         else
                         {
-                            enemy_x /= count;
-                            enemy_y /= count;
-                            target = new MapLocation(enemy_x, enemy_y);
-                            dir = rc.getLocation().directionTo(target);
+                            if (count > 3)
+                            {
+                                enemy_x /= count;
+                                enemy_y /= count;
+                                target = new MapLocation(enemy_x, enemy_y);
+                                dir = rc.getLocation().directionTo(target);
+                            }
+                            else
+                            {
+                                target = enemyUnit;
+                                dir = rc.getLocation().directionTo(target);
+                            }
 
                             if (!rc.isCoreReady())
                             {

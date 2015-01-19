@@ -13,6 +13,7 @@ public class Navigator
     private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog;
     private Direction lastFacing;
     private int HQRange = 24;
+    private int circlingTime;
 
     public Navigator(RobotController rc, boolean avoidTowers, boolean avoidHQ,
                      boolean lowBytecodes, boolean badDog)
@@ -28,6 +29,7 @@ public class Navigator
         this.avoidHQ = avoidHQ;
         this.lowBytecodes = lowBytecodes;
         this.badDog = badDog;
+        circlingTime = 0;
 
         if(rc.getType() == RobotType.DRONE || rc.getType() == RobotType.MISSILE)
         {
@@ -68,6 +70,20 @@ public class Navigator
             this.target = target;
         }
 
+        if(cantGetCloser())
+        {
+            double radius = myLoc.distanceSquaredTo(target);
+            if(circlingTime > radius)
+            {
+                return false;
+            }
+            circlingTime++;
+        }
+        else
+        {
+            circlingTime = 0;
+        }
+
         //dog always tries to run ahead since it will sometimes be stopped early
         dogGo();
 
@@ -88,21 +104,21 @@ public class Navigator
             {
                 rc.move(dir.rotateRight());
             }
-            else if(!badSpot(myLoc.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
-            {
-                rc.move(dir.rotateLeft());
-            }
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
             }
-            else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
-            {
-                rc.move(dir.rotateLeft().rotateLeft());
-            }
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight().rotateRight());
+            }
+            else if(!badSpot(myLoc.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+            }
+            else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
+            {
+                rc.move(dir.rotateLeft().rotateLeft());
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft().rotateLeft()))
             {
@@ -377,18 +393,35 @@ public class Navigator
     //this checks if the target cannot be reached by the robot
     private boolean cantGetCloser() throws GameActionException
     {
-
         MapLocation[] towers = rc.senseEnemyTowerLocations();
         if(!badSpot(target, towers))
         {
-            return false;
+            RobotInfo bot = null;
+            if (rc.canSenseLocation(target))
+            {
+                bot = rc.senseRobotAtLocation(target);
+            }
+
+            if(bot == null)
+            {
+                return false;
+            }
         }
         MapLocation currentLocation = rc.getLocation();
         while(!currentLocation.equals(target))
         {
             if(!badSpot(currentLocation, towers))
             {
-                return false;
+                RobotInfo bot = null;
+                if (rc.canSenseLocation(currentLocation))
+                {
+                    bot = rc.senseRobotAtLocation(currentLocation);
+                }
+
+                if(bot == null)
+                {
+                    return false;
+                }
             }
             currentLocation = currentLocation.add(currentLocation.directionTo(target));
         }
