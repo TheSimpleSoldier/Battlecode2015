@@ -10,12 +10,12 @@ public class Navigator
     private MapLocation dog, target;
     private Random rand;
     private boolean goingLeft, goingAround;
-    private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog;
+    private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, virtualVoids;
     private Direction lastFacing;
     private int HQRange = 24;
 
     public Navigator(RobotController rc, boolean avoidTowers, boolean avoidHQ,
-                     boolean lowBytecodes, boolean badDog)
+                     boolean lowBytecodes, boolean virtualVoids)
     {
         this.rc = rc;
         dog = rc.getLocation();
@@ -27,7 +27,7 @@ public class Navigator
         this.avoidTowers = avoidTowers;
         this.avoidHQ = avoidHQ;
         this.lowBytecodes = lowBytecodes;
-        this.badDog = badDog;
+        this.virtualVoids = virtualVoids;
 
         if(rc.getType() == RobotType.DRONE || rc.getType() == RobotType.MISSILE)
         {
@@ -60,42 +60,44 @@ public class Navigator
     //The dog moves in a bug pattern, but the owner will cut corners.
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
+        MapLocation myLocation = rc.getLocation();
         //if target changed, act like dog is next to owner
         if(!target.equals(this.target))
         {
-            dog = rc.getLocation();
+            dog = myLocation;
             this.target = target;
         }
 
         //dog always tries to run ahead since it will sometimes be stopped early
         dogGo();
 
-        Direction dir = rc.getLocation().directionTo(dog);
+        Direction dir = myLocation.directionTo(dog);
         MapLocation[] towers = rc.senseEnemyTowerLocations();
 
         //if you can move towards the dog, do
-        if (!badSpot(rc.getLocation().add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
+        if (!badSpot(myLocation.add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
             return true;
         }
         //if it is another unit, go around it
-        else if(isUnit(rc.getLocation().add(dir)) && rc.isCoreReady())
+        else if(rc.canSenseLocation(myLocation.add(dir)) &&
+                rc.senseRobotAtLocation(myLocation.add(dir)) != null  && rc.isCoreReady())
         {
 
-            if(!badSpot(rc.getLocation().add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
+            if(!badSpot(myLocation.add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
             {
                 rc.move(dir.rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
+            else if(!badSpot(myLocation.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
+            else if(!badSpot(myLocation.add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
             }
-            else if(!badSpot(rc.getLocation().add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
+            else if(!badSpot(myLocation.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
             }
@@ -105,9 +107,9 @@ public class Navigator
         {
             if(cantGetCloser())
             {
-                this.target = rc.getLocation();
+                this.target = myLocation;
             }
-            dog = rc.getLocation();
+            dog = myLocation;
         }
 
         return false;
@@ -121,7 +123,7 @@ public class Navigator
 
         MapLocation[] towers = rc.senseEnemyTowerLocations();
         //go till out of site
-        while(dogInSight() && !dog.equals(target))
+        while(dogInSight(towers) && !dog.equals(target))
         {
             if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
             {
@@ -193,12 +195,11 @@ public class Navigator
     }
 
     //returns true if dog is in sight of human
-    private boolean dogInSight() throws GameActionException
+    private boolean dogInSight(MapLocation[] towers) throws GameActionException
     {
         //start one closer to dog's location since we can get to where we are
         MapLocation currentLocation = rc.getLocation().add(rc.getLocation().directionTo(dog));
 
-        MapLocation[] towers = rc.senseEnemyTowerLocations();
         //loop through until it either reaches the goal or finds a bad spot
         while(true)
         {
@@ -273,59 +274,19 @@ public class Navigator
     //such as void if not drone, unknown, off map, enemy towers/hq, or our own structures
     private boolean badSpot(MapLocation spot, MapLocation[] towers) throws GameActionException
     {
-        boolean bad = false;
-
         if(checkEnemyMainStructures(spot, towers))
         {
             return true;
         }
 
-        if(rc.canSenseLocation(spot))
+        TerrainTile tile = rc.senseTerrainTile(spot);
+        if(tile == TerrainTile.UNKNOWN || tile == TerrainTile.OFF_MAP)
         {
-            TerrainTile tile = rc.senseTerrainTile(spot);
-            if(tile == TerrainTile.UNKNOWN || tile == TerrainTile.OFF_MAP)
-            {
-                bad = true;
-            }
-            if(!ignoreVoids && tile == TerrainTile.VOID)
-            {
-                bad = true;
-            }
-
-            RobotInfo bot = null;
-            if (rc.canSenseLocation(spot))
-            {
-                bot = rc.senseRobotAtLocation(spot);
-            }
-
-            if(bot != null && rc.getID() != bot.ID && !isUnit(spot))
-            {
-                bad = true;
-            }
+            return true;
         }
-
-        return bad;
-    }
-
-    //returns true if bot is a mobile unit
-    private boolean isUnit(MapLocation location) throws GameActionException
-    {
-        RobotInfo bot = null;
-        if (rc.canSenseLocation(location))
+        if(!ignoreVoids && tile == TerrainTile.VOID)
         {
-            bot = rc.senseRobotAtLocation(location);
-        }
-
-
-        if(bot != null)
-        {
-            if(bot.type == RobotType.BASHER || bot.type == RobotType.BEAVER || bot.type == RobotType.COMMANDER ||
-               bot.type == RobotType.COMPUTER || bot.type == RobotType.DRONE || bot.type == RobotType.LAUNCHER ||
-               bot.type == RobotType.MISSILE || bot.type == RobotType.SOLDIER || bot.type == RobotType.MINER ||
-               bot.type == RobotType.TANK)
-            {
-                return true;
-            }
+            return true;
         }
 
         return false;

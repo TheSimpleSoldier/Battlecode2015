@@ -297,7 +297,8 @@ public class Strategy
         }
 
         BuildOrderMessaging[] basicStrat = {BuildOrderMessaging.BuildBeaverBuilder,
-                                            BuildOrderMessaging.BuildHelipad};
+                                            BuildOrderMessaging.BuildHelipad,
+                                            BuildOrderMessaging.BuildTankFactory};
 
         return basicStrat;
         //return strat;
