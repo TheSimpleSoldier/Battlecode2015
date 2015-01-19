@@ -295,4 +295,59 @@ public class Strategy
         }
         return strat;
     }
+
+    public void loneTowers(RobotController rc) throws GameActionException
+    {
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        int numbTowers = enemyTowers.length;
+        int[][] towers = new int[enemyTowers.length][4];
+        // Determine the mean, standard deviation, and range of enemy tower locations.
+        int meanX = 0;
+        int meanY = 0;
+        for (int i = 0; i < numbTowers; i++)
+        {
+            towers[i][0] = enemyTowers[i].x;
+            towers[i][1] = enemyTowers[i].y;
+            meanX += enemyTowers[i].x - meanX;
+            meanY += enemyTowers[i].y - meanY;
+        }
+        meanX = meanX/numbTowers;
+        meanY = meanY/numbTowers;
+        MapLocation farWest = enemyTowers[0];
+        MapLocation farEast = enemyTowers[0];
+        MapLocation farNorth = enemyTowers[0];
+        MapLocation farSouth = enemyTowers[0];
+        for (int i = 0; i < numbTowers; i++) {
+            towers[i][2] = enemyTowers[i].distanceSquaredTo(enemyHQ);
+            for (int j = 0; j < numbTowers - 1; j++)
+            {
+                if (j == i)
+                    j++;
+                int d = enemyTowers[j].distanceSquaredTo(enemyTowers[i]);
+                if (d > towers[i][3])
+                    towers[i][3] = d;
+            }
+            if (farWest.x < towers[i][0])
+                farWest = enemyTowers[i];
+            if (farEast.x > towers[i][0])
+                farEast = enemyTowers[i];
+            if (farNorth.y < towers[i][1])
+                farNorth = enemyTowers[i];
+            if (farSouth.y > towers[i][1])
+                farSouth = enemyTowers[i];
+        }
+        for (int i = 0; i < enemyTowers.length; i++)
+        {
+            if (farWest.x < towers[i][0])
+                farWest = enemyTowers[i];
+            if (farEast.x > towers[i][0])
+                farEast = enemyTowers[i];
+            if (farNorth.y < towers[i][1])
+                farNorth = enemyTowers[i];
+            if (farSouth.y > towers[i][1])
+                farSouth = enemyTowers[i];
+        }
+    }
 }
