@@ -15,7 +15,7 @@ public class Messenger
 
     // these variables are for our groups
     // group 1
-    int group1Launchers = 10;
+    int group1Launchers = 8;
     int group1Tanks = 0;
     int group1Soldiers = 10;
     int group1Bashers = 0;
@@ -31,9 +31,9 @@ public class Messenger
     MapLocation group1Goal;
 
     // group 2
-    int group2Launchers = 10;
+    int group2Launchers = 8;
     int group2Tanks = 0;
-    int group2Soldiers = 10;
+    int group2Soldiers = 0;
     int group2Bashers = 0;
     boolean group2Launched = false;
     boolean group2LauncherGroup = true;
@@ -47,9 +47,9 @@ public class Messenger
     MapLocation group2Goal;
 
     // group 3
-    int group3Launchers = 10;
+    int group3Launchers = 8;
     int group3Tanks = 0;
-    int group3Soldiers = 10;
+    int group3Soldiers = 0;
     int group3Bashers = 0;
     boolean group3Launched = false;
     boolean group3LauncherGroup = true;
@@ -134,7 +134,7 @@ public class Messenger
     public void giveUnitOrders() throws GameActionException
     {
         // we want to give a little time before we start managing supply distribution
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 4)
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 2)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
         }
