@@ -1,9 +1,11 @@
 package team044.Units;
 
-import team044.*;
-import battlecode.common.*;
-import team044.Units.Rushers.BasherRusher;
+import battlecode.common.GameActionException;
+import battlecode.common.RobotController;
+import team044.Messaging;
+import team044.Unit;
 import team044.Units.Rushers.BeaverRusher;
+import team044.Utilities;
 
 public class Beaver extends Unit
 {
@@ -17,6 +19,7 @@ public class Beaver extends Unit
     public Beaver(RobotController rc)
     {
         super(rc);
+        nav.setCircle(true);
     }
 
     public void collectData() throws GameActionException
