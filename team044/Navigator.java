@@ -134,7 +134,7 @@ public class Navigator
 
         MapLocation[] towers = rc.senseEnemyTowerLocations();
         //go till out of site
-        while(dogInSight() && !dog.equals(target))
+        while(dogInSight(towers) && !dog.equals(target))
         {
             if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
             {
@@ -206,12 +206,11 @@ public class Navigator
     }
 
     //returns true if dog is in sight of human
-    private boolean dogInSight() throws GameActionException
+    private boolean dogInSight(MapLocation[] towers) throws GameActionException
     {
         //start one closer to dog's location since we can get to where we are
         MapLocation currentLocation = rc.getLocation().add(rc.getLocation().directionTo(dog));
 
-        MapLocation[] towers = rc.senseEnemyTowerLocations();
         //loop through until it either reaches the goal or finds a bad spot
         while(true)
         {
