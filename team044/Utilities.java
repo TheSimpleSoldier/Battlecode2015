@@ -254,44 +254,17 @@ public class Utilities
 
     public static MapLocation greedyBestMiningSpot(RobotController rc) throws GameActionException
     {
-        MapLocation best;
+        MapLocation best = rc.getLocation();
+        int bestOre = 2;
+        MapLocation[] availableSpots = MapLocation.getAllMapLocationsWithinRadiusSq(rc.getLocation(), 24);
 
-        best = rc.getLocation();
-        Direction[] dirs = Direction.values();
-
-        MapLocation current = best;
-        for (int i = 0; i < 8; i++)
+        for (int i = availableSpots.length; --i>=0; )
         {
-            MapLocation newSpot = current.add(dirs[i]);
-            if (rc.canSenseLocation(newSpot))
+            int ore = (int) rc.senseOre(availableSpots[i]);
+            if (ore > bestOre)
             {
-                if (rc.senseOre(newSpot) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot))
-                {
-                    best = newSpot;
-                }
-
-                for (int j = 0; j < 8; j++)
-                {
-                    MapLocation newSpot2 = newSpot.add(dirs[j]);
-                    if (rc.canSenseLocation(newSpot2))
-                    {
-                        if (rc.senseOre(newSpot2) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot2))
-                        {
-                            best = newSpot2;
-                            for (int k = 0; k < 8; k++)
-                            {
-                                MapLocation newSpot3 = newSpot2.add(dirs[k]);
-                                if (rc.canSenseLocation(newSpot3))
-                                {
-                                    if (rc.senseOre(newSpot3) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot3))
-                                    {
-                                        best = newSpot3;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                bestOre = ore;
+                best = availableSpots[i];
             }
         }
 
@@ -956,6 +929,27 @@ public class Utilities
     }
 
     /**
+     * This method finds the closest tower to a location
+     */
+    public static MapLocation closestTowerToLoc(MapLocation[] towers, MapLocation current)
+    {
+        int closestDist = 99999;
+        MapLocation closest = null;
+
+        for (int i = towers.length; --i>=0; )
+        {
+            int dist = towers[i].distanceSquaredTo(current);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = towers[i];
+            }
+        }
+
+        return closest;
+    }
+
+    /**
      * This is a test
      */
     public static int test(RobotController rc) throws GameActionException
@@ -1160,6 +1154,10 @@ public class Utilities
         if (closest == null)
         {
             closest = ourHQ.add(ourHQ.directionTo(enemyHQ), 15);
+        }
+        else
+        {
+            closest = closest.add(ourHQ.directionTo(enemyHQ), 5);
         }
 
         return closest;

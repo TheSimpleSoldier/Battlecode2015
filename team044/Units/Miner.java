@@ -47,9 +47,9 @@ public class Miner extends Unit
             lastSpot = rc.getLocation();
             // get new target every time we move
             //target = Utilities.greedyBestMiningSpot(rc);
-            if (rc.senseOre(lastSpot) > 12)
+            if (rc.senseOre(lastSpot) > 10)
             {
-                miningAmount = 12;
+                miningAmount = 10;
             }
             else if (rc.senseOre(lastSpot) <= 5)
             {
@@ -79,7 +79,7 @@ public class Miner extends Unit
 
 
 
-        if (target == null || rc.getLocation() == target || (rc.canSenseLocation(target) && rc.isLocationOccupied(target)) || rc.getLocation().isAdjacentTo(target))
+        if (target == null || rc.getLocation() == target || (rc.canSenseLocation(target) && (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))))
         {
             rc.setIndicatorString(2, "get greedy spot: " + Clock.getRoundNum());
             target = Utilities.greedyBestMiningSpot(rc);
@@ -129,6 +129,11 @@ public class Miner extends Unit
         if (target == null)
         {
             target = enemyHQ;
+        }
+        // no need to move if our location is good enough
+        else if (rc.senseOre(rc.getLocation()) >= miningAmount)
+        {
+            return false;
         }
         rc.setIndicatorString(0, "In nav moving to: " + target);
         return nav.takeNextStep(target);

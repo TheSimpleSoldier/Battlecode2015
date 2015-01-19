@@ -15,12 +15,13 @@ public class Messenger
 
     // these variables are for our groups
     // group 1
-    int group1Launchers = 10;
+    int group1Launchers = 8;
     int group1Tanks = 0;
     int group1Soldiers = 10;
     int group1Bashers = 0;
     boolean group1Launched = false;
     boolean group1LauncherGroup = true;
+    boolean group1Offensive = false;
     int group1LauncherCount = 0;
     int group1TankCount = 0;
     int group1SoldierCount = 0;
@@ -30,12 +31,13 @@ public class Messenger
     MapLocation group1Goal;
 
     // group 2
-    int group2Launchers = 0;
-    int group2Tanks = 10;
+    int group2Launchers = 8;
+    int group2Tanks = 0;
     int group2Soldiers = 0;
-    int group2Bashers = 20;
+    int group2Bashers = 0;
     boolean group2Launched = false;
-    boolean group2LauncherGroup = false;
+    boolean group2LauncherGroup = true;
+    boolean group2Offensive = true;
     int group2LauncherCount = 0;
     int group2TankCount = 0;
     int group2SoldierCount = 0;
@@ -45,12 +47,13 @@ public class Messenger
     MapLocation group2Goal;
 
     // group 3
-    int group3Launchers = 10;
+    int group3Launchers = 8;
     int group3Tanks = 0;
-    int group3Soldiers = 10;
+    int group3Soldiers = 0;
     int group3Bashers = 0;
     boolean group3Launched = false;
     boolean group3LauncherGroup = true;
+    boolean group3Offensive = true;
     int group3LauncherCount = 0;
     int group3TankCount = 0;
     int group3SoldierCount = 0;
@@ -131,7 +134,7 @@ public class Messenger
     public void giveUnitOrders() throws GameActionException
     {
         // we want to give a little time before we start managing supply distribution
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 4)
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 2)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
         }
@@ -199,11 +202,22 @@ public class Messenger
         // this code determines where the groups rally point should be \\
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
 
-        if (group1Launched)
+        // attack with everything when time to rush enemy occurs
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            group1Offensive = true;
+            group2Offensive = true;
+            group3Offensive = true;
+            group1Launched = true;
+            group2Launched = true;
+            group3Launched = true;
+        }
+
+        if (group1Launched && (group1Offensive || group1LauncherCount >= 25) && group1CurrentSpot != null)
         {
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
-                group1Goal = Utilities.closestTower(rc, enemyTowers);
+                group1Goal = Utilities.closestTowerToLoc(enemyTowers, group1CurrentSpot);
                 if (group1Goal == null)
                 {
                     group1Goal = rc.senseEnemyHQLocation();
@@ -232,11 +246,11 @@ public class Messenger
         }
 
 
-        if (group2Launched)
+        if (group2Launched && group2Offensive && group3Launched && group2CurrentSpot != null)
         {
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
-                group2Goal = Utilities.closestTower(rc, enemyTowers);
+                group2Goal = Utilities.closestTowerToLoc(enemyTowers, group2CurrentSpot);
                 if (group2Goal == null)
                 {
                     group2Goal = rc.senseEnemyHQLocation();
@@ -267,11 +281,11 @@ public class Messenger
             }
         }
 
-        if (group3Launched)
+        if (group3Launched && group3Offensive && group2Launched && group3CurrentSpot != null)
         {
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
-                group3Goal = Utilities.closestTower(rc, enemyTowers);
+                group3Goal = Utilities.closestTowerToLoc(enemyTowers, group3CurrentSpot);
                 if (group3Goal == null)
                 {
                     group3Goal = rc.senseEnemyHQLocation();
@@ -328,7 +342,7 @@ public class Messenger
             else if (group1Launched)
             {
                 // once we have filled all the categories rebuild units for group1
-                group1LauncherCount = 0;
+                group1Launchers = 100;
             }
         }
 
@@ -405,12 +419,13 @@ public class Messenger
     /**
      * this method is for setting group1
      */
-    public void setGroup1(int launchers, int tanks, int soldiers, int bashers)
+    public void setGroup1(int launchers, int tanks, int soldiers, int bashers, boolean offensive)
     {
         group1Launchers = launchers;
         group1Tanks = tanks;
         group1Soldiers = soldiers;
         group1Bashers = bashers;
+        group1Offensive = offensive;
 
         if (launchers > 0)
         {
@@ -425,12 +440,13 @@ public class Messenger
     /**
      * This method is for setting group2
      */
-    public void setGroup2(int launchers, int tanks, int soldiers, int bashers)
+    public void setGroup2(int launchers, int tanks, int soldiers, int bashers, boolean offensive)
     {
         group2Launchers = launchers;
         group2Tanks = tanks;
         group2Soldiers = soldiers;
         group2Bashers = bashers;
+        group2Offensive = offensive;
 
         if (launchers > 0)
         {
@@ -445,12 +461,13 @@ public class Messenger
     /**
      * this method is for setting group3
      */
-    public void setGroup3(int launchers, int tanks, int soldiers, int bashers)
+    public void setGroup3(int launchers, int tanks, int soldiers, int bashers, boolean offensive)
     {
         group3Launchers = launchers;
         group3Tanks = tanks;
         group3Soldiers = soldiers;
         group3Bashers = bashers;
+        group3Offensive = offensive;
 
         if (launchers > 0)
         {
