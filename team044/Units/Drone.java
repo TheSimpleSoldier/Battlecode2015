@@ -13,6 +13,7 @@ public class Drone extends DefensiveUnits
     public Drone(RobotController rc)
     {
         super(rc);
+        nav.setCircle(true);
     }
 
     public void collectData2() throws GameActionException

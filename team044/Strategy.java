@@ -58,6 +58,7 @@ public class Strategy
         //long secondMost = memory[TeamMemory.AttackTiming.ordinal()] >>> 16;
         long mostEndGameUnit = memory[TeamMemory.EnemyUnitBuild.ordinal()];
         long endGameHP = memory[TeamMemory.HQHP.ordinal()];
+        long enemiesSeen = memory[TeamMemory.EnemyHarrass.ordinal()];
         BuildOrderMessaging primaryStructure;
         BuildOrderMessaging secondaryStructure;
         BuildOrderMessaging tertiaryStructure;
@@ -76,7 +77,7 @@ public class Strategy
 
         hqDistance *= hqDistance;
 
-        String debug = String.format("HP: %d; Size: %d; First Attacker: %d; Attack Timing: %d; Unit #1: %d; ByteCodes left: %d", endGameHP, hqDistance, mostEndGameUnit, attackTiming, mostEndGameUnit, Clock.getBytecodesLeft());
+        String debug = String.format("HP: %d; Size: %d; First Attacker: %d; Attack Timing: %d; Unit #1: %d; ByteCodes left: %d; Enemy Harassers: %d; ", endGameHP, hqDistance, mostEndGameUnit, attackTiming, mostEndGameUnit, Clock.getBytecodesLeft(), enemiesSeen);
 
         System.out.println(debug);
         // Small map
@@ -143,7 +144,7 @@ public class Strategy
             strat[33] = tertiaryStructure;
             strat[34] = BuildOrderMessaging.BuildSupplyDepot;
 
-            rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance);
+            rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
         // Large map
         else if (hqDistance > 5000)
@@ -216,7 +217,7 @@ public class Strategy
             strat[36] = BuildOrderMessaging.BuildSupplyDepot;
             strat[37] = BuildOrderMessaging.BuildSupplyDepot;
             strat[38] = BuildOrderMessaging.BuildSupplyDepot;
-            rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance);
+            rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
 
         }
         // Default Strategy
