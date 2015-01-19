@@ -294,4 +294,38 @@ public class Strategy
         }
         return strat;
     }
+
+    public void loneTowers(RobotController rc) throws GameActionException
+    {
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        int numbTowers = enemyTowers.length;
+        int[][] towers = new int[enemyTowers.length][4];
+                // Determine the mean, standard deviation, and range of enemy tower locations.
+        int meanX = 0;
+        int meanY = 0;
+        for (int i = 0; i < numbTowers; i++)
+        {
+            towers[i][0] = enemyTowers[i].x;
+            towers[i][1] = enemyTowers[i].y;
+            meanX += enemyTowers[i].x - meanX;
+            meanY += enemyTowers[i].y - meanY;
+        }
+        meanX = meanX/numbTowers;
+        meanY = meanY/numbTowers;
+
+        for (int i = 0; i < numbTowers; i++) {
+            towers[i][2] = enemyTowers[i].distanceSquaredTo(enemyHQ);
+            for (int j = 0; j < numbTowers - 1; j++)
+            {
+                if (j == i)
+                    j++;
+                int d = enemyTowers[j].distanceSquaredTo(enemyTowers[i]);
+                if (d > towers[i][3])
+                    towers[i][3] = d;
+            }
+        }
+
+    }
 }

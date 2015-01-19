@@ -393,7 +393,6 @@ public class HQ extends Structure
     {
         if (currentUnit >= strat.length)
         {
-            map.checkMap(rc);
             return false;
         }
         // we only build a beaver if it is the next unit to be built
@@ -404,7 +403,6 @@ public class HQ extends Structure
                 currentUnit++;
                 if (currentUnit >= strat.length)
                 {
-                    map.checkMap(rc);
                     return true;
                 }
 
@@ -417,7 +415,6 @@ public class HQ extends Structure
 
                 //rc.setIndicatorString(1, "" + strat[currentUnit]);
                 rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
-                map.checkMap(rc);
                 return true;
             }
         }
@@ -427,11 +424,15 @@ public class HQ extends Structure
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
                 rc.broadcast(Messaging.BuildOrder.ordinal(), BuildOrderMessaging.BuildBeaverBuilder.ordinal());
-                map.checkMap(rc);
                 return true;
             }
         }
-        map.checkMap(rc);
         return false;
+    }
+
+    public void distributeSupply() throws GameActionException
+    {
+        Utilities.shareSupplies(rc);
+        map.checkMap(rc);
     }
 }
