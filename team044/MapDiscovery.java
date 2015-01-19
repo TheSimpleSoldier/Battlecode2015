@@ -75,7 +75,7 @@ public class MapDiscovery
             {
                 //System.out.println("xIteration:  " + Clock.getBytecodesLeft());
                 int byteCodesLeft = Clock.getBytecodesLeft();
-                if (byteCodesLeft < 315)
+                if (byteCodesLeft < 400)
                 {
                     rc.broadcast(Messaging.ScannerMemoryX.ordinal(), nextPoint.x);
                     rc.broadcast(Messaging.ScannerMemoryY.ordinal(), nextPoint.y);
@@ -110,12 +110,12 @@ public class MapDiscovery
                     }
                 }
                 nextPoint = nextPoint.add(Direction.EAST);
-                System.out.print(map[i][j]);
+                //System.out.print(map[i][j]);
             }
             xIteration = 0;
             point = point.add(Direction.SOUTH);
             nextPoint = new MapLocation(point.x,point.y);
-            System.out.println();
+            //System.out.println();
         }
         //System.out.print("Exit:  " + Clock.getBytecodesLeft());
         if (mapExtremes != 0)
@@ -138,6 +138,7 @@ public class MapDiscovery
         rc.broadcast(Messaging.ScannerMemoryX2.ordinal(), 0);
         rc.broadcast(Messaging.ScannerMemoryY2.ordinal(), 0);
         //System.out.println("  " + Clock.getBytecodesLeft());
+        //System.out.println();
         return true;
     }
 
