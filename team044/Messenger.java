@@ -17,7 +17,7 @@ public class Messenger
     // group 1
     int group1Launchers = 8;
     int group1Tanks = 0;
-    int group1Soldiers = 10;
+    int group1Soldiers = 15;
     int group1Bashers = 0;
     boolean group1Launched = false;
     boolean group1LauncherGroup = true;
@@ -31,7 +31,7 @@ public class Messenger
     MapLocation group1Goal;
 
     // group 2
-    int group2Launchers = 8;
+    int group2Launchers = 6;
     int group2Tanks = 0;
     int group2Soldiers = 0;
     int group2Bashers = 0;
@@ -47,7 +47,7 @@ public class Messenger
     MapLocation group2Goal;
 
     // group 3
-    int group3Launchers = 8;
+    int group3Launchers = 6;
     int group3Tanks = 0;
     int group3Soldiers = 0;
     int group3Bashers = 0;
@@ -239,8 +239,23 @@ public class Messenger
                 group1CurrentSpot = group1InitialSpot;
                 group1Launched = true;
             }
-            rc.broadcast(Messaging.FirstGroupX.ordinal(), group1InitialSpot.x);
-            rc.broadcast(Messaging.FirstGroupY.ordinal(), group1InitialSpot.y);
+
+            int towerUnderAttack = rc.readBroadcast(Messaging.TowerUnderAttack.ordinal());
+
+            if (towerUnderAttack > 0)
+            {
+                MapLocation[] ourTowers = rc.senseTowerLocations();
+                MapLocation tower = ourTowers[towerUnderAttack - 1];
+
+                rc.broadcast(Messaging.FirstGroupX.ordinal(), tower.x);
+                rc.broadcast(Messaging.FirstGroupY.ordinal(), tower.y);
+            }
+            else
+            {
+                rc.broadcast(Messaging.FirstGroupX.ordinal(), group1InitialSpot.x);
+                rc.broadcast(Messaging.FirstGroupY.ordinal(), group1InitialSpot.y);
+            }
+
             cutProd(rc, group1Tanks, group1TankCount, group1Soldiers, group1SoldierCount, group1Bashers, group1BasherCount);
 
         }
