@@ -48,18 +48,22 @@ public class MapDiscovery
         if (map == null || (check == 0 && xLimit > map[0].length && yLimit > map.length))
         {
             map = new int[yLimit][xLimit];
+            nwX = minX;
+            nwY = minY;
             rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
-            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minX);
+            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
         }
         else if (check == 0 && xLimit > map[0].length)
         {
             map = new int[map.length][xLimit];
+            nwX = minX;
             rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
         }
         else if (check == 0 && yLimit > map.length)
         {
             map = new int[yLimit][map[0].length];
-            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minX);
+            nwY = minY;
+            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
         }
         MapLocation point = new MapLocation(minX,minY);
         int fog1 = 0;
@@ -323,5 +327,9 @@ public class MapDiscovery
             }
         }
         return map;
+    }
+    public int unitSweep(RobotController rc, MapLocation center) throws GameActionException
+    {
+
     }
 }
