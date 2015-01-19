@@ -13,6 +13,9 @@ public class Navigator
     private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, virtualVoids;
     private Direction lastFacing;
     private int HQRange = 24;
+    private Void[] voids;
+    private Void dogCurrentVoid, rcCurrentVoid;
+    private int lastVoid;
 
     public Navigator(RobotController rc, boolean avoidTowers, boolean avoidHQ,
                      boolean lowBytecodes, boolean virtualVoids)
@@ -28,6 +31,10 @@ public class Navigator
         this.avoidHQ = avoidHQ;
         this.lowBytecodes = lowBytecodes;
         this.virtualVoids = virtualVoids;
+        voids = new Void[200];
+        dogCurrentVoid = null;
+        rcCurrentVoid = null;
+        lastVoid = 0;
 
         if(rc.getType() == RobotType.DRONE || rc.getType() == RobotType.MISSILE)
         {
@@ -61,6 +68,10 @@ public class Navigator
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
         MapLocation myLocation = rc.getLocation();
+        if(virtualVoids)
+        {
+            rcCurrentVoid = updateVoid(myLocation, rcCurrentVoid);
+        }
         //if target changed, act like dog is next to owner
         if(!target.equals(this.target))
         {
@@ -75,7 +86,7 @@ public class Navigator
         MapLocation[] towers = rc.senseEnemyTowerLocations();
 
         //if you can move towards the dog, do
-        if (!badSpot(myLocation.add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
+        if (!badSpot(myLocation.add(dir), towers, rcCurrentVoid, true) && rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
             return true;
@@ -85,19 +96,19 @@ public class Navigator
                 rc.senseRobotAtLocation(myLocation.add(dir)) != null  && rc.isCoreReady())
         {
 
-            if(!badSpot(myLocation.add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
+            if(!badSpot(myLocation.add(dir.rotateRight()), towers, rcCurrentVoid, true) && rc.canMove(dir.rotateRight()))
             {
                 rc.move(dir.rotateRight());
             }
-            else if(!badSpot(myLocation.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
+            else if(!badSpot(myLocation.add(dir.rotateLeft()), towers, rcCurrentVoid, true) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
             }
-            else if(!badSpot(myLocation.add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
+            else if(!badSpot(myLocation.add(dir.rotateRight().rotateRight()), towers, rcCurrentVoid, true) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
             }
-            else if(!badSpot(myLocation.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
+            else if(!badSpot(myLocation.add(dir.rotateLeft().rotateLeft()), towers, rcCurrentVoid, true) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
             }
@@ -105,10 +116,6 @@ public class Navigator
         //otherwise, if you can move, something is in the way, so reroute
         else if(rc.isCoreReady())
         {
-            if(cantGetCloser())
-            {
-                this.target = myLocation;
-            }
             dog = myLocation;
         }
 
@@ -125,6 +132,16 @@ public class Navigator
         //go till out of site
         while(dogInSight(towers) && !dog.equals(target))
         {
+            boolean vVoids = true;
+            if(dogCurrentVoid != null && dogCurrentVoid.getSpotValue(dog) > 0 &&
+               dogCurrentVoid.getSpotValue(dog) == dogCurrentVoid.getSpotValue(target))
+            {
+                vVoids = false;
+            }
+            if(virtualVoids)
+            {
+                dogCurrentVoid = updateVoid(dog, dogCurrentVoid);
+            }
             if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
             {
                 return;
@@ -156,12 +173,12 @@ public class Navigator
 
             MapLocation nextSpot = dog.add(lastDir);
 
-            if(badSpot(nextSpot, towers))
+            if(badSpot(nextSpot, towers, dogCurrentVoid, vVoids))
             {
                 if(!goingAround)
                 {
                     goingAround = true;
-                    goingLeft = goLeft(lastDir);
+                    goingLeft = goLeft(lastDir, vVoids);
                 }
             }
             else if(lastDir == dog.directionTo(target))
@@ -170,7 +187,7 @@ public class Navigator
             }
 
             //while way is blocked, rotate till free
-            while(badSpot(nextSpot, towers))
+            while(badSpot(nextSpot, towers, dogCurrentVoid, vVoids))
             {
                 if(goingLeft)
                 {
@@ -203,9 +220,19 @@ public class Navigator
         //loop through until it either reaches the goal or finds a bad spot
         while(true)
         {
-            if(badSpot(currentLocation, towers))
+            if(virtualVoids)
             {
-                return false;
+                if(badSpot(currentLocation, towers, updateVoid(currentLocation, null), true))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if(badSpot(currentLocation, towers, null, false))
+                {
+                    return false;
+                }
             }
             if(currentLocation.equals(dog))
             {
@@ -272,11 +299,23 @@ public class Navigator
 
     //this returns true if the spot is bad for any reason
     //such as void if not drone, unknown, off map, enemy towers/hq, or our own structures
-    private boolean badSpot(MapLocation spot, MapLocation[] towers) throws GameActionException
+    private boolean badSpot(MapLocation spot, MapLocation[] towers, Void currentVoid, boolean vVoids) throws GameActionException
     {
         if(checkEnemyMainStructures(spot, towers))
         {
             return true;
+        }
+
+        if(virtualVoids && vVoids)
+        {
+            if(currentVoid != null)
+            {
+                int spotValue = currentVoid.getSpotValue(spot);
+                if(spotValue == -2 || spotValue == -1 || spotValue > 0)
+                {
+                    return true;
+                }
+            }
         }
 
         TerrainTile tile = rc.senseTerrainTile(spot);
@@ -293,30 +332,30 @@ public class Navigator
     }
 
     //returns true if we should bug left around the roadblock, false means go right
-    private boolean goLeft(Direction lastDir) throws GameActionException
+    private boolean goLeft(Direction lastDir, boolean vVoids) throws GameActionException
     {
         MapLocation[] towers = rc.senseEnemyTowerLocations();
-        if(!badSpot(dog.add(lastDir.rotateLeft()), towers))
+        if(!badSpot(dog.add(lastDir.rotateLeft()), towers, dogCurrentVoid, vVoids))
         {
             return true;
         }
-        else if(!badSpot(dog.add(lastDir.rotateRight()), towers))
+        else if(!badSpot(dog.add(lastDir.rotateRight()), towers, dogCurrentVoid, vVoids))
         {
             return false;
         }
-        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft()), towers))
+        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft()), towers, dogCurrentVoid, vVoids))
         {
             return true;
         }
-        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight()), towers))
+        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight()), towers, dogCurrentVoid, vVoids))
         {
             return false;
         }
-        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft().rotateLeft()), towers))
+        else if(!badSpot(dog.add(lastDir.rotateLeft().rotateLeft().rotateLeft()), towers, dogCurrentVoid, vVoids))
         {
             return true;
         }
-        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight().rotateRight()), towers))
+        else if(!badSpot(dog.add(lastDir.rotateRight().rotateRight().rotateRight()), towers, dogCurrentVoid, vVoids))
         {
             return false;
         }
@@ -325,26 +364,70 @@ public class Navigator
         return rand.nextBoolean();
     }
 
-    //this checks if the target cannot be reached by the robot
-    private boolean cantGetCloser() throws GameActionException
+    private Void updateVoid(MapLocation location, Void currentVoid) throws GameActionException
     {
-
-        MapLocation[] towers = rc.senseEnemyTowerLocations();
-        if(!badSpot(target, towers))
+        if(currentVoid != null && nearVoid(location, currentVoid.startX, currentVoid.startY,
+                                           currentVoid.width, currentVoid.height))
         {
-            return false;
+            return currentVoid;
         }
-        MapLocation currentLocation = rc.getLocation();
-        while(!currentLocation.equals(target))
+        else if(lastVoid > 0)
         {
-            if(!badSpot(currentLocation, towers))
+            for(int k = 0; k < lastVoid; k++)
             {
-                return false;
+                if(nearVoid(location, voids[k].startX, voids[k].startY,voids[k].width, voids[k].height))
+                {
+                    return voids[k];
+                }
             }
-            currentLocation = currentLocation.add(currentLocation.directionTo(target));
         }
 
-        return true;
+        int lastHeader = rc.readBroadcast(Constants.startNavChannels);
+        for(int k = Constants.startNavChannels + 2; k < lastHeader; k += 5)
+        {
+            int startX = rc.readBroadcast(k + 1);
+            int startY = rc.readBroadcast(k + 2);
+            int width = rc.readBroadcast(k + 3);
+            int height = rc.readBroadcast(k + 4);
+            if(nearVoid(location, startX, startY, width, height))
+            {
+                int areaStart = rc.readBroadcast(k);
+                Void temp = new Void(downloadArea(areaStart, width, height), startX, startY, width, height);
+                voids[lastVoid] = temp;
+                lastVoid++;
+                return temp;
+            }
+        }
+
+        return null;
+    }
+
+    private int[][] downloadArea(int start, int width, int height) throws GameActionException
+    {
+        int[][] area = new int[height][width];
+
+        int counter = 0;
+        for(int k = 0; k < height; k++)
+        {
+            for(int a = 0; a < width; a++)
+            {
+                area[k][a] = rc.readBroadcast(start + counter);
+                counter++;
+            }
+        }
+
+        return area;
+    }
+
+    private boolean nearVoid(MapLocation location, int startX, int startY, int width, int height)
+    {
+        if(location.x + 1 >= startX && location.x - 1 <= startX + width &&
+           location.y + 1 >= startY && location.y - 1 <= startY + height)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     //setters to change flags mid game
@@ -361,6 +444,11 @@ public class Navigator
     public void setLowBytecodes(boolean lowBytecodes)
     {
         this.lowBytecodes = lowBytecodes;
+    }
+
+    public void setVirtualVoids(boolean virtualVoids)
+    {
+        this.virtualVoids = virtualVoids;
     }
 
     public MapLocation getTarget()
