@@ -956,6 +956,27 @@ public class Utilities
     }
 
     /**
+     * This method finds the closest tower to a location
+     */
+    public static MapLocation closestTowerToLoc(MapLocation[] towers, MapLocation current)
+    {
+        int closestDist = 99999;
+        MapLocation closest = null;
+
+        for (int i = towers.length; --i>=0; )
+        {
+            int dist = towers[i].distanceSquaredTo(current);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = towers[i];
+            }
+        }
+
+        return closest;
+    }
+
+    /**
      * This is a test
      */
     public static int test(RobotController rc) throws GameActionException
@@ -1160,6 +1181,10 @@ public class Utilities
         if (closest == null)
         {
             closest = ourHQ.add(ourHQ.directionTo(enemyHQ), 15);
+        }
+        else
+        {
+            closest = closest.add(ourHQ.directionTo(enemyHQ), 5);
         }
 
         return closest;

@@ -36,7 +36,7 @@ public class SupportingUnit extends Unit
 
         MapLocation goal = new MapLocation(x,y);
         Direction dir = goal.directionTo(ourHQ);
-        goal = goal.add(dir, 5);
+        goal = goal.add(dir, 3);
 
         RobotInfo[] allies = rc.senseNearbyRobots(24, us);
 

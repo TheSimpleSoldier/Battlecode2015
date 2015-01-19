@@ -2,15 +2,12 @@ package team044;
 
 import battlecode.common.*;
 
-/**
- * Created by David on 1/11/2015.
- */
 public class Strategy
 {
     public static BuildOrderMessaging[] strat;
 
     // Determine strategy and broadcast info to appropriate channels
-    public static BuildOrderMessaging[] initialStrategy(RobotController rc) throws GameActionException
+    public static BuildOrderMessaging[] initialStrategy(RobotController rc, Messenger messenger) throws GameActionException
     {
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
