@@ -9,10 +9,12 @@ public class MinerFactory extends Structure
 {
     private int numbOfMiners;
     private int actualMiners = 0;
+    private int maxWorkers = 20;
 
     public MinerFactory(RobotController rc)
     {
         super(rc);
+        maxWorkers = 40;
     }
 
 
@@ -29,11 +31,11 @@ public class MinerFactory extends Structure
         {
             return false;
         }
-        else if (numbOfMiners > 30 && actualMiners < 20 && Utilities.spawnUnit(RobotType.MINER, rc))
+        else if (numbOfMiners > maxWorkers && actualMiners < 20 && Utilities.spawnUnit(RobotType.MINER, rc))
         {
             return true;
         }
-        else if (numbOfMiners > 30)
+        else if (numbOfMiners > maxWorkers)
         {
             return false;
         }
