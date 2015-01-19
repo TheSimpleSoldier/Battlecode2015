@@ -99,6 +99,10 @@ public class Navigator
             {
                 rc.move(dir.rotateLeft().rotateLeft());
             }
+            else if(!badSpot(rc.getLocation().add(dir.opposite()), towers) && rc.canMove(dir.opposite()))
+            {
+                rc.move(dir.opposite());
+            }
         }
         //otherwise, if you can move, something is in the way, so reroute
         else if(rc.isCoreReady())
