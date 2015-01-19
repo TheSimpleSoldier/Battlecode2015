@@ -10,13 +10,13 @@ public class Navigator
     private MapLocation dog, target;
     private Random rand;
     private boolean goingLeft, goingAround;
-    private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog;
+    private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog, circle;
     private Direction lastFacing;
     private int HQRange = 24;
     private int circlingTime;
 
     public Navigator(RobotController rc, boolean avoidTowers, boolean avoidHQ,
-                     boolean lowBytecodes, boolean badDog)
+                     boolean lowBytecodes, boolean badDog, boolean circle)
     {
         this.rc = rc;
         dog = rc.getLocation();
@@ -29,6 +29,7 @@ public class Navigator
         this.avoidHQ = avoidHQ;
         this.lowBytecodes = lowBytecodes;
         this.badDog = badDog;
+        this.circle = circle;
         circlingTime = 0;
 
         if(rc.getType() == RobotType.DRONE || rc.getType() == RobotType.MISSILE)
@@ -70,18 +71,21 @@ public class Navigator
             this.target = target;
         }
 
-        if(cantGetCloser())
+        if(!circle)
         {
-            double radius = myLoc.distanceSquaredTo(target);
-            if(circlingTime > radius)
+            if(cantGetCloser())
             {
-                return false;
+                double radius = myLoc.distanceSquaredTo(target);
+                if(circlingTime > radius)
+                {
+                    return false;
+                }
+                circlingTime++;
             }
-            circlingTime++;
-        }
-        else
-        {
-            circlingTime = 0;
+            else
+            {
+                circlingTime = 0;
+            }
         }
 
         //dog always tries to run ahead since it will sometimes be stopped early
@@ -443,6 +447,11 @@ public class Navigator
     public void setLowBytecodes(boolean lowBytecodes)
     {
         this.lowBytecodes = lowBytecodes;
+    }
+
+    public void setCircle(boolean circle)
+    {
+        this.circle = circle;
     }
 
     public MapLocation getTarget()
