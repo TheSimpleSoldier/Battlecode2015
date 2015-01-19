@@ -211,6 +211,10 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(1, "Building requirement");
                 Utilities.buildRequirement(rc, buildingSpot, building);
             }
+            else if (rc.getTeamOre() < (building.oreCost - 20) && rc.senseOre(rc.getLocation()) > 0)
+            {
+                rc.mine();
+            }
         }
 
         return false;

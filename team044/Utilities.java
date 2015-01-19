@@ -268,42 +268,6 @@ public class Utilities
             }
         }
 
-        /*
-        for (int i = 0; i < 8; i++)
-        {
-            MapLocation newSpot = current.add(dirs[i]);
-            if (rc.canSenseLocation(newSpot))
-            {
-                if (rc.senseOre(newSpot) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot))
-                {
-                    best = newSpot;
-                }
-
-                for (int j = 0; j < 8; j++)
-                {
-                    MapLocation newSpot2 = newSpot.add(dirs[j]);
-                    if (rc.canSenseLocation(newSpot2))
-                    {
-                        if (rc.senseOre(newSpot2) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot2))
-                        {
-                            best = newSpot2;
-                            for (int k = 0; k < 8; k++)
-                            {
-                                MapLocation newSpot3 = newSpot2.add(dirs[k]);
-                                if (rc.canSenseLocation(newSpot3))
-                                {
-                                    if (rc.senseOre(newSpot3) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot3))
-                                    {
-                                        best = newSpot3;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }*/
-
         rc.setIndicatorString(1, "Best: "+best);
         return best;
     }
