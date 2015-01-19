@@ -324,6 +324,7 @@ public class FightMicro
                     {
                         Direction dir = us.directionTo(closestEnemy).opposite();
                         FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
+                        return true;
                     }
                 }
             }
@@ -353,7 +354,7 @@ public class FightMicro
                     {
                         MapLocation enemy = nearByEnemies[i].location;
                         int dist = us.distanceSquaredTo(enemy);
-                        if (dist < closest && dist <= nearByEnemies[i].type.attackRadiusSquared)
+                        if (dist < closest)
                         {
                             closest = dist;
                             closestEnemy = enemy;

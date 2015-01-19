@@ -29,11 +29,11 @@ public class MinerFactory extends Structure
         {
             return false;
         }
-        else if (numbOfMiners > 12 && actualMiners < 20 && Utilities.spawnUnit(RobotType.MINER, rc))
+        else if (numbOfMiners > 30 && actualMiners < 20 && Utilities.spawnUnit(RobotType.MINER, rc))
         {
             return true;
         }
-        else if (numbOfMiners > 12)
+        else if (numbOfMiners > 30)
         {
             return false;
         }

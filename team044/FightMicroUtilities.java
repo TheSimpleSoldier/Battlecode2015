@@ -724,7 +724,11 @@ public class FightMicroUtilities
      */
     public static void moveInDir(RobotController rc, MapLocation enemyHQ, MapLocation[] enemyTowers, Direction dir, MapLocation us) throws GameActionException
     {
-        if (rc.canMove(dir)  && !Utilities.locInRangeOfEnemyTower(us.add(dir), enemyTowers, enemyHQ))
+        if (!rc.isCoreReady())
+        {
+
+        }
+        else if (rc.canMove(dir)  && !Utilities.locInRangeOfEnemyTower(us.add(dir), enemyTowers, enemyHQ))
         {
             rc.move(dir);
         }
