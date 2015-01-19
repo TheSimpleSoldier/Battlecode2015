@@ -7,4 +7,5 @@ public class Constants
     public static final int maxDogSteps = 5;
     public static final int towerX = 7893;
     public static final int towerY = 7894;
+    public static final int startMinerSeenChannel = 600;//will go up to 700
 }

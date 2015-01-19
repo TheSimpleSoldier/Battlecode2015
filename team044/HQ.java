@@ -294,6 +294,19 @@ public class HQ extends Structure
 
     public void collectData() throws GameActionException
     {
+        int average = 0;
+        int count = 0;
+        for(int k = Constants.startMinerSeenChannel; rc.readBroadcast(k) != 0; k++)
+        {
+            average += rc.readBroadcast(k);
+            count++;
+        }
+        average = average / count;
+        if(average > 250)
+        {
+            rc.setTeamMemory(TeamMemory.harassDrone.ordinal(), 1);
+        }
+
         MapLocation[] towers = rc.senseTowerLocations();
 
         if (towers.length >= 2)
