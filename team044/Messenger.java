@@ -217,7 +217,7 @@ public class Messenger
         {
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
-                group1Goal = Utilities.closestTower(rc, enemyTowers);
+                group1Goal = Utilities.closestTowerToLoc(enemyTowers, group1CurrentSpot);
                 if (group1Goal == null)
                 {
                     group1Goal = rc.senseEnemyHQLocation();
@@ -250,7 +250,7 @@ public class Messenger
         {
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
-                group2Goal = Utilities.closestTower(rc, enemyTowers);
+                group2Goal = Utilities.closestTowerToLoc(enemyTowers, group2CurrentSpot);
                 if (group2Goal == null)
                 {
                     group2Goal = rc.senseEnemyHQLocation();
@@ -285,7 +285,7 @@ public class Messenger
         {
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
-                group3Goal = Utilities.closestTower(rc, enemyTowers);
+                group3Goal = Utilities.closestTowerToLoc(enemyTowers, group3CurrentSpot);
                 if (group3Goal == null)
                 {
                     group3Goal = rc.senseEnemyHQLocation();
