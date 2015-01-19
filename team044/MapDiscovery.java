@@ -10,11 +10,13 @@ import java.util.Arrays;
 public class MapDiscovery
 {
     public int[][] map;
-    public int nwX,nwY;
+    public int nwX,nwY,seX,seY;
     public MapDiscovery()
     {
         nwX = 0;
         nwY = 0;
+        seX = 0;
+        seY = 0;
     }
 
     private boolean scanner(RobotController rc, int minX, int minY, int maxX, int maxY)
@@ -49,17 +51,25 @@ public class MapDiscovery
         {
             map = new int[yLimit][xLimit];
             rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
-            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minX);
+            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
+            nwX = minX;
+            nwY = minY;
+            seX = maxX;
+            seY = maxY;
         }
         else if (check == 0 && xLimit > map[0].length)
         {
             map = new int[map.length][xLimit];
+            nwX = minX;
+            seX = maxX;
             rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
         }
         else if (check == 0 && yLimit > map.length)
         {
             map = new int[yLimit][map[0].length];
-            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minX);
+            nwY = minY;
+            seY = maxY;
+            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
         }
         MapLocation point = new MapLocation(minX,minY);
         int fog1 = 0;
