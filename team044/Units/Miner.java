@@ -25,6 +25,7 @@ public class Miner extends Unit
     {
         super(rc);
 
+        nav.setCircle(true);
         rand = new Random(rc.getID() * Clock.getRoundNum());
         dir = rand.nextInt(8);
         lastSpot = rc.getLocation();
