@@ -213,7 +213,7 @@ public class Messenger
             group3Launched = true;
         }
 
-        if (group1Launched && (group1Offensive || group1LauncherCount >= 25))
+        if (group1Launched && (group1Offensive || group1LauncherCount >= 25) && group1CurrentSpot != null)
         {
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
@@ -246,7 +246,7 @@ public class Messenger
         }
 
 
-        if (group2Launched && group2Offensive && group3Launched)
+        if (group2Launched && group2Offensive && group3Launched && group2CurrentSpot != null)
         {
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
@@ -281,7 +281,7 @@ public class Messenger
             }
         }
 
-        if (group3Launched && group3Offensive && group2Launched)
+        if (group3Launched && group3Offensive && group2Launched && group3CurrentSpot != null)
         {
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
