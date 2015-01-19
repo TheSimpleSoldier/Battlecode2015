@@ -1,6 +1,10 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Util;
+import team044.Units.Launcher;
+
+import java.util.Map;
 
 public class FightMicroUtilities
 {
@@ -37,7 +41,12 @@ public class FightMicroUtilities
 
         for (int i = 0; i < nearByEnemies.length; i++)
         {
-            if (nearByEnemies[i].type == RobotType.TOWER)
+            // commander gets highest priority to eliminate him and his leadership bonus
+            if (nearByEnemies[i].type == RobotType.COMMANDER)
+            {
+                return nearByEnemies[i];
+            }
+            else if (nearByEnemies[i].type == RobotType.TOWER)
             {
                 if (weakestTower == null || nearByEnemies[i].health < weakestTower.health)
                 {
@@ -133,6 +142,62 @@ public class FightMicroUtilities
     }
 
     /**
+     * This method looks to see if there is a location we can move to
+     * that will allow us to kite the enemy
+     */
+    public static Direction safeAttack(RobotController rc, MapLocation us, RobotInfo[] enemies, MapLocation enemyHQ, MapLocation[] towers)
+    {
+        int range = rc.getType().attackRadiusSquared;
+        Direction[] dirs = Direction.values();
+
+
+        for (int i = 8; --i>=0; )
+        {
+            MapLocation next = us.add(dirs[i]);
+
+            if (Utilities.locInRangeOfEnemyTower(next, towers, enemyHQ))
+            {
+                continue;
+            }
+
+            boolean good = false;
+
+            for (int j = enemies.length; --j>=0; )
+            {
+                if (enemies[j].type == RobotType.MISSILE)
+                {
+                    continue;
+                }
+
+                int dist = next.distanceSquaredTo(enemies[j].location);
+                int theirRange = enemies[j].type.attackRadiusSquared;
+
+                // bashers have a longer range in reality than specified in the specs
+                if (enemies[j].type == RobotType.BASHER)
+                {
+                    dist += 6;
+                }
+
+                if (dist > theirRange && dist <= range)
+                {
+                    good = true;
+                }
+                else if (dist <= theirRange)
+                {
+                    good = false;
+                }
+            }
+
+            if (good)
+            {
+                return dirs[i];
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * this method advances us towards the enemy
      */
     public static void attack(RobotController rc, RobotInfo[] enemies) throws GameActionException
@@ -178,13 +243,26 @@ public class FightMicroUtilities
             return;
         }
         RobotInfo launcher = null;
+        boolean missile = false;
+        int missile_x = 0;
+        int missile_y = 0;
+        int count = 0;
 
         for (int i = enemies.length; --i>=0; )
         {
             if (enemies[i].type == RobotType.LAUNCHER)
             {
                 launcher = enemies[i];
+                missile = false;
                 break;
+            }
+            else if (enemies[i].type == RobotType.MISSILE)
+            {
+                launcher = enemies[i];
+                missile_x += launcher.location.x;
+                missile_y += launcher.location.y;
+                count++;
+                missile = true;
             }
         }
 
@@ -192,6 +270,29 @@ public class FightMicroUtilities
         if (launcher == null)
         {
 
+        }
+        // if we see a missile we can assume their is a launcher beyond
+        else if (missile)
+        {
+            missile_x /= count;
+            missile_y /= count;
+
+            MapLocation missile_center = new MapLocation(missile_x, missile_y);
+
+            Direction dir = rc.getLocation().directionTo(missile_center);
+
+            if (rc.canMove(dir))
+            {
+                rc.move(dir);
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                rc.move(dir.rotateLeft());
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                rc.move(dir.rotateRight());
+            }
         }
         // lock on launcher
         else
@@ -478,11 +579,11 @@ public class FightMicroUtilities
 
 
     //==================== Methods for Bashers ========================\\
-    public static Direction bestBasherDir(RobotController rc, RobotInfo[] enemies)
+    public static Direction bestBasherDir(RobotController rc, RobotInfo[] enemies, int currentScore)
     {
         Direction[] dirs = Direction.values();
         int score;
-        int bestScore = 0;
+        int bestScore = currentScore;
         Direction best = null;
         MapLocation current;
         MapLocation us = rc.getLocation();
@@ -547,7 +648,7 @@ public class FightMicroUtilities
     //======================== Methods for launchers ============================\\
     public static Direction dirToShoot(RobotController rc, RobotInfo[] nearByEnemies, MapLocation enemyStructure)
     {
-        Direction dir;
+        Direction dir, toReturn = null;
         MapLocation us = rc.getLocation();
         if (enemyStructure != null)
         {
@@ -575,24 +676,30 @@ public class FightMicroUtilities
                 dir = us.directionTo(nearByEnemies[i].location);
                 if (!rc.canLaunch(dir))
                 {
-
                 }
                 else if (!alliesInPath(allies, dir, us))
                 {
-                    return dir;
+                    // focus launchers then commanders then tanks and finally just any enemy we can shoot at
+                    if (nearByEnemies[i].type == RobotType.LAUNCHER)
+                    {
+                        return dir;
+                    }
+                    else if (nearByEnemies[i].type == RobotType.COMMANDER)
+                    {
+                        return dir;
+                    }
+                    else if (nearByEnemies[i].type == RobotType.TANK)
+                    {
+                        toReturn = dir;
+                    }
+                    else if (toReturn == null)
+                    {
+                        toReturn = dir;
+                    }
                 }
-                /*
-                else if (!alliesInPath(allies, dir.rotateLeft(), us))
-                {
-                    return dir.rotateLeft();
-                }
-                else if (!alliesInPath(allies, dir.rotateRight(), us))
-                {
-                    return dir.rotateRight();
-                }*/
             }
         }
-        return null;
+        return toReturn;
     }
 
     public static boolean alliesInPath(RobotInfo[] nearByAllies, Direction dir, MapLocation startingSpot)
@@ -609,6 +716,446 @@ public class FightMicroUtilities
             }
         }
         return false;
+    }
+
+    //======================= Commander Methods =========================\\
+
+    /**
+     * This method finds the best place for a commander to flash back to
+     */
+    public static MapLocation retreatFlashLoc(RobotController rc, RobotInfo[] enemies) throws GameActionException
+    {
+        MapLocation us = rc.getLocation();
+        MapLocation flashTo = null;
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation closestTower = Utilities.closestTower(rc, enemyTowers);
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+
+        // then we should flash away from enemyHQ
+        if (us.distanceSquaredTo(enemyHQ) <= 52)
+        {
+            return flashAwayFrom(rc, enemyHQ);
+        }
+        else if (closestTower != null && us.distanceSquaredTo(closestTower) <= 24)
+        {
+            return flashAwayFrom(rc, closestTower);
+        }
+        else
+        {
+            for (int i = enemies.length; --i>=0; )
+            {
+                MapLocation enemy = enemies[i].location;
+
+                return flashAwayFrom(rc, enemy);
+            }
+        }
+
+        return flashTo;
+    }
+
+
+    /**
+     * This method finds the furthest location away from another location that the commander can flash to
+     */
+    public static MapLocation flashAwayFrom(RobotController rc, MapLocation bad)
+    {
+        MapLocation[] avaliableSpots = MapLocation.getAllMapLocationsWithinRadiusSq(rc.getLocation(), 10);
+        int bestDist = rc.getLocation().distanceSquaredTo(bad);
+        MapLocation bestSpot = null;
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+
+        for (int i = avaliableSpots.length; --i>=0; )
+        {
+            if (rc.isPathable(rc.getType(), avaliableSpots[i]) && !Utilities.locInRangeOfEnemyTower(avaliableSpots[i], enemyTowers, enemyHQ))
+            {
+                int dist = avaliableSpots[i].distanceSquaredTo(bad);
+                if (dist > bestDist)
+                {
+                    bestDist = dist;
+                    bestSpot = avaliableSpots[i];
+                }
+            }
+        }
+
+        return bestSpot;
+    }
+
+    /**
+     * This method flashes to the closest location to another location
+     */
+    public static MapLocation flashToLoc(RobotController rc, MapLocation good)
+    {
+        MapLocation[] avaliableSpots = MapLocation.getAllMapLocationsWithinRadiusSq(rc.getLocation(), 10);
+        int bestDist = rc.getLocation().distanceSquaredTo(good);
+        MapLocation bestSpot = null;
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+
+        for (int i = avaliableSpots.length; --i>=0; )
+        {
+            if (rc.isPathable(rc.getType(), avaliableSpots[i]) && !Utilities.locInRangeOfEnemyTower(avaliableSpots[i], enemyTowers, enemyHQ))
+            {
+                int dist = avaliableSpots[i].distanceSquaredTo(good);
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    bestSpot = avaliableSpots[i];
+                }
+            }
+        }
+
+        return bestSpot;
+    }
+
+    /**
+     * Flash over missile
+     */
+    public static MapLocation flashOverMissile(RobotController rc, MapLocation missile)
+    {
+        MapLocation[] avaliableSpots = MapLocation.getAllMapLocationsWithinRadiusSq(rc.getLocation(), 10);
+        int ourDist = rc.getLocation().distanceSquaredTo(missile);
+        int bestDist = ourDist;
+        MapLocation bestSpot = rc.getLocation();
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+
+        for (int i = avaliableSpots.length; --i>=0; )
+        {
+            if (rc.isPathable(rc.getType(), avaliableSpots[i]) && !Utilities.locInRangeOfEnemyTower(avaliableSpots[i], enemyTowers, enemyHQ))
+            {
+                int dist = avaliableSpots[i].distanceSquaredTo(missile);
+                int distToUs = avaliableSpots[i].distanceSquaredTo(rc.getLocation());
+                if (dist > bestDist && dist < distToUs)
+                {
+                    bestDist = dist;
+                    bestSpot = avaliableSpots[i];
+                }
+            }
+        }
+
+        return bestSpot;
+    }
+
+    /**
+     * This method causes the commander to flash to a forward location that is in a certain distance
+     * the inteded use of this method is for when the commander is trying to get over a void space region
+     */
+    public static MapLocation flashInDir(RobotController rc, Direction dir)
+    {
+        MapLocation[] avaliableSpots = MapLocation.getAllMapLocationsWithinRadiusSq(rc.getLocation(), 10);
+        MapLocation target = rc.getLocation().add(dir, 5);
+        MapLocation us = rc.getLocation();
+        int ourDist = us.distanceSquaredTo(target);
+        int bestDist = 999;
+        MapLocation jumpTo = null;
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+
+        for (int i = avaliableSpots.length; --i>=0; )
+        {
+            if (rc.isPathable(rc.getType(), avaliableSpots[i]))
+            {
+                if (!Utilities.locInRangeOfEnemyTower(avaliableSpots[i], enemyTowers, enemyHQ))
+                {
+                    int dist = avaliableSpots[i].distanceSquaredTo(target);
+                    int distToUs = avaliableSpots[i].distanceSquaredTo(us);
+                    if (dist < bestDist && dist < ourDist && distToUs > 2)
+                    {
+                        bestDist = dist;
+                        jumpTo = avaliableSpots[i];
+                    }
+                }
+            }
+        }
+
+        return jumpTo;
+    }
+
+    /**
+     * This method returns if the commander can't move forward
+     */
+    public static boolean commanderBlocked(RobotController rc, MapLocation target)
+    {
+        Direction dir = rc.getLocation().directionTo(target);
+        MapLocation us = rc.getLocation();
+        MapLocation next = us.add(dir);
+        MapLocation right = us.add(dir.rotateRight());
+        MapLocation left = us.add(dir.rotateLeft());
+
+        if (rc.isPathable(rc.getType(), next) && rc.isPathable(rc.getType(), right) && rc.isPathable(rc.getType(), left))
+        {
+            return false;
+        }
+
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+
+        if (!rc.isPathable(rc.getType(), next) || Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (!rc.isPathable(rc.getType(), left) || Utilities.locInRangeOfEnemyTower(left, enemyTowers, enemyHQ))
+            {
+                if (!rc.isPathable(rc.getType(), right) || Utilities.locInRangeOfEnemyTower(right, enemyTowers, enemyHQ))
+                {
+                    return true;
+                }
+            }
+        }
+
+
+        return false;
+    }
+
+    /**
+     * This method finds the best location to move the commander to
+     */
+    public static Direction moveCommander(RobotController rc, boolean avoidStructures, Direction dir)
+    {
+        MapLocation us = rc.getLocation();
+        MapLocation next = us.add(dir);
+
+        if (avoidStructures)
+        {
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+            MapLocation enemyHQ = rc.senseEnemyHQLocation();
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir))
+                {
+                    return dir;
+                }
+            }
+            next = us.add(dir.rotateLeft());
+
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir.rotateLeft()))
+                {
+                    return dir.rotateLeft();
+                }
+            }
+
+            next = us.add(dir.rotateRight());
+
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir.rotateRight()))
+                {
+                    return dir.rotateRight();
+                }
+            }
+
+            next = us.add(dir.rotateLeft().rotateLeft());
+
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir.rotateLeft().rotateLeft()))
+                {
+                    return dir.rotateLeft().rotateLeft();
+                }
+            }
+
+            next = us.add(dir.rotateRight().rotateRight());
+
+            if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+            {
+                if (rc.canMove(dir.rotateRight().rotateRight()))
+                {
+                    return dir.rotateRight().rotateRight();
+                }
+            }
+        }
+        else
+        {
+            if (rc.canMove(dir))
+            {
+                return dir;
+            }
+            else if (rc.canMove(dir.rotateLeft()))
+            {
+                return dir.rotateLeft();
+            }
+            else if (rc.canMove(dir.rotateRight()))
+            {
+                return  dir.rotateRight();
+            }
+            else if (rc.canMove(dir.rotateLeft().rotateLeft()))
+            {
+                return dir.rotateLeft().rotateLeft();
+            }
+            else if (rc.canMove(dir.rotateRight().rotateRight()))
+            {
+                return dir.rotateRight().rotateRight();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * This method determines if the commander should go after a particular unit
+     */
+    public static MapLocation getCommanderAttack(RobotController rc, RobotInfo[] enemies)
+    {
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        MapLocation[] towers = rc.senseEnemyTowerLocations();
+        boolean inRange;
+        int distFromHQ;
+
+        if (towers.length < 2)
+        {
+            distFromHQ = 2;
+        }
+        // 35 range no splash damage
+        else if (towers.length < 5)
+        {
+            distFromHQ = 5;
+        }
+        // 35 range and splash damage
+        else
+        {
+            distFromHQ = 10;
+        }
+
+        for (int i = enemies.length; --i >=0; )
+        {
+            inRange = true;
+            MapLocation enemy = enemies[i].location;
+
+            if (enemy.distanceSquaredTo(enemyHQ) <= distFromHQ)
+            {
+                continue;
+            }
+
+            for (int j = towers.length; --j>=0; )
+            {
+                if (towers[j].distanceSquaredTo(enemy) <= 2)
+                {
+                    inRange = false;
+                    j = 0;
+                }
+            }
+
+            if (inRange)
+            {
+                return enemy;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * This method determines if unit is type that is vulnerable to attack
+     */
+    public static boolean unitVulnerable(RobotInfo enemy)
+    {
+        switch(enemy.type)
+        {
+            case LAUNCHER:
+                return true;
+            case MISSILE:
+                return false;
+            case MINERFACTORY:
+                return true;
+            case MINER:
+                return true;
+            case COMMANDER:
+                return false;
+            case COMPUTER:
+                return true;
+            case SUPPLYDEPOT:
+                return true;
+            case SOLDIER:
+                return false;
+            case BASHER:
+                return false;
+            case DRONE:
+                return false;
+            case TANK:
+                return false;
+            case TOWER:
+                return false;
+            case TECHNOLOGYINSTITUTE:
+                return true;
+            case TRAININGFIELD:
+                return true;
+            case BARRACKS:
+                return true;
+            case TANKFACTORY:
+                return true;
+            case HANDWASHSTATION:
+                return true;
+            case HELIPAD:
+                return true;
+            case AEROSPACELAB:
+                return true;
+            case BEAVER:
+                return true;
+            case HQ:
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * This method moves a unit in a given direction that is not in range of enemy towers or HQ
+     */
+    public static Direction moveAwayFromTowers(RobotController rc, Direction dir) throws GameActionException
+    {
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        MapLocation us = rc.getLocation();
+        MapLocation next = us.add(dir);
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir))
+            {
+                return dir;
+            }
+        }
+        next = us.add(dir.rotateLeft());
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir.rotateLeft()))
+            {
+                return dir.rotateLeft();
+            }
+        }
+
+        next = us.add(dir.rotateRight());
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir.rotateRight()))
+            {
+                return dir.rotateRight();
+            }
+        }
+
+        next = us.add(dir.rotateLeft().rotateLeft());
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir.rotateLeft().rotateLeft()))
+            {
+                return dir.rotateLeft().rotateLeft();
+            }
+        }
+
+        next = us.add(dir.rotateRight().rotateRight());
+
+        if (!Utilities.locInRangeOfEnemyTower(next, enemyTowers, enemyHQ))
+        {
+            if (rc.canMove(dir.rotateRight().rotateRight()))
+            {
+                return dir.rotateRight().rotateRight();
+            }
+        }
+        return null;
     }
 }
 

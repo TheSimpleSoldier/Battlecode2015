@@ -34,13 +34,16 @@ public abstract class DefensiveUnits extends Unit
         if (index >= 0)
         {
             MapLocation[] towers = rc.senseTowerLocations();
-            MapLocation tower = towers[index];
-
-            // go farther for towers
-            if (rc.getLocation().distanceSquaredTo(tower) < 400)
+            if (index < towers.length)
             {
-                target = tower;
-                defend = true;
+                MapLocation tower = towers[index];
+
+                // go farther for towers
+                if (rc.getLocation().distanceSquaredTo(tower) < 400)
+                {
+                    target = tower;
+                    defend = true;
+                }
             }
         }
 
@@ -90,11 +93,13 @@ public abstract class DefensiveUnits extends Unit
 
     public boolean fight() throws GameActionException
     {
+        rc.setIndicatorString(1, "We are in fightMicro");
         return fighter.advancedFightMicro(nearByEnemies);
     }
 
     public boolean takeNextStep() throws GameActionException
     {
+        rc.setIndicatorString(1, "We are in navigator");
         if (target == null)
         {
             return false;

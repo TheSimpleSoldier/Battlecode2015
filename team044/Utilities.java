@@ -255,42 +255,48 @@ public class Utilities
     public static MapLocation greedyBestMiningSpot(RobotController rc) throws GameActionException
     {
         MapLocation best;
-        MapLocation currentBest;
 
         best = rc.getLocation();
         Direction[] dirs = Direction.values();
 
-        do
+        MapLocation current = best;
+        for (int i = 0; i < 8; i++)
         {
-            currentBest = best;
-            MapLocation current = best;
-            for (int i = 0; i < 8; i++)
+            MapLocation newSpot = current.add(dirs[i]);
+            if (rc.canSenseLocation(newSpot))
             {
-                MapLocation newSpot = current.add(dirs[i]);
-                if (rc.canSenseLocation(newSpot))
+                if (rc.senseOre(newSpot) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot))
                 {
-                    if (rc.senseOre(newSpot) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot))
+                    best = newSpot;
+                }
+
+                for (int j = 0; j < 8; j++)
+                {
+                    MapLocation newSpot2 = newSpot.add(dirs[j]);
+                    if (rc.canSenseLocation(newSpot2))
                     {
-                        best = newSpot;
-                    }
-                    /*
-                    for (int j = 0; j < 8; j++)
-                    {
-                        MapLocation newSpot2 = newSpot.add(dirs[j]);
-                        if (rc.canSenseLocation(newSpot2))
+                        if (rc.senseOre(newSpot2) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot2))
                         {
-                            if (rc.senseOre(newSpot2) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot2))
+                            best = newSpot2;
+                            for (int k = 0; k < 8; k++)
                             {
-                                best = newSpot2;
+                                MapLocation newSpot3 = newSpot2.add(dirs[k]);
+                                if (rc.canSenseLocation(newSpot3))
+                                {
+                                    if (rc.senseOre(newSpot3) > rc.senseOre(best) && !rc.isLocationOccupied(newSpot3))
+                                    {
+                                        best = newSpot3;
+                                    }
+                                }
                             }
                         }
-                    }*/
+                    }
                 }
             }
-        } while (rc.senseOre(best) > rc.senseOre(currentBest));
+        }
 
-        rc.setIndicatorString(1, "Best: "+currentBest);
-        return currentBest;
+        rc.setIndicatorString(1, "Best: "+best);
+        return best;
     }
 
     /**
@@ -860,7 +866,14 @@ public class Utilities
 
         // we want to rally in front of our tower so the enemy launchers
         // don't have the advantage of knowing where we are
-        bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
+        if (bestTower != null)
+        {
+            bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
+        }
+        else
+        {
+            bestTower = rc.senseHQLocation().add(rc.senseHQLocation().directionTo(enemyHQ), 10);
+        }
 
         return bestTower;
     }
@@ -1108,5 +1121,167 @@ public class Utilities
         }
 
         return next;
+    }
+
+
+    /**
+     * This method gets our tower closest to the center
+     */
+    public static MapLocation getCentralTower(RobotController rc, MapLocation[] towers)
+    {
+        MapLocation ourHQ = rc.senseHQLocation();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        int x = (ourHQ.x + enemyHQ.x) / 2;
+        int y = (ourHQ.y + enemyHQ.y) / 2;
+
+        System.out.println("X: " + x + ", Y: "+ y);
+
+        MapLocation center = new MapLocation(x,y);
+        int closestDist = 99999;
+        MapLocation closest = null;
+
+        for (int i = towers.length; --i>=0; )
+        {
+            int dist = towers[i].distanceSquaredTo(center);
+
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closest = towers[i];
+            }
+        }
+
+        if (closest == null)
+        {
+            closest = ourHQ.add(ourHQ.directionTo(enemyHQ), 15);
+        }
+
+        return closest;
+    }
+
+    /**
+     * This method gets the tower on our right flank
+     */
+    public static MapLocation getRightFlank(RobotController rc, MapLocation[] towers)
+    {
+        MapLocation ourHQ = rc.senseHQLocation();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        Direction direction = ourHQ.directionTo(enemyHQ);
+        int maxDist = 0;
+        MapLocation location = null;
+
+        for (int i = towers.length; --i>=0; )
+        {
+            Direction dir = ourHQ.directionTo(towers[i]);
+
+            if (dir == direction.rotateRight() || dir == direction.rotateRight().rotateRight())
+            {
+                int dist = towers[i].distanceSquaredTo(ourHQ);
+                if (dist > maxDist)
+                {
+                    maxDist = dist;
+                    location = towers[i];
+                }
+            }
+        }
+
+        if (location == null)
+        {
+            location = ourHQ.add(direction.rotateRight(), 15);
+        }
+
+        return location;
+    }
+
+    /**
+     * This method gets the tower on our left flank
+     */
+    public static MapLocation getLeftFlank(RobotController rc, MapLocation[] towers)
+    {
+        MapLocation ourHQ = rc.senseHQLocation();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        Direction direction = ourHQ.directionTo(enemyHQ);
+        int maxDist = 0;
+        MapLocation location = null;
+
+        for (int i = towers.length; --i>=0; )
+        {
+            Direction dir = ourHQ.directionTo(towers[i]);
+
+            if (dir == direction.rotateLeft() || dir == direction.rotateLeft().rotateLeft())
+            {
+                int dist = towers[i].distanceSquaredTo(ourHQ);
+                if (dist > maxDist)
+                {
+                    maxDist = dist;
+                    location = towers[i];
+                }
+            }
+        }
+
+        if (location == null)
+        {
+            location = ourHQ.add(direction.rotateLeft(), 15);
+        }
+
+        return location;
+    }
+
+    /**
+     * This method gets the enemies tower on the right Flank
+     */
+    public static MapLocation enemyTowerOnRightFlank(RobotController rc, MapLocation[] towers)
+    {
+        MapLocation ourHQ = rc.senseHQLocation();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        Direction direction = enemyHQ.directionTo(ourHQ);
+        int maxDist = 0;
+        MapLocation location = null;
+
+        for (int i = towers.length; --i>=0; )
+        {
+            Direction dir = enemyHQ.directionTo(towers[i]);
+
+            if (dir == direction.rotateLeft() || dir == direction.rotateLeft().rotateLeft())
+            {
+                int dist = towers[i].distanceSquaredTo(enemyHQ);
+                if (dist > maxDist)
+                {
+                    maxDist = dist;
+                    location = towers[i];
+                }
+            }
+        }
+
+        return location;
+    }
+
+    /**
+     * This method gets the enemies tower on the left flank
+     */
+    public static MapLocation enemyTowerOnLeftFlank(RobotController rc, MapLocation[] towers)
+    {
+        MapLocation ourHQ = rc.senseHQLocation();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        Direction direction = enemyHQ.directionTo(ourHQ);
+        int maxDist = 0;
+        MapLocation location = null;
+
+        for (int i = towers.length; --i>=0; )
+        {
+            Direction dir = enemyHQ.directionTo(towers[i]);
+
+            if (dir == direction.rotateRight() || dir == direction.rotateRight().rotateRight())
+            {
+                int dist = towers[i].distanceSquaredTo(enemyHQ);
+                if (dist > maxDist)
+                {
+                    maxDist = dist;
+                    location = towers[i];
+                }
+            }
+        }
+
+        return location;
     }
 }

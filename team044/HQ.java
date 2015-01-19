@@ -35,6 +35,16 @@ public class HQ extends Structure
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc);
 
+        strat = new BuildOrderMessaging[35];
+        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
+        strat[1] = BuildOrderMessaging.BuildMinerFactory;
+        strat[2] = BuildOrderMessaging.BuildHelipad;
+        strat[3] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[4] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[5] = BuildOrderMessaging.BuildBaracks;
+        strat[6] = BuildOrderMessaging.BuildTankFactory;
+        strat[7] = BuildOrderMessaging.BuildAerospaceLab;
+        strat[8] = BuildOrderMessaging.BuildAerospaceLab;
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
@@ -42,6 +52,7 @@ public class HQ extends Structure
     {
         //rc.setIndicatorString(0, "Messaging");
         messenger.giveUnitOrders();
+        messenger.manageGroups();
         //rc.setIndicatorString(0, "after give unit orders");
 
         // reset tower under attack channel every round
@@ -59,6 +70,10 @@ public class HQ extends Structure
         rc.broadcast(Messaging.MinerUnderAttackX.ordinal(), 0);
         rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), 0);
 
+        // reset commander position
+        rc.broadcast(Messaging.CommanderLocX.ordinal(), 0);
+        rc.broadcast(Messaging.CommanderLocY.ordinal(), 0);
+
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
         if (Clock.getRoundNum() > 1800)
         {
@@ -67,7 +82,7 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() > 1250)
+        else if (Clock.getRoundNum() > 750)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
@@ -400,7 +415,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 250)
+        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 750)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {

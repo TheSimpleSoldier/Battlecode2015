@@ -1,9 +1,14 @@
 package team044.Units;
 
+import team044.BuildOrderMessaging;
 import team044.Messaging;
 import team044.Unit;
 import battlecode.common.*;
+import team044.Units.Defenders.DefensiveSoldiers;
 import team044.Units.Rushers.SoldierRusher;
+import team044.Units.SquadUnits.SoldierSquad;
+import team044.Units.SupportingUnits.SupportingSoldier;
+import team044.Units.harrassers.SoldierHarrasser;
 import team044.Utilities;
 
 public class Soldier extends Unit
@@ -53,9 +58,24 @@ public class Soldier extends Unit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        int type = rc.readBroadcast(Messaging.SoldierType.ordinal());
+        rc.broadcast(Messaging.SoldierType.ordinal(), -1);
+
+        if (type == BuildOrderMessaging.BuildHarrassSoldier.ordinal())
         {
-            return new SoldierRusher(rc);
+            return new SoldierHarrasser(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildDefensiveSoldier.ordinal())
+        {
+            return new DefensiveSoldiers(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildSquadSoldier.ordinal())
+        {
+            return new SoldierSquad(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildSupportingSoldier.ordinal())
+        {
+            return new SupportingSoldier(rc);
         }
         return current;
     }

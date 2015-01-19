@@ -9,12 +9,13 @@ public class Barracks extends Structure
 {
     boolean basher = true;
     int numbOfSoldiers = 0;
+    int counter = 0;
     public Barracks(RobotController rc)
     {
         super(rc);
         if (rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) > 35)
         {
-            basher = false;
+            basher = true;
         }
         rc.setIndicatorString(0, "Barracks");
     }
@@ -30,21 +31,23 @@ public class Barracks extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-        /*
-        if (basher)
+
+        if (rc.readBroadcast(Messaging.ShutOffBasherProd.ordinal()) == 0)
         {
-            if (rc.getTeamOre() > 600 && Utilities.spawnUnit(RobotType.BASHER, rc))
+            if (Utilities.spawnUnit(RobotType.BASHER, rc))
             {
+                counter++;
                 return true;
             }
         }
-        else
+        else if (rc.readBroadcast(Messaging.ShutOffSoldierProd.ordinal()) == 0)
         {
-            if (numbOfSoldiers < 10 && Utilities.spawnUnit(RobotType.SOLDIER, rc))
+            if (Utilities.spawnUnit(RobotType.SOLDIER, rc))
             {
+                counter++;
                 return true;
             }
-        }*/
+        }
         return false;
     }
 }
