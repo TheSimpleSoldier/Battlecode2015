@@ -1,6 +1,7 @@
 package team044;
 
 import battlecode.common.*;
+import battlecode.world.Robot;
 import battlecode.world.Util;
 import team044.Units.Launcher;
 
@@ -716,6 +717,33 @@ public class FightMicroUtilities
             }
         }
         return false;
+    }
+
+    /**
+     * this method moves us in a direction that is safe from enemy towers
+     */
+    public static void moveInDir(RobotController rc, MapLocation enemyHQ, MapLocation[] enemyTowers, Direction dir, MapLocation us) throws GameActionException
+    {
+        if (rc.canMove(dir)  && !Utilities.locInRangeOfEnemyTower(us.add(dir), enemyTowers, enemyHQ))
+        {
+            rc.move(dir);
+        }
+        else if (rc.canMove(dir.rotateRight())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight()), enemyTowers, enemyHQ))
+        {
+            rc.move(dir.rotateRight());
+        }
+        else if (rc.canMove(dir.rotateLeft())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateLeft()), enemyTowers, enemyHQ))
+        {
+            rc.move(dir.rotateLeft());
+        }
+        else if (rc.canMove(dir.rotateLeft().rotateLeft())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateLeft().rotateLeft()), enemyTowers, enemyHQ))
+        {
+            rc.move(dir.rotateLeft().rotateLeft());
+        }
+        else if (rc.canMove(dir.rotateRight().rotateRight())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight().rotateRight()), enemyTowers, enemyHQ))
+        {
+            rc.move(dir.rotateRight().rotateRight());
+        }
     }
 
     //======================= Commander Methods =========================\\

@@ -295,6 +295,7 @@ public class FightMicro
 
             if (closeToTower)
             {
+                MapLocation us = rc.getLocation();
                 if (nearByEnemies.length == 0)
                 {
                     return true;
@@ -302,19 +303,27 @@ public class FightMicro
                 else
                 {
                     int closestDist = 25;
+                    MapLocation closestEnemy = null;
 
                     for (int i = nearByEnemies.length; --i>=0; )
                     {
-                        int dist = nearByEnemies[i].location.distanceSquaredTo(rc.getLocation());
+                        int dist = nearByEnemies[i].location.distanceSquaredTo(us);
                         if (dist < closestDist)
                         {
                             closestDist = dist;
+                            closestEnemy = nearByEnemies[i].location;
                         }
                     }
 
+                    // if there are no enemies in range the fire away at the enemies tower
                     if (closestDist > 24)
                     {
                         return true;
+                    }
+                    else
+                    {
+                        Direction dir = us.directionTo(closestEnemy).opposite();
+                        FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
                     }
                 }
             }
@@ -323,6 +332,12 @@ public class FightMicro
             if (rc.isCoreReady() && nearByEnemies.length > 0) {
                 MapLocation missile = null;
                 MapLocation commander = null;
+                MapLocation closestEnemy = null;
+                int closest = 24;
+                MapLocation us = rc.getLocation();
+                MapLocation enemyHQ = rc.senseEnemyHQLocation();
+                Direction dir;
+
 
                 for (int i = nearByEnemies.length; --i >= 0; )
                 {
@@ -334,45 +349,36 @@ public class FightMicro
                     {
                         commander = nearByEnemies[i].location;
                     }
+                    else
+                    {
+                        MapLocation enemy = nearByEnemies[i].location;
+                        int dist = us.distanceSquaredTo(enemy);
+                        if (dist < closest && dist <= nearByEnemies[i].type.attackRadiusSquared)
+                        {
+                            closest = dist;
+                            closestEnemy = enemy;
+                        }
+                    }
                 }
-                MapLocation us = rc.getLocation();
-                MapLocation enemyHQ = rc.senseEnemyHQLocation();
-                Direction dir;
 
                 // if the enemy shot a missile pull back
                 if (missile != null)
                 {
                     dir = us.directionTo(missile).opposite();
-                    if (rc.canMove(dir) && !Utilities.locInRangeOfEnemyTower(us.add(dir), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir);
-                    }
-                    else if (rc.canMove(dir.rotateLeft()) && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateLeft()), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir.rotateLeft());
-                    }
-                    else if (rc.canMove(dir.rotateRight()) && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight()), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir.rotateRight());
-                    }
+                    FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
                     return true;
                 }
                 // don't want to fight commander head on
                 else if (commander != null)
                 {
                     dir = us.directionTo(commander).opposite();
-                    if (rc.canMove(dir) && !Utilities.locInRangeOfEnemyTower(us.add(dir), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir);
-                    }
-                    else if (rc.canMove(dir.rotateLeft()) && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateLeft()), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir.rotateLeft());
-                    }
-                    else if (rc.canMove(dir.rotateRight())  && !Utilities.locInRangeOfEnemyTower(us.add(dir.rotateRight()), enemyTowers, enemyHQ))
-                    {
-                        rc.move(dir.rotateRight());
-                    }
+                    FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
+                    return true;
+                }
+                else if (closestEnemy != null)
+                {
+                    dir = us.directionTo(closestEnemy).opposite();
+                    FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
                     return true;
                 }
             }
@@ -382,6 +388,10 @@ public class FightMicro
         if (nearByEnemies.length == 0)
         {
             MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+            MapLocation enemyHQ = rc.senseEnemyHQLocation();
+            boolean shooting = false;
+            MapLocation spot = null;
+            MapLocation us = rc.getLocation();
 
             for (int i = 0; i < enemyTowers.length; i++)
             {
@@ -394,12 +404,19 @@ public class FightMicro
                         rc.broadcast(Constants.towerX, enemyTowers[i].x);
                         rc.broadcast(Constants.towerY, enemyTowers[i].y);
                         rc.launchMissile(dir);
-                        return true;
+                        shooting = true;
+                        spot = enemyTowers[i];
+                        break;
                     }
                 }
             }
 
-            MapLocation enemyHQ = rc.senseEnemyHQLocation();
+            if (shooting)
+            {
+                Direction dir = rc.getLocation().directionTo(spot);
+                FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
+                return true;
+            }
 
             if (rc.getLocation().distanceSquaredTo(enemyHQ) < 49)
             {
@@ -409,8 +426,15 @@ public class FightMicro
                     rc.broadcast(Constants.towerX, enemyHQ.x);
                     rc.broadcast(Constants.towerY, enemyHQ.y);
                     rc.launchMissile(dir);
-                    return true;
+                    shooting = true;
                 }
+            }
+
+            if (shooting)
+            {
+                Direction dir = rc.getLocation().directionTo(enemyHQ);
+                FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
+                return true;
             }
 
             return false;
@@ -431,25 +455,17 @@ public class FightMicro
         int x = rc.readBroadcast(Messaging.CommanderLocX.ordinal());
         int y = rc.readBroadcast(Messaging.CommanderLocY.ordinal());
 
+        MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        MapLocation us = rc.getLocation();
+
         if (x != 0 && y != 0)
         {
             MapLocation commander = new MapLocation(x, y);
             dir = rc.getLocation().directionTo(commander);
-            if (!rc.isCoreReady())
+            if (rc.isCoreReady())
             {
-
-            }
-            else if (rc.canMove(dir))
-            {
-                rc.move(dir);
-            }
-            else if (rc.canMove(dir.rotateLeft()))
-            {
-                rc.move(dir.rotateLeft());
-            }
-            else if (rc.canMove(dir.rotateRight()))
-            {
-                rc.move(dir.rotateRight());
+                FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
             }
         }
         else if (dir != null)
@@ -457,21 +473,9 @@ public class FightMicro
             dir = dir.opposite();
             if (rc.isCoreReady())
             {
-                if (rc.canMove(dir))
-                {
-                    rc.move(dir);
-                }
-                else if (rc.canMove(dir.rotateLeft()))
-                {
-                    rc.move(dir.rotateLeft());
-                }
-                else if (rc.canMove(dir.rotateRight()))
-                {
-                    rc.move(dir.rotateRight());
-                }
+                FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
             }
         }
-
         return true;
     }
 
