@@ -285,8 +285,6 @@ public class Navigator
     //such as void if not drone, unknown, off map, enemy towers/hq, or our own structures
     private boolean badSpot(MapLocation spot, MapLocation[] towers) throws GameActionException
     {
-        boolean bad = false;
-
         if(checkEnemyMainStructures(spot, towers))
         {
             return true;
@@ -297,11 +295,11 @@ public class Navigator
             TerrainTile tile = rc.senseTerrainTile(spot);
             if(tile == TerrainTile.UNKNOWN || tile == TerrainTile.OFF_MAP)
             {
-                bad = true;
+                return true;
             }
             if(!ignoreVoids && tile == TerrainTile.VOID)
             {
-                bad = true;
+                return true;
             }
 
             RobotInfo bot = null;
@@ -312,11 +310,11 @@ public class Navigator
 
             if(bot != null && rc.getID() != bot.ID && !isUnit(spot))
             {
-                bad = true;
+                return true;
             }
         }
 
-        return bad;
+        return false;
     }
 
     //returns true if bot is a mobile unit
