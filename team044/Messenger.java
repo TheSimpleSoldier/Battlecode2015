@@ -17,7 +17,7 @@ public class Messenger
     // group 1
     int group1Launchers = 8;
     int group1Tanks = 0;
-    int group1Soldiers = 15;
+    int group1Soldiers = 20;
     int group1Bashers = 0;
     boolean group1Launched = false;
     boolean group1LauncherGroup = true;
@@ -31,12 +31,12 @@ public class Messenger
     MapLocation group1Goal;
 
     // group 2
-    int group2Launchers = 6;
-    int group2Tanks = 0;
+    int group2Launchers = 0;
+    int group2Tanks = 5;
     int group2Soldiers = 0;
-    int group2Bashers = 0;
+    int group2Bashers = 10;
     boolean group2Launched = false;
-    boolean group2LauncherGroup = true;
+    boolean group2LauncherGroup = false;
     boolean group2Offensive = true;
     int group2LauncherCount = 0;
     int group2TankCount = 0;
@@ -47,12 +47,12 @@ public class Messenger
     MapLocation group2Goal;
 
     // group 3
-    int group3Launchers = 6;
-    int group3Tanks = 0;
+    int group3Launchers = 0;
+    int group3Tanks = 5;
     int group3Soldiers = 0;
-    int group3Bashers = 0;
+    int group3Bashers = 10;
     boolean group3Launched = false;
-    boolean group3LauncherGroup = true;
+    boolean group3LauncherGroup = false;
     boolean group3Offensive = true;
     int group3LauncherCount = 0;
     int group3TankCount = 0;
@@ -95,8 +95,9 @@ public class Messenger
         minerStrat = new BuildOrderMessaging[1];
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
-        soldierStrat = new BuildOrderMessaging[1];
+        soldierStrat = new BuildOrderMessaging[2];
         soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
+        soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
         tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
@@ -213,7 +214,7 @@ public class Messenger
             group3Launched = true;
         }
 
-        if (group1Launched && (group1Offensive || group1LauncherCount >= 25) && group1CurrentSpot != null)
+        if (group1Launched && (group1Offensive || group1LauncherCount >= 30) && group1CurrentSpot != null)
         {
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
@@ -241,14 +242,19 @@ public class Messenger
             }
 
             int towerUnderAttack = rc.readBroadcast(Messaging.TowerUnderAttack.ordinal());
+            rc.broadcast(Messaging.TowerUnderAttack.ordinal(), 0);
 
             if (towerUnderAttack > 0)
             {
                 MapLocation[] ourTowers = rc.senseTowerLocations();
-                MapLocation tower = ourTowers[towerUnderAttack - 1];
+                if (ourTowers.length >= towerUnderAttack)
+                {
+                    MapLocation tower = ourTowers[towerUnderAttack - 1];
+                    tower = tower.add(tower.directionTo(rc.senseEnemyHQLocation()), 5);
 
-                rc.broadcast(Messaging.FirstGroupX.ordinal(), tower.x);
-                rc.broadcast(Messaging.FirstGroupY.ordinal(), tower.y);
+                    rc.broadcast(Messaging.FirstGroupX.ordinal(), tower.x);
+                    rc.broadcast(Messaging.FirstGroupY.ordinal(), tower.y);
+                }
             }
             else
             {
@@ -536,7 +542,7 @@ public class Messenger
             }
 
             // if we have a group of launchers near current rally point
-            if (numbOfTanks >= 3)
+            if (numbOfTanks >= 3 || (rc.canSenseLocation(current) && !rc.isPathable(RobotType.TANK, current)))
             {
                 do
                 {

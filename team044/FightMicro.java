@@ -64,19 +64,23 @@ public class FightMicro
             RobotInfo enemyToAttack = FightMicroUtilities.prioritizeTargets(nearByEnemies);
 
             // if it is a missile we may want to charge through instead of trying to shoot it down
-            if (enemyToAttack.type == RobotType.MISSILE)
+            if (enemyToAttack.type == RobotType.MISSILE && rc.getType() == RobotType.TANK)
             {
-
+                // don't shoot missiles as a tank
             }
-
-            MapLocation target = enemyToAttack.location;
-
-            if (rc.canAttackLocation(target))
+            else
             {
-                rc.attackLocation(target);
+                MapLocation target = enemyToAttack.location;
+
+                if (rc.canAttackLocation(target))
+                {
+                    rc.attackLocation(target);
+                }
+                return true;
             }
         }
-        else if (rc.isCoreReady())
+        // if we can move
+        if (rc.isCoreReady())
         {
             RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
             MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();

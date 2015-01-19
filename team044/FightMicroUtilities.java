@@ -248,14 +248,20 @@ public class FightMicroUtilities
         int missile_x = 0;
         int missile_y = 0;
         int count = 0;
+        int closestDist = 999;
+        int dist = 0;
+        MapLocation us = rc.getLocation();
 
         for (int i = enemies.length; --i>=0; )
         {
             if (enemies[i].type == RobotType.LAUNCHER)
             {
-                launcher = enemies[i];
-                missile = false;
-                break;
+                dist = us.distanceSquaredTo(enemies[i].location);
+                if (dist < closestDist)
+                {
+                    launcher = enemies[i];
+                    closestDist = dist;
+                }
             }
             else if (enemies[i].type == RobotType.MISSILE)
             {
@@ -267,13 +273,13 @@ public class FightMicroUtilities
             }
         }
 
-        // if all we can c are missiles
-        if (launcher == null)
+        if (launcher != null)
         {
-
+            missile = false;
         }
+
         // if we see a missile we can assume their is a launcher beyond
-        else if (missile)
+        if (missile)
         {
             missile_x /= count;
             missile_y /= count;
@@ -296,7 +302,7 @@ public class FightMicroUtilities
             }
         }
         // lock on launcher
-        else
+        else if (launcher != null && closestDist > 2)
         {
             Direction dir = rc.getLocation().directionTo(launcher.location);
 
