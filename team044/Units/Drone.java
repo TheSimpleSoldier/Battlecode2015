@@ -2,7 +2,6 @@ package team044.Units;
 
 
 import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import team044.Messaging;
 import team044.Unit;

@@ -2,8 +2,8 @@ package team044.Units;
 
 
 import battlecode.common.*;
+import team044.Constants;
 import team044.Messaging;
-import team044.Unit;
 import team044.Utilities;
 
 import java.util.Random;
@@ -14,6 +14,9 @@ public class SearchAndDestroyDrone extends Drone
     Random rand;
     MapLocation nearestDrone;
     int roundNumb;
+    boolean foundMiners;
+    int seenMiners;
+    int minerChannel;
 
     public SearchAndDestroyDrone(RobotController rc)
     {
@@ -22,6 +25,32 @@ public class SearchAndDestroyDrone extends Drone
         rand = new Random(rc.getID());
         rc.setIndicatorString(0, "Search and Destroy drone");
         roundNumb = Clock.getRoundNum();
+        foundMiners = false;
+        seenMiners = 0;
+        minerChannel = 0;
+    }
+
+    public void collectData() throws GameActionException
+    {
+        super.collectData();
+
+        for(int k = 0; k < enemies.length; k++)
+        {
+            if(enemies[k].type == RobotType.MINER || enemies[k].type == RobotType.MINERFACTORY)
+            {
+                foundMiners = true;
+            }
+        }
+        seenMiners++;
+
+        if(minerChannel == 0)
+        {
+            for(minerChannel = Constants.startMinerSeenChannel; rc.readBroadcast(minerChannel) == 0; minerChannel++){}
+        }
+        else
+        {
+            rc.broadcast(minerChannel, seenMiners);
+        }
     }
 
     public void collectData2() throws GameActionException

@@ -10,5 +10,6 @@ public enum TeamMemory
     EnemyUnitBuild,
     AttackTiming,       // Round when first building takes damage. Least 12 bits contain round number, next 4 bits contain most frequent unit, last bits contain second most frequent unit
     HQHP,
+    harassDrone
     // etc
 }
