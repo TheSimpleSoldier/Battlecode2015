@@ -112,10 +112,13 @@ public class Miner extends Unit
 
         if (enemies.length > 0 && Clock.getRoundNum() < 1800)
         {
-            long[] memory = rc.getTeamMemory();
-            long numb = memory[TeamMemory.EnemyHarrass.ordinal()];
-            numb++;
-            rc.setTeamMemory(TeamMemory.EnemyHarrass.ordinal(), numb);
+            if (Clock.getRoundNum() < 1000)
+            {
+                int numb = rc.readBroadcast(Messaging.NumbOfHarassers.ordinal());
+                numb++;
+                rc.broadcast(Messaging.NumbOfHarassers.ordinal(), numb);
+                rc.setTeamMemory(TeamMemory.EnemyHarrass.ordinal(), numb);
+            }
             rc.broadcast(Messaging.MinerUnderAttackX.ordinal(), enemies[0].location.x);
             rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), enemies[0].location.y);
         }

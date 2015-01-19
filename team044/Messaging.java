@@ -104,5 +104,6 @@ public enum Messaging {
     DroneMinY,
     DroneMaxX,
     DroneMaxY,
+    NumbOfHarassers,
     // etc
 }

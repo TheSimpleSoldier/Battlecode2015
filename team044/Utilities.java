@@ -427,7 +427,7 @@ public class Utilities
             for (int i = 0; i < nearByAllies.length; i++)
             {
                 ally = nearByAllies[i].type;
-                if (Clock.getBytecodesLeft() < 1000)
+                if (Clock.getBytecodesLeft() < 1250)
                 {
                     break;
                 }
