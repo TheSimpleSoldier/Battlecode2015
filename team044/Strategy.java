@@ -63,6 +63,8 @@ public class Strategy
         BuildOrderMessaging secondaryStructure;
         BuildOrderMessaging tertiaryStructure;
         BuildOrderMessaging miningType;
+        BuildOrderMessaging miningType2;
+        BuildOrderMessaging defensiveStructure;
         Direction toEnemy = rc.getLocation().directionTo(enemyHQ);
         MapLocation mapEdge = enemyHQ.add(toEnemy);
         int count = 0;
@@ -79,220 +81,108 @@ public class Strategy
 
         String debug = String.format("HP: %d; Size: %d; First Attacker: %d; Attack Timing: %d; Unit #1: %d; ByteCodes left: %d; Enemy Harassers: %d; ", endGameHP, hqDistance, mostEndGameUnit, attackTiming, mostEndGameUnit, Clock.getBytecodesLeft(), enemiesSeen);
 
+        if (enemiesSeen > 5000)
+        {
+            defensiveStructure = BuildOrderMessaging.BuildTankFactory;
+        }
+        else
+        {
+            defensiveStructure = null;
+        }
+
         System.out.println(debug);
         // Small map
-        if (hqDistance < 2500) {
-            // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostEndGameUnit) {
-                case 1:     // First attack on tower/HQ was with a drone last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    tertiaryStructure = BuildOrderMessaging.BuildHelipad;
-                    break;
-                case 2:     // First attack on tower/HQ was with a Launcher last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    break;
-                case 3:     // First attack on tower/HQ was with a Tank last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    break;
-                default:
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    break;
-            }
-
-            // for short maps build 3 of main unit combo
-            strat = new BuildOrderMessaging[35];
-            strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[1] = BuildOrderMessaging.BuildMinerFactory;
-            strat[2] = primaryStructure;
-            strat[3] = secondaryStructure;
-            strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[5] = tertiaryStructure;
-            strat[6] = tertiaryStructure;
-            strat[7] = tertiaryStructure;
-            strat[8] = tertiaryStructure;
-            strat[9] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[10] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[11] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[12] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[13] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[14] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[15] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[16] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[17] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[18] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[19] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[20] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[21] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[22] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[23] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[24] = tertiaryStructure;
-            strat[25] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[26] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[27] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[28] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[29] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[30] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[31] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[32] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[33] = tertiaryStructure;
-            strat[34] = BuildOrderMessaging.BuildSupplyDepot;
+        if (hqDistance < 2500)
+        {
+            primaryStructure = BuildOrderMessaging.BuildHelipad;
+            secondaryStructure = BuildOrderMessaging.BuildBaracks;
+            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+            miningType = null;
+            miningType2 = null;
 
             rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
         // Large map
         else if (hqDistance > 5000)
         {
-            // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostEndGameUnit)
-            {
-                case 1:     // First attack on tower/HQ was with a drone last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    tertiaryStructure = BuildOrderMessaging.BuildHelipad;
-                    miningType = BuildOrderMessaging.BuildMiningBaracks;
-                    break;
-                case 2:     // First attack on tower/HQ was with a Launcher last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    miningType = BuildOrderMessaging.BuildMiningAeroSpaceLab;
-                    break;
-                case 3:     // First attack on tower/HQ was with a Tank last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    miningType = BuildOrderMessaging.BuildMinerFactory;
-                    break;
-                default:
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    miningType = BuildOrderMessaging.BuildMiningAeroSpaceLab;
-                    break;
-            }
-            strat = new BuildOrderMessaging[39];
-            strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[1] = BuildOrderMessaging.BuildMinerFactory;
-            strat[2] = miningType;
-            strat[3] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[5] = primaryStructure;
-            strat[6] = secondaryStructure;
-            strat[7] = tertiaryStructure;
-            strat[8] = tertiaryStructure;
-            strat[9] = tertiaryStructure;
-            strat[10] = tertiaryStructure;
-            strat[11] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[12] = miningType;
-            strat[13] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[14] = tertiaryStructure;
-            strat[15] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[16] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[17] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[18] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[19] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[20] = tertiaryStructure;
-            strat[21] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[22] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[23] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[24] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[25] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[26] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[27] = tertiaryStructure;
-            strat[28] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[29] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[30] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[31] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[32] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[33] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[34] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[35] = tertiaryStructure;
-            strat[36] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[37] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[38] = BuildOrderMessaging.BuildSupplyDepot;
+            primaryStructure = BuildOrderMessaging.BuildHelipad;
+            secondaryStructure = BuildOrderMessaging.BuildBaracks;
+            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+
+            miningType = BuildOrderMessaging.BuildMiningBaracks;
+            miningType2 = null;
+
             rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
 
         }
         // Default Strategy
         else
         {
-            // Decide unit build based on previous game's unit build and map size.
-            switch ((int) mostEndGameUnit)
-            {
-                case 1:     // First attack on tower/HQ was with a drone last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    tertiaryStructure = BuildOrderMessaging.BuildHelipad;
-                    miningType = BuildOrderMessaging.BuildMiningBaracks;
-                    break;
-                case 2:     // First attack on tower/HQ was with a Launcher last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    miningType = BuildOrderMessaging.BuildAerospaceLab;
-                    break;
-                case 3:     // First attack on tower/HQ was with a Tank last game.
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    miningType = BuildOrderMessaging.BuildMinerFactory;
-                    break;
-                default:
-                    primaryStructure = BuildOrderMessaging.BuildHelipad;
-                    secondaryStructure = BuildOrderMessaging.BuildHelipad;
-                    tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-                    miningType = BuildOrderMessaging.BuildMiningAeroSpaceLab;
-                    break;
-            }
-            strat = new BuildOrderMessaging[39];
-            strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[1] = BuildOrderMessaging.BuildMinerFactory;
-            strat[2] = primaryStructure;
-            strat[3] = secondaryStructure;
-            strat[4] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[5] = miningType;
-            strat[6] = tertiaryStructure;
-            strat[7] = tertiaryStructure;
-            strat[8] = tertiaryStructure;
-            strat[9] = tertiaryStructure;
-            strat[10] = BuildOrderMessaging.BuildBeaverBuilder;
-            strat[11] = tertiaryStructure;
-            strat[12] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[13] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[14] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[15] = tertiaryStructure;
-            strat[16] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[17] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[18] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[19] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[20] = tertiaryStructure;
-            strat[21] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[22] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[23] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[24] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[25] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[26] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[27] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[28] = tertiaryStructure;
-            strat[29] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[30] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[31] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[32] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[33] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[34] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[35] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[36] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[37] = BuildOrderMessaging.BuildSupplyDepot;
-            strat[38] = BuildOrderMessaging.BuildSupplyDepot;
+            primaryStructure = BuildOrderMessaging.BuildHelipad;
+            secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+
+            miningType = BuildOrderMessaging.BuildMiningBaracks;
+            miningType2 = BuildOrderMessaging.BuildMiningBaracks;
+
             rc.setIndicatorString(0, "Default " + debug + ", " + mostEndGameUnit + ", dist: " + hqDistance);
         }
+
+
+        if (defensiveStructure != null)
+        {
+            secondaryStructure = null;
+        }
+        //strat = new BuildOrderMessaging[43];
+
+
+        BuildOrderMessaging[] strat = {
+                BuildOrderMessaging.BuildBeaverBuilder,
+                BuildOrderMessaging.BuildMinerFactory,
+                BuildOrderMessaging.BuildBeaverBuilder,
+                BuildOrderMessaging.BuildTechnologyInstitute,
+                miningType,
+                BuildOrderMessaging.BuildTrainingField,
+                defensiveStructure,
+                primaryStructure,
+                tertiaryStructure,
+                tertiaryStructure,
+                secondaryStructure,
+                BuildOrderMessaging.BuildBeaverBuilder,
+                miningType2,
+                tertiaryStructure,
+                tertiaryStructure,
+                BuildOrderMessaging.BuildSupplyDepot,
+                tertiaryStructure,
+                BuildOrderMessaging.BuildBeaverBuilder,
+                tertiaryStructure,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                tertiaryStructure,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot
+        };
+
         return strat;
     }
 }
