@@ -2,8 +2,6 @@ package team044;
 
 import battlecode.common.*;
 
-import java.util.Arrays;
-
 /**
  * Created by David on 1/17/2015.
  */
@@ -50,12 +48,12 @@ public class MapDiscovery
         if (map == null || (check == 0 && xLimit > map[0].length && yLimit > map.length))
         {
             map = new int[yLimit][xLimit];
-            rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
-            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
             nwX = minX;
             nwY = minY;
             seX = maxX;
             seY = maxY;
+            rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
+            rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
         }
         else if (check == 0 && xLimit > map[0].length)
         {
