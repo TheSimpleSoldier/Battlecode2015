@@ -35,7 +35,6 @@ public class HQ extends Structure
         messenger = new Messenger(rc);
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc, messenger);
-
         strat = new BuildOrderMessaging[35];
         strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
         strat[1] = BuildOrderMessaging.BuildMinerFactory;

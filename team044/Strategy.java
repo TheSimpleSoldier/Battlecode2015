@@ -296,58 +296,112 @@ public class Strategy
         return strat;
     }
 
-    public void loneTowers(RobotController rc) throws GameActionException
-    {
+    public static int loneTowers(RobotController rc) throws GameActionException {
 
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+        MapLocation[] myTowers = rc.senseTowerLocations();
+        if (enemyTowers.length == 0)
+        {
+            return 0;
+        }
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
+        int numMine = myTowers.length;
         int numbTowers = enemyTowers.length;
         int[][] towers = new int[enemyTowers.length][4];
         // Determine the mean, standard deviation, and range of enemy tower locations.
         int meanX = 0;
         int meanY = 0;
-        for (int i = 0; i < numbTowers; i++)
-        {
+        int myMeanX = 0;
+        int myMeanY = 0;
+        for (int i = 0; i < numbTowers; i++) {
             towers[i][0] = enemyTowers[i].x;
             towers[i][1] = enemyTowers[i].y;
-            meanX += enemyTowers[i].x - meanX;
-            meanY += enemyTowers[i].y - meanY;
+            meanX += enemyTowers[i].x;
+            meanY += enemyTowers[i].y;
+            myMeanX += myTowers[i].x;
+            myMeanY += myTowers[i].y;
         }
-        meanX = meanX/numbTowers;
-        meanY = meanY/numbTowers;
-        MapLocation farWest = enemyTowers[0];
-        MapLocation farEast = enemyTowers[0];
-        MapLocation farNorth = enemyTowers[0];
-        MapLocation farSouth = enemyTowers[0];
+        meanX = meanX / numbTowers;
+        meanY = meanY / numbTowers;
+        myMeanX = myMeanX / numMine;
+        myMeanY = myMeanY / numMine;
+        MapLocation center = new MapLocation(meanX, meanY);
+        MapLocation myCenter = new MapLocation(myMeanX,myMeanY);
+        MapLocation[] far = new MapLocation[4];
+        far[0] = enemyTowers[0];
+        far[1] = enemyTowers[0];
+        far[2] = enemyTowers[0];
+        far[3] = enemyTowers[0];
         for (int i = 0; i < numbTowers; i++) {
             towers[i][2] = enemyTowers[i].distanceSquaredTo(enemyHQ);
-            for (int j = 0; j < numbTowers - 1; j++)
-            {
-                if (j == i)
-                    j++;
-                int d = enemyTowers[j].distanceSquaredTo(enemyTowers[i]);
-                if (d > towers[i][3])
-                    towers[i][3] = d;
+            towers[i][3] = 99999999;
+            for (int j = 0; j < numbTowers; j++) {
+                if (j != i) {
+                    int d = enemyTowers[i].distanceSquaredTo(enemyTowers[j]);
+                    if (d < towers[i][3])
+                        towers[i][3] = d;
+                }
             }
-            if (farWest.x < towers[i][0])
-                farWest = enemyTowers[i];
-            if (farEast.x > towers[i][0])
-                farEast = enemyTowers[i];
-            if (farNorth.y < towers[i][1])
-                farNorth = enemyTowers[i];
-            if (farSouth.y > towers[i][1])
-                farSouth = enemyTowers[i];
+            if (far[3].x > towers[i][0])
+                far[3] = enemyTowers[i];
+            if (far[1].x < towers[i][0])
+                far[1] = enemyTowers[i];
+            if (far[0].y > towers[i][1])
+                far[0] = enemyTowers[i];
+            if (far[2].y < towers[i][1])
+                far[2] = enemyTowers[i];
         }
-        for (int i = 0; i < enemyTowers.length; i++)
+        for (int i = 0; i < enemyTowers.length; i++) {
+            if (far[3].x == towers[i][0])
+                System.out.println("Far West: " + far[3].x + "," + far[3].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
+            if (far[1].x == towers[i][0])
+                System.out.println("Far East: " + far[1].x + "," + far[1].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
+            if (far[0].y == towers[i][1])
+                System.out.println("Far North: " + far[0].x + "," + far[0].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
+            if (far[2].y == towers[i][1])
+                System.out.println("Far South: " + far[2].x + "," + far[2].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
+        }
+        MapLocation ourHQ = rc.senseHQLocation();
+        Direction toCenter = ourHQ.directionTo(enemyHQ);
+        Direction[] extremes = new Direction[4];
+        extremes[0] = ourHQ.directionTo(far[0]);
+        extremes[1] = ourHQ.directionTo(far[1]);
+        extremes[2] = ourHQ.directionTo(far[2]);
+        extremes[3] = ourHQ.directionTo(far[3]);
+        int group2 = 0;
+        int group3 = 0;
+
+        for (int i = 0; i < 4; i++)
         {
-            if (farWest.x < towers[i][0])
-                farWest = enemyTowers[i];
-            if (farEast.x > towers[i][0])
-                farEast = enemyTowers[i];
-            if (farNorth.y < towers[i][1])
-                farNorth = enemyTowers[i];
-            if (farSouth.y > towers[i][1])
-                farSouth = enemyTowers[i];
+            int degrees = 0;
+            while (!extremes[i].equals(toCenter))
+            {
+                extremes[i] = extremes[i].rotateLeft();
+                degrees++;
+            }
+            switch(degrees)
+            {
+                case 0:
+                    break;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    if (far[i].distanceSquaredTo(center) > 300) {
+                        group2 = 1;
+                        System.out.println(far[i].x + ","+far[i].y);
+                    }
+                    break;
+                case 5:
+                case 6:
+                case 7:
+                    if (far[i].distanceSquaredTo(center) > 300)
+                        group3 = 2;
+                    break;
+                default:
+                    break;
+            }
         }
+        return group2+group3;
     }
 }
