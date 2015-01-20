@@ -9,7 +9,7 @@ public class Navigator
     private RobotController rc;
     private MapLocation dog, target, lastLoc;
     private Random rand;
-    private boolean goingLeft, goingAround;
+    private boolean goingLeft, goingAround, turnedAround;
     private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog, circle;
     private Direction lastFacing;
     private int HQRange = 24;
@@ -25,6 +25,7 @@ public class Navigator
         rand = new Random(rc.getID());
         goingLeft = rand.nextBoolean();
         goingAround = false;
+        turnedAround = false;
         lastFacing = Direction.NONE;
         this.avoidTowers = avoidTowers;
         this.avoidHQ = avoidHQ;
@@ -70,6 +71,7 @@ public class Navigator
         {
             lastLoc = myLoc;
             dog = myLoc;
+            goingAround = false;
         }
         if(!target.equals(this.target))
         {
@@ -167,42 +169,49 @@ public class Navigator
             {
                 rc.move(dir.rotateRight());
                 lastLoc = myLoc.add(dir.rotateRight());
+                dog = myLoc;
                 return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
                 lastLoc = myLoc.add(dir.rotateRight().rotateRight());
+                dog = myLoc;
                 return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight().rotateRight());
                 lastLoc = myLoc.add(dir.rotateRight().rotateRight().rotateRight());
+                dog = myLoc;
                 return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
                 lastLoc = myLoc.add(dir.rotateLeft());
+                dog = myLoc;
                 return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
                 lastLoc = myLoc.add(dir.rotateLeft().rotateLeft());
+                dog = myLoc;
                 return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft().rotateLeft());
                 lastLoc = myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft());
+                dog = myLoc;
                 return true;
             }
             else if(!badSpot(myLoc.add(dir.opposite()), towers) && rc.canMove(dir.opposite()))
             {
                 rc.move(dir.opposite());
                 lastLoc = myLoc.add(dir.opposite());
+                dog = myLoc;
                 return true;
             }
         }
@@ -235,6 +244,16 @@ public class Navigator
             if(goingAround && buggingAroundBorder())
             {
                 goingLeft = !goingLeft;
+                if(turnedAround)
+                {
+                    dog = rc.getLocation();
+                    turnedAround = false;
+                    goingAround = false;
+                }
+                else
+                {
+                    turnedAround = true;
+                }
                 lastFacing = lastFacing.opposite();
             }
 
@@ -268,6 +287,7 @@ public class Navigator
             else if(lastDir == dog.directionTo(target))
             {
                 goingAround = false;
+                turnedAround = false;
             }
 
             //while way is blocked, rotate till free
