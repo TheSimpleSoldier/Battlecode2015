@@ -105,8 +105,8 @@ public class Strategy
             flankingStructure = null;
             miningType = null;
             miningType2 = null;
-            secondBeaver = null;
-            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
+            secondBeaver = BuildOrderMessaging.BuildBeaverBuilder;
+            thirdBeaver = null;
 
             messenger.setGroup1(20,0,10,0,true);
             messenger.setGroup2(0,0,0,0,false);

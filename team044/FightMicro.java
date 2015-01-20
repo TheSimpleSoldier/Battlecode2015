@@ -498,6 +498,11 @@ public class FightMicro
             enemyHQ = rc.senseEnemyHQLocation();
         }
 
+        if (nearByEnemies == null)
+        {
+            nearByEnemies = rc.senseNearbyRobots(5, rc.getTeam().opponent());
+        }
+
         // if we can shoot
         if (rc.isWeaponReady())
         {
@@ -531,7 +536,7 @@ public class FightMicro
             // there are enemies in range of us
             else
             {
-                // if there is an enemy that out can shoot us
+                // if there is an enemy that we can shoot
                 RobotInfo enemy = FightMicroUtilities.prioritizeTargets(nearByEnemies);
 
                 MapLocation enemySpot = enemy.location;
