@@ -1,11 +1,12 @@
 package team044.Units;
 
-import battlecode.world.Util;
-import team044.*;
+import battlecode.common.Clock;
+import battlecode.common.GameActionException;
+import battlecode.common.RobotController;
+import battlecode.common.RobotInfo;
+import team044.Unit;
 
-import java.util.*;
-
-import battlecode.common.*;
+import java.util.Random;
 
 public class Commander extends Unit
 {
@@ -91,39 +92,7 @@ public class Commander extends Unit
             return false;
         }
         rc.setIndicatorString(1, "Nav movement");
-        if (FightMicroUtilities.commanderBlocked(rc, target))
-        {
-            if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
-            {
-                Direction dir = rc.getLocation().directionTo(target);
-                MapLocation flashTo = FightMicroUtilities.flashInDir(rc, dir);
-                if (flashTo != null)
-                {
-                    rc.setIndicatorString(2, "Flash to: " + flashTo);
-                    rc.castFlash(flashTo);
-                    return true;
-                }
-            }
-            else if (rc.getFlashCooldown() >= 1)
-            {
-                return false;
-            }
-        }
-        // if we are more than 20 square away then flash towards target
-        /*else if (rc.getLocation().distanceSquaredTo(target) > 400)
-        {
-            if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
-            {
-                Direction dir = rc.getLocation().directionTo(target);
-                MapLocation flashTo = FightMicroUtilities.flashInDir(rc, dir);
-                if (flashTo != null)
-                {
-                    rc.setIndicatorString(2, "Flash to: " + flashTo);
-                    rc.castFlash(flashTo);
-                    return true;
-                }
-            }
-        }*/
+
         return nav.takeNextStep(target);
 
     }

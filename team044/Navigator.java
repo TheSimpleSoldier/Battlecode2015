@@ -63,7 +63,7 @@ public class Navigator
     //The dog moves in a bug pattern, but the owner will cut corners.
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
-        rc.setIndicatorString(1, "Going left: "+goingLeft);
+        rc.setIndicatorString(1, "dog: " + dog.toString());
         //if target changed, act like dog is next to owner
         MapLocation myLoc = rc.getLocation();
         if(!target.equals(this.target))
@@ -84,6 +84,27 @@ public class Navigator
                 loc.subtract(loc.directionTo(target));
                 loc = FightMicroUtilities.flashToLoc(rc, loc);
                 if(loc != null && rc.getFlashCooldown() == 0 && rc.isCoreReady())
+                {
+                    rc.castFlash(loc);
+                    dog = loc;
+                    goingAround = false;
+                }
+                if(loc != null)
+                {
+                    return false;
+                }
+            }
+            if(myLoc.distanceSquaredTo(target) > 100 && rc.getFlashCooldown() == 0 &&
+               rc.isCoreReady() && goingAround == false)
+            {
+                MapLocation loc = rc.getLocation();
+                while(loc.distanceSquaredTo(myLoc) < 10)
+                {
+                    loc = loc.add(loc.directionTo(target));
+                }
+                loc.subtract(loc.directionTo(target));
+                loc = FightMicroUtilities.flashToLoc(rc, loc);
+                if(loc != null && rc.isCoreReady() && rc.getFlashCooldown() == 0)
                 {
                     rc.castFlash(loc);
                     dog = loc;
@@ -176,10 +197,6 @@ public class Navigator
         //go till out of site
         while(dogInSight(towers) && !dog.equals(target))
         {
-            if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
-            {
-                return;
-            }
             //This is used so the dog knows if it is going around an object
             //prevents bugging around exterior of map
             if(goingAround && buggingAroundBorder())
@@ -236,6 +253,10 @@ public class Navigator
 
             lastFacing = lastDir;
             dog = dog.add(lastDir);
+            if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
+            {
+                return;
+            }
         }
 
         //now go back one so in sight if not at target
