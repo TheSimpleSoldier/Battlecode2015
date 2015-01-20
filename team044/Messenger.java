@@ -111,16 +111,18 @@ public class Messenger
         group1Goal = Utilities.closestTower(rc, enemyTowers);
         group2InitialSpot = Utilities.getRightFlank(rc, towers);
         group2Goal = Utilities.enemyTowerOnRightFlank(rc, enemyTowers);
+        int goGoal = Strategy.loneTowers(rc);
         int x,y;
-        if (group2Goal != null)
+        if (group2Goal != null && (goGoal == 1 || goGoal == 3))
         {
+            rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group2Goal.x + ", y: " + group2Goal.y);
             x = (group2InitialSpot.x + group2Goal.x) / 2;
             y = (group2InitialSpot.y + group2Goal.y) / 2;
             group2InitialSpot = new MapLocation(x,y);
         }
         group3InitialSpot = Utilities.getLeftFlank(rc, towers);
         group3Goal = Utilities.enemyTowerOnLeftFlank(rc, enemyTowers);
-        if (group3Goal != null)
+        if (group3Goal != null && goGoal > 1)
         {
             x = (group3InitialSpot.x + group3Goal.x) / 2;
             y = (group3InitialSpot.y + group3Goal.y) / 2;
