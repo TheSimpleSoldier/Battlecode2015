@@ -561,7 +561,7 @@ public class Messenger
      */
     public void cutProd(RobotController rc, int tanks, int tankCount, int soldiers, int soldierCount, int bashers, int basherCount) throws GameActionException
     {
-        if (tankCount < tanks)
+        if (tankCount < tanks && tankStrat.length == 1)
         {
             rc.broadcast(Messaging.ShutOffTankProd.ordinal(), 0);
         }

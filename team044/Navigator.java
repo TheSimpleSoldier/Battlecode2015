@@ -83,7 +83,7 @@ public class Navigator
                 }
                 loc.subtract(loc.directionTo(target));
                 loc = FightMicroUtilities.flashToLoc(rc, loc);
-                if(loc != null && rc.getFlashCooldown() == 0)
+                if(loc != null && rc.getFlashCooldown() == 0 && rc.isCoreReady())
                 {
                     rc.castFlash(loc);
                     dog = loc;
