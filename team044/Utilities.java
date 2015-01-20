@@ -1161,7 +1161,7 @@ public class Utilities
         }
 
         // group up on our side of center
-        center = ourHQ.add(enemyHQ.directionTo(ourHQ), 5);
+        center = center.add(enemyHQ.directionTo(ourHQ), 5);
 
         return center;
         //return closest;
