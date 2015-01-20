@@ -423,7 +423,10 @@ public class HQ extends Structure
                 }
 
                 //rc.setIndicatorString(1, "" + strat[currentUnit]);
-                rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
+                if (strat[currentUnit] != null)
+                {
+                    rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
+                }
                 return true;
             }
         }

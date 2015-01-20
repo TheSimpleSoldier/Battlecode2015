@@ -123,8 +123,8 @@ public class Strategy
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
             miningType = null;
             miningType2 = null;
-            secondBeaver = null;
-            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
+            secondBeaver = BuildOrderMessaging.BuildBeaverBuilder;
+            thirdBeaver = null;//BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
