@@ -31,7 +31,7 @@ public class MinerFactory extends Structure
         {
             return false;
         }
-        else if (numbOfMiners > maxWorkers && actualMiners < 20 && Utilities.spawnUnit(RobotType.MINER, rc))
+        else if (numbOfMiners > maxWorkers && actualMiners < 30 && Utilities.spawnUnit(RobotType.MINER, rc) && Clock.getRoundNum() > 750)
         {
             return true;
         }

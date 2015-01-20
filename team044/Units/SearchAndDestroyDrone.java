@@ -33,6 +33,7 @@ public class SearchAndDestroyDrone extends Drone
     public void collectData() throws GameActionException
     {
         super.collectData();
+        enemies = rc.senseNearbyRobots(24, opponent);
 
         for(int k = 0; k < enemies.length; k++)
         {

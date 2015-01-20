@@ -131,6 +131,16 @@ public class BuildingBeaver extends Beaver
 
                 buildingSpot = target;
                 target = target.add(target.directionTo(rc.getLocation()));
+                int i = 8;
+                while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
+                {
+                    --i;
+                    if (i < 0)
+                    {
+                        break;
+                    }
+                    target = buildingSpot.add(dirs[i]);
+                }
                 rc.setIndicatorString(0, "Numb: " + numb);
                 rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot + ", target: " + target);
             }
@@ -144,7 +154,16 @@ public class BuildingBeaver extends Beaver
                 if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal() && type != BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal())
                 {
                     buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
-                    target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
+                    int i = 8;
+                    while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
+                    {
+                        --i;
+                        if (i < 0)
+                        {
+                            break;
+                        }
+                        target = buildingSpot.add(dirs[i]);
+                    }
                 }
                 else
                 {
@@ -160,6 +179,25 @@ public class BuildingBeaver extends Beaver
             buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
             rc.setIndicatorString(2, "New Building Spot: " + buildingSpot + ", old Target");
             target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
+        }
+
+        if (target != null && rc.canSenseLocation(target))
+        {
+            int numbOfMoves = 0;
+
+            for (int i = 8; --i>=0;)
+            {
+                if (rc.isPathable(rc.getType(), target.add(dirs[i])))
+                {
+                    numbOfMoves++;
+                }
+            }
+
+            if (numbOfMoves <= 1)
+            {
+                buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
+                target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
+            }
         }
     }
 

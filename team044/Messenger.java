@@ -45,6 +45,7 @@ public class Messenger
     MapLocation group2InitialSpot;
     MapLocation group2CurrentSpot;
     MapLocation group2Goal;
+    int group2RoundFinished = 0;
 
     // group 3
     int group3Launchers = 0;
@@ -61,6 +62,7 @@ public class Messenger
     MapLocation group3InitialSpot;
     MapLocation group3CurrentSpot;
     MapLocation group3Goal;
+    int group3RoundFinished = 0;
 
     private BuildOrderMessaging[] basherStrat;
     private BuildOrderMessaging[] computerStrat;
@@ -120,7 +122,7 @@ public class Messenger
             y = (group2InitialSpot.y + group2Goal.y) / 2;
             group2InitialSpot = new MapLocation(x,y);
             group2Tanks = 7;
-            group2Bashers = 10;
+            group2Bashers = 20;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
         group3InitialSpot = Utilities.getLeftFlank(rc, towers);
@@ -132,7 +134,7 @@ public class Messenger
             y = (group3InitialSpot.y + group3Goal.y) / 2;
             group3InitialSpot = new MapLocation(x,y);
             group3Tanks = 7;
-            group3Bashers = 10;
+            group3Bashers = 20;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
     }
@@ -144,7 +146,7 @@ public class Messenger
     public void giveUnitOrders() throws GameActionException
     {
         // we want to give a little time before we start managing supply distribution
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 2)
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 3)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
         }
@@ -223,7 +225,7 @@ public class Messenger
             group3Launched = true;
         }
 
-        if (group1Launched && (group1Offensive || group1LauncherCount >= 30) && group1CurrentSpot != null)
+        if (group1Launched && (group1Offensive || group1LauncherCount >= 20) && group1CurrentSpot != null)
         {
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
@@ -276,7 +278,7 @@ public class Messenger
         }
 
 
-        if (group2Launched && group2Offensive && group3Launched && group2CurrentSpot != null)
+        if (group2Launched && group2Offensive && group2CurrentSpot != null && (Clock.getRoundNum() - group2RoundFinished) > 75)
         {
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
@@ -290,17 +292,25 @@ public class Messenger
             rc.broadcast(Messaging.SeconGroupX.ordinal(), group2CurrentSpot.x);
             rc.broadcast(Messaging.SecondGroupY.ordinal(), group2CurrentSpot.y);
         }
-        else
+        else if (!group2Launched)
         {
             if (group2LauncherGroup && group2LauncherCount >= group2Launchers)
             {
                 group2CurrentSpot = group2InitialSpot;
                 group2Launched = true;
+                group2RoundFinished = Clock.getRoundNum();
             }
             else if (!group2LauncherGroup && group2TankCount >= group2Tanks)
             {
                 group2CurrentSpot = group2InitialSpot;
                 group2Launched = true;
+                group2RoundFinished = Clock.getRoundNum();
+            }
+            else if (!group2LauncherGroup && group2TankCount == 0 && group2BasherCount >= group2Bashers)
+            {
+                group2CurrentSpot = group2InitialSpot;
+                group2Launched = true;
+                group2RoundFinished = Clock.getRoundNum();
             }
             rc.broadcast(Messaging.SeconGroupX.ordinal(), group2InitialSpot.x);
             rc.broadcast(Messaging.SecondGroupY.ordinal(), group2InitialSpot.y);
@@ -311,7 +321,7 @@ public class Messenger
             }
         }
 
-        if (group3Launched && group3Offensive && group2Launched && group3CurrentSpot != null)
+        if (group3Launched && group3Offensive && group3CurrentSpot != null && (Clock.getRoundNum() - group3RoundFinished) > 75)
         {
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
@@ -325,17 +335,25 @@ public class Messenger
             rc.broadcast(Messaging.ThirdGroupX.ordinal(), group3CurrentSpot.x);
             rc.broadcast(Messaging.ThirdGroupY.ordinal(), group3CurrentSpot.y);
         }
-        else
+        else if (!group3Launched)
         {
             if (group3LauncherGroup && group3LauncherCount >= group3Launchers)
             {
                 group3CurrentSpot = group3InitialSpot;
                 group3Launched = true;
+                group3RoundFinished = Clock.getRoundNum();
             }
             else if (!group3LauncherGroup && group3TankCount >= group3Tanks)
             {
                 group3CurrentSpot = group3InitialSpot;
                 group3Launched = true;
+                group3RoundFinished = Clock.getRoundNum();
+            }
+            else if (!group3LauncherGroup && group3TankCount == 0 && group2TankCount == 0 && group3BasherCount >= group3Bashers)
+            {
+                group3CurrentSpot = group3InitialSpot;
+                group3Launched = true;
+                group3RoundFinished = Clock.getRoundNum();
             }
             rc.broadcast(Messaging.ThirdGroupX.ordinal(), group3InitialSpot.x);
             rc.broadcast(Messaging.ThirdGroupY.ordinal(), group3InitialSpot.y);
@@ -544,7 +562,7 @@ public class Messenger
 
             for (int i = allies.length; --i>=0; )
             {
-                if (allies[i].type == RobotType.TANK)
+                if (allies[i].type == RobotType.TANK || allies[i].type == RobotType.BASHER)
                 {
                     numbOfTanks++;
                 }
