@@ -90,7 +90,7 @@ public class MapDiscovery
                     rc.broadcast(Messaging.ScannerMemoryY2.ordinal(), point.y);
                     rc.broadcast(Messaging.ScannerMemoryX2.ordinal(), point.x);
                     rc.broadcast(Messaging.ScannerChannel.ordinal(), 1);
-                    rc.yield();
+                    return true;
                 }
                 if (map[i][j] == 0)
                 {

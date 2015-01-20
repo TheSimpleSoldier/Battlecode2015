@@ -106,11 +106,11 @@ public class Strategy
         else if (hqDistance > 5000)
         {
             primaryStructure = BuildOrderMessaging.BuildHelipad;
-            secondaryStructure = BuildOrderMessaging.BuildBaracks;
+            secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
 
             miningType = BuildOrderMessaging.BuildMiningBaracks;
-            miningType2 = null;
+            miningType2 = BuildOrderMessaging.BuildMiningBaracks;
 
             rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
 
@@ -119,11 +119,11 @@ public class Strategy
         else
         {
             primaryStructure = BuildOrderMessaging.BuildHelipad;
-            secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+            secondaryStructure = BuildOrderMessaging.BuildBaracks;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
 
             miningType = BuildOrderMessaging.BuildMiningBaracks;
-            miningType2 = BuildOrderMessaging.BuildMiningBaracks;
+            miningType2 = null;
 
             rc.setIndicatorString(0, "Default " + debug + ", " + mostEndGameUnit + ", dist: " + hqDistance);
         }

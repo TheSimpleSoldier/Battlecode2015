@@ -14,7 +14,7 @@ public class MinerFactory extends Structure
     public MinerFactory(RobotController rc)
     {
         super(rc);
-        maxWorkers = 40;
+        maxWorkers = 20;
     }
 
 

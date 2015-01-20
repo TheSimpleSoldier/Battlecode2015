@@ -63,6 +63,7 @@ public class Navigator
     //The dog moves in a bug pattern, but the owner will cut corners.
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
+        rc.setIndicatorString(1, "Going left: "+goingLeft);
         //if target changed, act like dog is next to owner
         MapLocation myLoc = rc.getLocation();
         if(!target.equals(this.target))

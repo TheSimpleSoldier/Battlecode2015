@@ -36,19 +36,6 @@ public class HQ extends Structure
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc, messenger);
 
-        strat = new BuildOrderMessaging[35];
-        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        //strat[2] = BuildOrderMessaging.BuildTechnologyInstitute;
-        //strat[3] = BuildOrderMessaging.BuildTrainingField;
-        strat[4] = BuildOrderMessaging.BuildHelipad;
-        strat[5] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[6] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[7] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[8] = BuildOrderMessaging.BuildBaracks;
-        strat[9] = BuildOrderMessaging.BuildTankFactory;
-        strat[10] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[11] = BuildOrderMessaging.BuildAerospaceLab;
         rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
@@ -296,12 +283,22 @@ public class HQ extends Structure
     {
         int average = 0;
         int count = 0;
+
+        while (currentUnit == 1 && rc.getTeamOre() > 450)
+        {
+            rc.yield();
+        }
+
         for(int k = Constants.startMinerSeenChannel; rc.readBroadcast(k) != 0; k++)
         {
             average += rc.readBroadcast(k);
             count++;
         }
-        average = average / count;
+        if (count > 0)
+        {
+            average = average / count;
+        }
+
         if(average > 250)
         {
             rc.setTeamMemory(TeamMemory.harassDrone.ordinal(), 1);

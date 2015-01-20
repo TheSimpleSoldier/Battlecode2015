@@ -110,7 +110,7 @@ public class Commander extends Unit
             }
         }
         // if we are more than 20 square away then flash towards target
-        else if (rc.getLocation().distanceSquaredTo(target) > 400)
+        /*else if (rc.getLocation().distanceSquaredTo(target) > 400)
         {
             if (rc.getFlashCooldown() < 1 && rc.isCoreReady())
             {
@@ -123,7 +123,7 @@ public class Commander extends Unit
                     return true;
                 }
             }
-        }
+        }*/
         return nav.takeNextStep(target);
 
     }

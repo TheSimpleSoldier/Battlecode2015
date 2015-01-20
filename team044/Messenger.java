@@ -176,6 +176,7 @@ public class Messenger
         if (rc.readBroadcast(Messaging.SoldierType.ordinal()) == -1)
         {
             message = soldierStrat[numbOfSoldiers].ordinal();
+            rc.setIndicatorString(0, "message: " + message + ", round: " + Clock.getRoundNum());
             rc.broadcast(Messaging.SoldierType.ordinal(), message);
             numbOfSoldiers = (numbOfSoldiers + 1) % soldierStrat.length;
         }
