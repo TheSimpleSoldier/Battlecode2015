@@ -73,37 +73,47 @@ public class Navigator
 
         if(rc.getType() == RobotType.COMMANDER)
         {
-            if(rc.senseTerrainTile(myLoc.add(myLoc.directionTo(target))) == TerrainTile.VOID)
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+            if(badSpot(myLoc.add(myLoc.directionTo(target)), enemyTowers) ||
+               isUnit(myLoc.add(myLoc.directionTo(target))))
             {
                 MapLocation loc = rc.getLocation();
-                while(loc.distanceSquaredTo(myLoc) < 10)
+                int count = 0;
+                while(loc.distanceSquaredTo(myLoc) <= 10 && count < 5)
                 {
                     loc = loc.add(loc.directionTo(target));
+                    count++;
                 }
-                loc.subtract(loc.directionTo(target));
-                loc = FightMicroUtilities.flashToLoc(rc, loc);
-                if(loc != null && rc.getFlashCooldown() == 0 && rc.isCoreReady())
+                loc = loc.subtract(loc.directionTo(target));
+                boolean bad = badSpot(loc, enemyTowers);
+                boolean unit = isUnit(loc);
+                if(!bad && rc.getFlashCooldown() == 0 && rc.isCoreReady() &&
+                   myLoc.distanceSquaredTo(loc) <= 10 && !unit)
                 {
                     rc.castFlash(loc);
                     dog = loc;
                     goingAround = false;
                 }
-                if(loc != null)
+                if(!bad && myLoc.distanceSquaredTo(loc) <= 10 && !unit)
                 {
                     return false;
                 }
             }
             if(myLoc.distanceSquaredTo(target) > 100 && rc.getFlashCooldown() == 0 &&
-               rc.isCoreReady() && goingAround == false)
+               rc.isCoreReady() && !goingAround)
             {
                 MapLocation loc = rc.getLocation();
-                while(loc.distanceSquaredTo(myLoc) < 10)
+                int count = 0;
+                while(loc.distanceSquaredTo(myLoc) <= 10 && count < 5)
                 {
                     loc = loc.add(loc.directionTo(target));
+                    count++;
                 }
-                loc.subtract(loc.directionTo(target));
-                loc = FightMicroUtilities.flashToLoc(rc, loc);
-                if(loc != null && rc.isCoreReady() && rc.getFlashCooldown() == 0)
+                loc = loc.subtract(loc.directionTo(target));
+                boolean bad = badSpot(loc, enemyTowers);
+                boolean unit = isUnit(loc);
+                if(!bad && rc.getFlashCooldown() == 0 && rc.isCoreReady() &&
+                   myLoc.distanceSquaredTo(loc) <= 10 && !unit)
                 {
                     rc.castFlash(loc);
                     dog = loc;
