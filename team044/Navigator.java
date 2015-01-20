@@ -7,7 +7,7 @@ import java.util.Random;
 public class Navigator
 {
     private RobotController rc;
-    private MapLocation dog, target;
+    private MapLocation dog, target, lastLoc;
     private Random rand;
     private boolean goingLeft, goingAround;
     private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog, circle;
@@ -21,6 +21,7 @@ public class Navigator
         this.rc = rc;
         dog = rc.getLocation();
         target = rc.getLocation();
+        lastLoc = rc.getLocation();
         rand = new Random(rc.getID());
         goingLeft = rand.nextBoolean();
         goingAround = false;
@@ -65,6 +66,11 @@ public class Navigator
     {
         //if target changed, act like dog is next to owner
         MapLocation myLoc = rc.getLocation();
+        if(!myLoc.equals(lastLoc))
+        {
+            lastLoc = myLoc;
+            dog = myLoc;
+        }
         if(!target.equals(this.target))
         {
             dog = myLoc;
@@ -91,6 +97,7 @@ public class Navigator
                    myLoc.distanceSquaredTo(loc) <= 10 && !unit)
                 {
                     rc.castFlash(loc);
+                    lastLoc = loc;
                     dog = loc;
                     goingAround = false;
                 }
@@ -116,6 +123,7 @@ public class Navigator
                    myLoc.distanceSquaredTo(loc) <= 10 && !unit)
                 {
                     rc.castFlash(loc);
+                    lastLoc = loc;
                     dog = loc;
                 }
             }
@@ -148,6 +156,7 @@ public class Navigator
         if (!badSpot(myLoc.add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
+            lastLoc = myLoc.add(dir);
             return true;
         }
         //if it is another unit, go around it
@@ -157,30 +166,44 @@ public class Navigator
             if(!badSpot(myLoc.add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
             {
                 rc.move(dir.rotateRight());
+                lastLoc = myLoc.add(dir.rotateRight());
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
+                lastLoc = myLoc.add(dir.rotateRight().rotateRight());
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight().rotateRight());
+                lastLoc = myLoc.add(dir.rotateRight().rotateRight().rotateRight());
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
+                lastLoc = myLoc.add(dir.rotateLeft());
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
+                lastLoc = myLoc.add(dir.rotateLeft().rotateLeft());
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft().rotateLeft());
+                lastLoc = myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft());
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.opposite()), towers) && rc.canMove(dir.opposite()))
             {
                 rc.move(dir.opposite());
+                lastLoc = myLoc.add(dir.opposite());
+                return true;
             }
         }
         //otherwise, if you can move, something is in the way, so reroute
@@ -193,6 +216,7 @@ public class Navigator
             dog = myLoc;
         }
 
+        lastLoc = rc.getLocation();
         return false;
     }
 
