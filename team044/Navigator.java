@@ -71,6 +71,25 @@ public class Navigator
             this.target = target;
         }
 
+        if(rc.getType() == RobotType.COMMANDER)
+        {
+            if(rc.senseTerrainTile(myLoc.add(myLoc.directionTo(target))) == TerrainTile.VOID)
+            {
+                MapLocation loc = rc.getLocation();
+                while(loc.distanceSquaredTo(myLoc) < 10)
+                {
+                    loc = loc.add(loc.directionTo(target));
+                }
+                loc.subtract(loc.directionTo(target));
+                loc = FightMicroUtilities.flashToLoc(rc, loc);
+                if(loc != null && rc.getFlashCooldown() == 0)
+                {
+                    rc.castFlash(loc);
+                    dog = loc;
+                }
+            }
+        }
+
         if(!circle)
         {
             if(cantGetCloser())
