@@ -896,7 +896,7 @@ public class Utilities
             BuildStructure(rc, spot, RobotType.HELIPAD);
         }
         // need to build a technology institue
-        else if (type == RobotType.TRAININGFIELD)
+        else if (type == RobotType.TRAININGFIELD && Clock.getRoundNum() > 500)
         {
             BuildStructure(rc, spot, RobotType.TECHNOLOGYINSTITUTE);
         }

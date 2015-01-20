@@ -161,6 +161,25 @@ public class BuildingBeaver extends Beaver
             rc.setIndicatorString(2, "New Building Spot: " + buildingSpot + ", old Target");
             target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
         }
+
+        if (target != null && rc.canSenseLocation(target))
+        {
+            int numbOfMoves = 0;
+
+            for (int i = 8; --i>=0;)
+            {
+                if (rc.isPathable(rc.getType(), target.add(dirs[i])))
+                {
+                    numbOfMoves++;
+                }
+            }
+
+            if (numbOfMoves <= 1)
+            {
+                buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
+                target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
+            }
+        }
     }
 
     public boolean carryOutAbility() throws GameActionException
