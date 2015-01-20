@@ -2,6 +2,9 @@ package team044.Units.SquadUnits;
 
 import battlecode.common.*;
 import team044.Messaging;
+import team044.Unit;
+import team044.Units.Rushers.BasherRusher;
+import team044.Units.Rushers.LauncherRusher;
 import team044.Units.SquadUnit;
 
 public class BasherSquad extends SquadUnit
@@ -28,5 +31,14 @@ public class BasherSquad extends SquadUnit
     public boolean fight() throws GameActionException
     {
         return fighter.basherFightMicro();
+    }
+
+    public Unit getNewStrategy(Unit current) throws GameActionException
+    {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new BasherRusher(rc);
+        }
+        return current;
     }
 }
