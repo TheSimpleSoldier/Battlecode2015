@@ -153,6 +153,7 @@ public class Messenger
         else
         {
             droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+            //droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
         }
 
         int message;

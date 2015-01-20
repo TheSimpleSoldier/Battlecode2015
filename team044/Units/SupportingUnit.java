@@ -73,6 +73,10 @@ public class SupportingUnit extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
+        if (target == null)
+        {
+            return false;
+        }
         if (target == rc.getLocation())
         {
             return false;

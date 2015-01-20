@@ -39,6 +39,10 @@ public class SquadUnit extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
+        if (target == null)
+        {
+            return false;
+        }
         return nav.takeNextStep(target);
     }
 

@@ -84,7 +84,7 @@ public class Strategy
 
         String debug = String.format("HP: %d; Size: %d; First Attacker: %d; Attack Timing: %d; Unit #1: %d; ByteCodes left: %d; Enemy Harassers: %d; ", endGameHP, hqDistance, mostEndGameUnit, attackTiming, mostEndGameUnit, Clock.getBytecodesLeft(), enemiesSeen);
 
-        if (enemiesSeen > 5000)
+        if (enemiesSeen > 1000)
         {
             defensiveStructure = BuildOrderMessaging.BuildTankFactory;
             BuildOrderMessaging[] tankStrat = {BuildOrderMessaging.BuildDefensiveTank, BuildOrderMessaging.BuildSquadTank};
@@ -105,8 +105,8 @@ public class Strategy
             flankingStructure = null;
             miningType = null;
             miningType2 = null;
-            secondBeaver = BuildOrderMessaging.BuildBeaverBuilder;
-            thirdBeaver = null;
+            secondBeaver = null;
+            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             messenger.setGroup1(20,0,10,0,true);
             messenger.setGroup2(0,0,0,0,false);
@@ -123,8 +123,8 @@ public class Strategy
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
             miningType = null;
             miningType2 = null;
-            secondBeaver = BuildOrderMessaging.BuildBeaverBuilder;
-            thirdBeaver = null;//BuildOrderMessaging.BuildBeaverBuilder;
+            secondBeaver = null;//BuildOrderMessaging.BuildBeaverBuilder;
+            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
