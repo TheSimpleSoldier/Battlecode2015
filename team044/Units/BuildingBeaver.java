@@ -42,7 +42,7 @@ public class BuildingBeaver extends Beaver
     {
         super.collectData();
 
-        if(type == BuildOrderMessaging.BuildMiningBaracks.ordinal() || type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal() && !foundSpot)
+        if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal() || type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal() && !foundSpot)
         {
             MapLocation temp = Utilities.getBestSpotSimple(rc);
             if(!temp.equals(rc.getLocation()))

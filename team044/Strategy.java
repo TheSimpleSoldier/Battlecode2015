@@ -66,6 +66,7 @@ public class Strategy
         BuildOrderMessaging miningType2;
         BuildOrderMessaging defensiveStructure;
         BuildOrderMessaging flankingStructure;
+        BuildOrderMessaging thirdBeaver;
         Direction toEnemy = rc.getLocation().directionTo(enemyHQ);
         MapLocation mapEdge = enemyHQ.add(toEnemy);
         int count = 0;
@@ -103,6 +104,7 @@ public class Strategy
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
             miningType = null;
             miningType2 = null;
+            thirdBeaver = null;
 
             rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
@@ -112,9 +114,10 @@ public class Strategy
             primaryStructure = BuildOrderMessaging.BuildHelipad;
             secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-            flankingStructure = null;
+            flankingStructure = BuildOrderMessaging.BuildTankFactory;
             miningType = BuildOrderMessaging.BuildMiningBaracks;
             miningType2 = BuildOrderMessaging.BuildMiningBaracks;
+            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
 
@@ -128,6 +131,7 @@ public class Strategy
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
             miningType = BuildOrderMessaging.BuildMiningBaracks;
             miningType2 = null;
+            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Default " + debug + ", " + mostEndGameUnit + ", dist: " + hqDistance);
         }
@@ -136,6 +140,11 @@ public class Strategy
         if (defensiveStructure != null)
         {
             secondaryStructure = null;
+            flankingStructure = null;
+        }
+
+        if (Strategy.loneTowers(rc) <= 0)
+        {
             flankingStructure = null;
         }
         //strat = new BuildOrderMessaging[43];
@@ -160,7 +169,7 @@ public class Strategy
                 tertiaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 tertiaryStructure,
-                BuildOrderMessaging.BuildBeaverBuilder,
+                thirdBeaver,
                 tertiaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
