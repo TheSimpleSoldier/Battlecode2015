@@ -57,17 +57,24 @@ public class MapDiscovery
         }
         else if (check == 0 && xLimit > map[0].length)
         {
-            map = new int[map.length][xLimit];
+            yLimit = map.length;
+            map = new int[yLimit][xLimit];
             nwX = minX;
             seX = maxX;
             rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
         }
         else if (check == 0 && yLimit > map.length)
         {
-            map = new int[yLimit][map[0].length];
+            xLimit = map[0].length;
+            map = new int[yLimit][xLimit];
             nwY = minY;
             seY = maxY;
             rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
+        }
+        else
+        {
+            xLimit = map[0].length;
+            yLimit = map.length;
         }
         MapLocation point = new MapLocation(minX,minY);
         int fog1 = 0;
