@@ -300,6 +300,10 @@ public class HQ extends Structure
 
         if(average > 250)
         {
+            rc.setTeamMemory(TeamMemory.harassDrone.ordinal(), 0);
+        }
+        else
+        {
             rc.setTeamMemory(TeamMemory.harassDrone.ordinal(), 1);
         }
 
