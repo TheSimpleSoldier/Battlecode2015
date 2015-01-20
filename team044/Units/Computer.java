@@ -38,27 +38,16 @@ public class Computer extends Unit
     public void handleMessages() throws GameActionException
     {
         super.handleMessages();
-        rc.broadcast(Messaging.NumbOfComps.ordinal(), 1);
+        rc.broadcast(Messaging.ComputerOnline.ordinal(), 1);
         int broadcast = rc.readBroadcast(Messaging.ComputerOnline.ordinal());
         switch (broadcast)
         {
             case 0:
-                rc.broadcast(Messaging.ComputerOnline.ordinal(), 2);
-                rc.broadcast(Messaging.ScannerChannel.ordinal(), 0);
-                rc.broadcast(Messaging.ScannerMemoryY.ordinal(), 0);
-                rc.broadcast(Messaging.ScannerMemoryY2.ordinal(), 0);
-                rc.broadcast(Messaging.ScannerMemoryX.ordinal(), 0);
-                rc.broadcast(Messaging.ScannerMemoryX2.ordinal(), 0);
+                rc.broadcast(Messaging.ComputerOnline.ordinal(), 1);
+                map.checkMap(rc);
                 break;
             case 1:
                 rc.broadcast(Messaging.ComputerOnline.ordinal(), 2);
-                break;
-            case 2:
-                rc.broadcast(Messaging.ScannerChannel.ordinal(), 0);
-                rc.broadcast(Messaging.ScannerMemoryY.ordinal(), 0);
-                rc.broadcast(Messaging.ScannerMemoryY2.ordinal(), 0);
-                rc.broadcast(Messaging.ScannerMemoryX.ordinal(), 0);
-                rc.broadcast(Messaging.ScannerMemoryX2.ordinal(), 0);
                 break;
 
         }

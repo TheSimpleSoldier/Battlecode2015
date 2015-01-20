@@ -92,14 +92,15 @@ public class MapDiscovery
             {
                 //System.out.println("xIteration:  " + Clock.getBytecodesLeft());
                 int byteCodesLeft = Clock.getBytecodesLeft();
-                if (byteCodesLeft < 400)
+                if (byteCodesLeft < 600)
                 {
                     rc.broadcast(Messaging.ScannerMemoryX.ordinal(), nextPoint.x);
                     rc.broadcast(Messaging.ScannerMemoryY.ordinal(), nextPoint.y);
                     rc.broadcast(Messaging.ScannerMemoryY2.ordinal(), point.y);
                     rc.broadcast(Messaging.ScannerMemoryX2.ordinal(), point.x);
                     rc.broadcast(Messaging.ScannerChannel.ordinal(), 1);
-                    return true;
+                    rc.yield();
+//                    return true;
                 }
                 if (map[i][j] == 0)
                 {
@@ -328,7 +329,7 @@ public class MapDiscovery
     public int[][] checkMap(RobotController rc) throws GameActionException
     {
         int bytecodes = Clock.getBytecodesLeft();
-        if (bytecodes > 1500) {
+//        if (bytecodes > 2000) {
             int minX = rc.readBroadcast(Messaging.MapLimitWest.ordinal());
             int minY = rc.readBroadcast(Messaging.MapLimitNorth.ordinal());
             int maxX = rc.readBroadcast(Messaging.MapLimitEast.ordinal());
@@ -340,7 +341,7 @@ public class MapDiscovery
             } else {
                 findMap(rc);
             }
-        }
+//        }
         return map;
     }
 }
