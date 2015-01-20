@@ -105,5 +105,6 @@ public enum Messaging {
     DroneMaxX,
     DroneMaxY,
     NumbOfHarassers,
+    ComputerOnline,
     // etc
 }

@@ -442,6 +442,20 @@ public class HQ extends Structure
     public void distributeSupply() throws GameActionException
     {
         Utilities.shareSupplies(rc);
-        map.checkMap(rc);
+        int computer = rc.readBroadcast(Messaging.ComputerOnline.ordinal());
+        switch (computer)
+        {
+            case 0:
+                map.checkMap(rc);
+                rc.broadcast(Messaging.NumbOfComps.ordinal(), 0);
+                break;
+            case 1:
+                rc.broadcast(Messaging.ComputerOnline.ordinal(), 0);
+                map.checkMap(rc);
+                break;
+            case 2:
+                rc.broadcast(Messaging.ComputerOnline.ordinal(), 1);
+                break;
+        }
     }
 }

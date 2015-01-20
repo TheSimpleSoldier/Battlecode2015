@@ -81,6 +81,8 @@ public class MapDiscovery
         int fog2 = 0;
         int fog3 = 0;
         int fog4 = 0;
+        int midX = xLimit/2;
+        int midY = xLimit/2;
         MapLocation nextPoint = new MapLocation(currentX, currentY);
         //System.out.println(xLimit + " " + yLimit + " ");
         for (int i = yIteration; i < yLimit; i++)
@@ -119,33 +121,35 @@ public class MapDiscovery
                         else if (j > xLimit/2 && i < yLimit/2)
                             fog2++;
                         else if (j < xLimit/2)
-                            fog2++;
+                            fog3++;
                         else if (j > xLimit/2)
-                            fog2++;
+                            fog4++;
                     }
                 }
                 nextPoint = nextPoint.add(Direction.EAST);
-                //System.out.print(map[i][j]);
+                System.out.print(map[i][j]);
             }
             xIteration = 0;
             point = point.add(Direction.SOUTH);
             nextPoint = new MapLocation(point.x,point.y);
-            //System.out.println();
+            System.out.println();
         }
         //System.out.print("Exit:  " + Clock.getBytecodesLeft());
         if (mapExtremes != 0)
         {
             MapLocation enemyHQ = rc.senseEnemyHQLocation();
-            int broadcast = 0;
-            if (enemyHQ.x - minX < xLimit/2 && enemyHQ.y < yLimit/2)
-                broadcast = Math.max(Math.max(fog2,fog3),fog4);
-            else if (enemyHQ.x - minX < xLimit/2)
-                broadcast = Math.max(Math.max(fog1,fog2),fog4);
-            else if (enemyHQ.x - minX > xLimit/2 && enemyHQ.y < yLimit/2)
-                broadcast = Math.max(Math.max(fog1,fog3),fog4);
-            else
-                broadcast = Math.max(Math.max(fog1,fog2),fog3);
-            rc.broadcast(Messaging.MapExtremes.ordinal(), broadcast);
+            int broadcastFog = 0;
+            int broadcastOre = 0;
+            if (enemyHQ.x - minX < xLimit/2 && enemyHQ.y - minY < yLimit/2) {
+                broadcastFog = Math.max(Math.max(fog2, fog3), fog4);
+            } else if (enemyHQ.x - minX < xLimit/2) {
+                broadcastFog = Math.max(Math.max(fog1, fog2), fog4);
+            } else if (enemyHQ.x - minX > xLimit/2 && enemyHQ.y < yLimit/2) {
+                broadcastFog = Math.max(Math.max(fog1, fog3), fog4);
+            } else {
+                broadcastFog = Math.max(Math.max(fog1, fog2), fog3);
+            }
+            rc.broadcast(Messaging.MapExtremes.ordinal(), broadcastFog);
         }
         rc.broadcast(Messaging.ScannerChannel.ordinal(), 0);
         rc.broadcast(Messaging.ScannerMemoryY.ordinal(), 0);
