@@ -2,7 +2,10 @@ package team044.Units.SquadUnits;
 
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
+import team044.BuildOrderMessaging;
 import team044.Messaging;
+import team044.Unit;
+import team044.Units.Rushers.LauncherRusher;
 import team044.Units.SquadUnit;
 
 public class LauncherSquad extends SquadUnit
@@ -30,5 +33,14 @@ public class LauncherSquad extends SquadUnit
     public boolean fight() throws GameActionException
     {
         return fighter.launcherAttack(nearByEnemies);
+    }
+
+    public Unit getNewStrategy(Unit current) throws GameActionException
+    {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new LauncherRusher(rc);
+        }
+        return current;
     }
 }
