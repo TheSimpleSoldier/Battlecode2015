@@ -23,6 +23,7 @@ public class Commander extends Unit
         super(rc);
         target = enemyHQ;
         random = new Random(rc.getID());
+        nav.setCircle(true);
 
         rc.setIndicatorString(0, "I am Achilles");
         rc.setIndicatorString(1, "Demigod of Greece");
