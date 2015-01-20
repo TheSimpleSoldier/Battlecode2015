@@ -35,8 +35,7 @@ public class HQ extends Structure
         messenger = new Messenger(rc);
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc, messenger);
-
-        rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
+        //rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
     public void handleMessages() throws GameActionException
@@ -69,14 +68,14 @@ public class HQ extends Structure
         if (Clock.getRoundNum() > 1800)
         {
             rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
-            rc.setIndicatorString(2, "Rushing enemy");
+            //rc.setIndicatorString(2, "Rushing enemy");
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        /*else if (Clock.getRoundNum() > 750)
+        else if (Clock.getRoundNum() > 1500)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
-        }*/
+        }
 
         // even round so odd channel has data
         if (Clock.getRoundNum() % 2 == 0)

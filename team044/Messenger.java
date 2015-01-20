@@ -32,9 +32,9 @@ public class Messenger
 
     // group 2
     int group2Launchers = 0;
-    int group2Tanks = 5;
+    int group2Tanks = 0;
     int group2Soldiers = 0;
-    int group2Bashers = 10;
+    int group2Bashers = 0;
     boolean group2Launched = false;
     boolean group2LauncherGroup = false;
     boolean group2Offensive = true;
@@ -48,9 +48,9 @@ public class Messenger
 
     // group 3
     int group3Launchers = 0;
-    int group3Tanks = 5;
+    int group3Tanks = 0;
     int group3Soldiers = 0;
-    int group3Bashers = 10;
+    int group3Bashers = 0;
     boolean group3Launched = false;
     boolean group3LauncherGroup = false;
     boolean group3Offensive = true;
@@ -100,7 +100,7 @@ public class Messenger
         soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
-        tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
+        tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
 
         droneStrat = new BuildOrderMessaging[1];
         droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
@@ -111,20 +111,29 @@ public class Messenger
         group1Goal = Utilities.closestTower(rc, enemyTowers);
         group2InitialSpot = Utilities.getRightFlank(rc, towers);
         group2Goal = Utilities.enemyTowerOnRightFlank(rc, enemyTowers);
+        int goGoal = Strategy.loneTowers(rc);
         int x,y;
-        if (group2Goal != null)
+        if (group2Goal != null && (goGoal == 1 || goGoal == 3))
         {
+            rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group2Goal.x + ", y: " + group2Goal.y);
             x = (group2InitialSpot.x + group2Goal.x) / 2;
             y = (group2InitialSpot.y + group2Goal.y) / 2;
             group2InitialSpot = new MapLocation(x,y);
+            group2Tanks = 7;
+            group2Bashers = 10;
+            tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
         group3InitialSpot = Utilities.getLeftFlank(rc, towers);
         group3Goal = Utilities.enemyTowerOnLeftFlank(rc, enemyTowers);
-        if (group3Goal != null)
+        if (group3Goal != null && goGoal > 1)
         {
+            rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group3Goal.x + ", y: " + group3Goal.y);
             x = (group3InitialSpot.x + group3Goal.x) / 2;
             y = (group3InitialSpot.y + group3Goal.y) / 2;
             group3InitialSpot = new MapLocation(x,y);
+            group3Tanks = 7;
+            group3Bashers = 10;
+            tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
     }
 
@@ -176,7 +185,6 @@ public class Messenger
         if (rc.readBroadcast(Messaging.SoldierType.ordinal()) == -1)
         {
             message = soldierStrat[numbOfSoldiers].ordinal();
-            rc.setIndicatorString(0, "message: " + message + ", round: " + Clock.getRoundNum());
             rc.broadcast(Messaging.SoldierType.ordinal(), message);
             numbOfSoldiers = (numbOfSoldiers + 1) % soldierStrat.length;
         }
@@ -561,7 +569,7 @@ public class Messenger
      */
     public void cutProd(RobotController rc, int tanks, int tankCount, int soldiers, int soldierCount, int bashers, int basherCount) throws GameActionException
     {
-        if (tankCount < tanks && tankStrat.length == 1)
+        if (tankCount < tanks && (tankStrat.length == 1 && tankStrat[0] == BuildOrderMessaging.BuildSquadTank))
         {
             rc.broadcast(Messaging.ShutOffTankProd.ordinal(), 0);
         }

@@ -24,6 +24,10 @@ public class Commander extends Unit
         target = enemyHQ;
         random = new Random(rc.getID());
 
+        rc.setIndicatorString(0, "I am Achilles");
+        rc.setIndicatorString(1, "Demigod of Greece");
+        rc.setIndicatorString(2, "Prepare to Die!!");
+
         avoidStructures = true;
     }
 
@@ -32,21 +36,21 @@ public class Commander extends Unit
         // collect our data
         super.collectData();
 
-        rc.setIndicatorString(0, "Flash Cool down: " + rc.getFlashCooldown());
+        //rc.setIndicatorString(0, "Flash Cool down: " + rc.getFlashCooldown());
 
 
         enemies = rc.senseNearbyRobots(35, opponent);
         // when we hit 100 health we head back to the battlefield
         if (regenerating && rc.getHealth() >= 150)
         {
-            rc.setIndicatorString(1, "Attacking");
+        //    rc.setIndicatorString(1, "Attacking");
             regenerating = false;
         }
 
         // when our health gets too low we head away from the battlefield
         if (!regenerating && (rc.getHealth() <= 75))
         {
-            rc.setIndicatorString(1, "Regenerating");
+        //    rc.setIndicatorString(1, "Regenerating");
             regenerating = true;
         }
 
@@ -91,15 +95,13 @@ public class Commander extends Unit
         {
             return false;
         }
-        rc.setIndicatorString(1, "Nav movement");
-
         return nav.takeNextStep(target);
 
     }
 
     public boolean fight() throws GameActionException
     {
-        rc.setIndicatorString(1, "Fight Micro");
+    //    rc.setIndicatorString(1, "Fight Micro");
         return fighter.commanderMicro(nearByEnemies, regenerating, enemies, avoidStructures);
     }
 
