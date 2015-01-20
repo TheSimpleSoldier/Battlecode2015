@@ -35,20 +35,7 @@ public class HQ extends Structure
         messenger = new Messenger(rc);
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc, messenger);
-        strat = new BuildOrderMessaging[35];
-        strat[0] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[1] = BuildOrderMessaging.BuildMinerFactory;
-        //strat[2] = BuildOrderMessaging.BuildTechnologyInstitute;
-        //strat[3] = BuildOrderMessaging.BuildTrainingField;
-        strat[4] = BuildOrderMessaging.BuildHelipad;
-        strat[5] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[6] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[7] = BuildOrderMessaging.BuildBeaverBuilder;
-        strat[8] = BuildOrderMessaging.BuildBaracks;
-        strat[9] = BuildOrderMessaging.BuildTankFactory;
-        strat[10] = BuildOrderMessaging.BuildAerospaceLab;
-        strat[11] = BuildOrderMessaging.BuildAerospaceLab;
-        rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
+        //rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
     public void handleMessages() throws GameActionException
@@ -81,14 +68,14 @@ public class HQ extends Structure
         if (Clock.getRoundNum() > 1800)
         {
             rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
-            rc.setIndicatorString(2, "Rushing enemy");
+            //rc.setIndicatorString(2, "Rushing enemy");
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        /*else if (Clock.getRoundNum() > 750)
+        else if (Clock.getRoundNum() > 1500)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
-        }*/
+        }
 
         // even round so odd channel has data
         if (Clock.getRoundNum() % 2 == 0)
@@ -295,12 +282,22 @@ public class HQ extends Structure
     {
         int average = 0;
         int count = 0;
+
+        while (currentUnit == 2 && rc.getTeamOre() > 450)
+        {
+            rc.yield();
+        }
+
         for(int k = Constants.startMinerSeenChannel; rc.readBroadcast(k) != 0; k++)
         {
             average += rc.readBroadcast(k);
             count++;
         }
-        average = average / count;
+        if (count > 0)
+        {
+            average = average / count;
+        }
+
         if(average > 250)
         {
             rc.setTeamMemory(TeamMemory.harassDrone.ordinal(), 1);

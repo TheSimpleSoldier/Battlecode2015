@@ -59,6 +59,7 @@ public class Soldier extends Unit
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
         int type = rc.readBroadcast(Messaging.SoldierType.ordinal());
+        rc.setIndicatorString(2, "Type: " + type);
         rc.broadcast(Messaging.SoldierType.ordinal(), -1);
 
         if (type == BuildOrderMessaging.BuildHarrassSoldier.ordinal())

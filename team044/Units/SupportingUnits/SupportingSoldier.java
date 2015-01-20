@@ -12,6 +12,7 @@ public class SupportingSoldier extends SupportingUnit
         super(rc);
         group = rc.readBroadcast(Messaging.SoldierGroup.ordinal());
         rc.broadcast(Messaging.SoldierGroup.ordinal(), -1);
+        rc.setIndicatorString(0, "Supporting soldier");
     }
 
     public void collectData() throws GameActionException

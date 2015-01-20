@@ -617,6 +617,32 @@ public class FightMicroUtilities
                 }
             }
         }
+
+        MapLocation closestEnemy = null;
+        if (best == null)
+        {
+            int bestDist = 9999;
+            for (int i = enemies.length; --i>=0;)
+            {
+                int dist = us.distanceSquaredTo(enemies[i].location);
+                if (dist <= 2)
+                {
+                    return null;
+                }
+                else if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    closestEnemy = enemies[i].location;
+                }
+            }
+
+            if (closestEnemy != null)
+            {
+                return us.directionTo(closestEnemy);
+            }
+        }
+
+
         return best;
     }
 

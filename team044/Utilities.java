@@ -1173,7 +1173,7 @@ public class Utilities
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
         Direction direction = ourHQ.directionTo(enemyHQ);
         int maxDist = -99999999;
-        MapLocation location = ourHQ;
+        MapLocation location = null;
 
         for (int i = towers.length; --i>=0; )
         {
@@ -1207,7 +1207,7 @@ public class Utilities
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
         Direction direction = ourHQ.directionTo(enemyHQ);
         int maxDist = -99999999;
-        MapLocation location = ourHQ;
+        MapLocation location = null;
 
         for (int i = towers.length; --i>=0; )
         {
@@ -1241,7 +1241,7 @@ public class Utilities
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
         Direction direction = enemyHQ.directionTo(ourHQ);
         int maxDist = -9999999;
-        MapLocation location = enemyHQ;
+        MapLocation location = null;
 
         for (int i = towers.length; --i>=0; )
         {
@@ -1270,7 +1270,7 @@ public class Utilities
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
         Direction direction = enemyHQ.directionTo(ourHQ);
         int maxDist = -9999999;
-        MapLocation location = enemyHQ;
+        MapLocation location = null;
 
         for (int i = towers.length; --i>=0; )
         {
