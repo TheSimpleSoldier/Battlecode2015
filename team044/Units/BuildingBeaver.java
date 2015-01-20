@@ -164,7 +164,6 @@ public class BuildingBeaver extends Beaver
                         }
                         target = buildingSpot.add(dirs[i]);
                     }
-                    //target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
                 }
                 else
                 {
@@ -181,20 +180,6 @@ public class BuildingBeaver extends Beaver
             rc.setIndicatorString(2, "New Building Spot: " + buildingSpot + ", old Target");
             target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
         }
-
-        /*if (target != null && rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
-        {
-            int i = 8;
-            while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
-            {
-                --i;
-                if (i < 0)
-                {
-                    break;
-                }
-                target = buildingSpot.add(dirs[i]);
-            }
-        }*/
 
         if (target != null && rc.canSenseLocation(target))
         {
