@@ -435,7 +435,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 750)
+        else if ((numbOfBeavers < 1 && Clock.getRoundNum() > 500) || rc.getTeamOre() > 1500)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
@@ -449,6 +449,6 @@ public class HQ extends Structure
     public void distributeSupply() throws GameActionException
     {
         Utilities.shareSupplies(rc);
-        map.checkMap(rc);
+        //map.checkMap(rc);
     }
 }

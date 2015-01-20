@@ -6,7 +6,7 @@ import battlecode.common.*;
 import team044.Units.Defenders.DefensiveBasher;
 import team044.Units.Defenders.DefensiveSoldiers;
 import team044.Units.Defenders.DefensiveTank;
-import team044.Units.DefensiveLauncher;
+import team044.Units.Defenders.DefensiveLauncher;
 import team044.Units.SquadUnits.BasherSquad;
 import team044.Units.SquadUnits.LauncherSquad;
 import team044.Units.SquadUnits.SoldierSquad;
