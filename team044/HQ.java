@@ -449,6 +449,6 @@ public class HQ extends Structure
     public void distributeSupply() throws GameActionException
     {
         Utilities.shareSupplies(rc);
-        map.checkMap(rc);
+        //map.checkMap(rc);
     }
 }
