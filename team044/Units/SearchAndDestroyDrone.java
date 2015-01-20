@@ -45,7 +45,7 @@ public class SearchAndDestroyDrone extends Drone
 
         if(minerChannel == 0)
         {
-            for(minerChannel = Constants.startMinerSeenChannel; rc.readBroadcast(minerChannel) == 0; minerChannel++){}
+            for(minerChannel = Constants.startMinerSeenChannel; rc.readBroadcast(minerChannel) != 0; minerChannel++){}
         }
         else
         {
