@@ -109,5 +109,9 @@ public enum Messaging {
     OreX,
     OreY,
     BestSpotMiners,
+    OreX2,
+    OreY2,
+    BestSpot2Miners,
+    BestOre,
     // etc
 }

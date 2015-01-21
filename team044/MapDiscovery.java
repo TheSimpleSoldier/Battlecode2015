@@ -71,12 +71,14 @@ public class MapDiscovery
         int oreSpot = 0;
         int oreSpotX = 0;
         int oreSpotY = 0;
+        int oreSpotX2 = 0;
+        int oreSpotY2 = 0;
         int[] sectorX = new int[3];
         int[] sectorY = new int[3];
         sectorX[0] = xLimit/4;
         sectorY[0] = yLimit/4;
-        sectorX[1] = xLimit/2;
-        sectorY[1] = yLimit/2;
+        sectorX[1] = xLimit/2 + 1;
+        sectorY[1] = yLimit/2 + 1;
         sectorX[2] = xLimit/2 + sectorX[0];
         sectorY[2] = yLimit/2 + sectorY[0];
         MapLocation nextPoint = new MapLocation(currentX, currentY);
@@ -125,6 +127,11 @@ public class MapDiscovery
                         oreSpotY = nextPoint.y;
                         oreSpot = spot;
                     }
+                    else if (spot == oreSpot)
+                    {
+                        oreSpotX2 = nextPoint.x;
+                        oreSpotY2 = nextPoint.y;
+                    }
                 }
                 nextPoint = nextPoint.add(Direction.EAST);
 //                System.out.print(map[i][j]);
@@ -162,9 +169,13 @@ public class MapDiscovery
         int oreY = rc.readBroadcast(Messaging.OreY.ordinal());
         if (oreX == oreSpotX || oreY == oreSpotY)
             return true;
+        rc.broadcast(Messaging.BestOre.ordinal(),oreSpot);
         rc.broadcast(Messaging.OreX.ordinal(),oreSpotX);
         rc.broadcast(Messaging.OreY.ordinal(),oreSpotY);
         rc.broadcast(Messaging.BestSpotMiners.ordinal(),0);
+        rc.broadcast(Messaging.OreX2.ordinal(),oreSpotX2);
+        rc.broadcast(Messaging.OreY2.ordinal(),oreSpotY2);
+        rc.broadcast(Messaging.BestSpot2Miners.ordinal(),0);
 //        System.out.println("  " + Clock.getBytecodesLeft());
 //        System.out.println();
         return true;
@@ -334,8 +345,7 @@ public class MapDiscovery
             return false;
         }
     }
-    public int[][] checkMap(RobotController rc) throws GameActionException
-    {
+    public int[][] checkMap(RobotController rc) throws GameActionException {
             int minX = rc.readBroadcast(Messaging.MapLimitWest.ordinal());
             int minY = rc.readBroadcast(Messaging.MapLimitNorth.ordinal());
             int maxX = rc.readBroadcast(Messaging.MapLimitEast.ordinal());

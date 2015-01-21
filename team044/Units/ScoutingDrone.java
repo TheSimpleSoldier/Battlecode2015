@@ -23,6 +23,7 @@ public class ScoutingDrone extends Drone
     {
         // collect our data
         super.collectData();
+
     }
 
     public boolean takeNextStep() throws GameActionException

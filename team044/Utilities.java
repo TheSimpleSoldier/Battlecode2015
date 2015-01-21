@@ -57,10 +57,19 @@ public class Utilities
         MapLocation best = new MapLocation(rc.readBroadcast(Messaging.OreX.ordinal()),rc.readBroadcast(Messaging.OreY.ordinal()));
         int distance = current.distanceSquaredTo(best);
         int bestSpotMiners = rc.readBroadcast(Messaging.BestSpotMiners.ordinal());
-        if (spotBetter(rc, current, best, distance) || (distance < 400 && bestSpotMiners < 6))
+        if (spotBetter(rc, current, best, distance) && bestSpotMiners < 8)
         {
             bestSpotMiners++;
             rc.broadcast(Messaging.BestSpotMiners.ordinal(),bestSpotMiners);
+            return best;
+        }
+        best = new MapLocation(rc.readBroadcast(Messaging.OreX2.ordinal()),rc.readBroadcast(Messaging.OreY2.ordinal()));
+        bestSpotMiners = rc.readBroadcast(Messaging.BestSpot2Miners.ordinal());
+        distance = current.distanceSquaredTo(best);
+        if (spotBetter(rc, current, best, distance) && bestSpotMiners < 8)
+        {
+            bestSpotMiners++;
+            rc.broadcast(Messaging.BestSpot2Miners.ordinal(),bestSpotMiners);
             return best;
         }
         return greedyBestMiningSpot(rc);
