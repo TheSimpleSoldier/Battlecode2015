@@ -2,6 +2,9 @@ package team044.Units.SquadUnits;
 
 import battlecode.common.*;
 import team044.Messaging;
+import team044.Unit;
+import team044.Units.Rushers.LauncherRusher;
+import team044.Units.Rushers.TankRusher;
 import team044.Units.SquadUnit;
 
 public class TankSquad extends SquadUnit
@@ -23,5 +26,14 @@ public class TankSquad extends SquadUnit
             group = rc.readBroadcast(Messaging.TankGroup.ordinal());
             rc.broadcast(Messaging.TankGroup.ordinal(), -1);
         }
+    }
+
+    public Unit getNewStrategy(Unit current) throws GameActionException
+    {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new TankRusher(rc);
+        }
+        return current;
     }
 }

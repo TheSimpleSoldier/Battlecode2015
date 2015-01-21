@@ -66,6 +66,8 @@ public class Strategy
         BuildOrderMessaging miningType2;
         BuildOrderMessaging defensiveStructure;
         BuildOrderMessaging flankingStructure;
+        BuildOrderMessaging secondBeaver;
+        BuildOrderMessaging thirdBeaver;
         Direction toEnemy = rc.getLocation().directionTo(enemyHQ);
         MapLocation mapEdge = enemyHQ.add(toEnemy);
         int count = 0;
@@ -82,7 +84,7 @@ public class Strategy
 
         String debug = String.format("HP: %d; Size: %d; First Attacker: %d; Attack Timing: %d; Unit #1: %d; ByteCodes left: %d; Enemy Harassers: %d; ", endGameHP, hqDistance, mostEndGameUnit, attackTiming, mostEndGameUnit, Clock.getBytecodesLeft(), enemiesSeen);
 
-        if (enemiesSeen > 5000)
+        if (enemiesSeen > 1000)
         {
             defensiveStructure = BuildOrderMessaging.BuildTankFactory;
             BuildOrderMessaging[] tankStrat = {BuildOrderMessaging.BuildDefensiveTank, BuildOrderMessaging.BuildSquadTank};
@@ -94,8 +96,26 @@ public class Strategy
         }
 
         System.out.println(debug);
+        // Very Small map
+        if (hqDistance < 1000)
+        {
+            primaryStructure = BuildOrderMessaging.BuildHelipad;
+            secondaryStructure = BuildOrderMessaging.BuildBaracks;
+            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+            flankingStructure = null;
+            miningType = null;
+            miningType2 = null;
+            secondBeaver = null;
+            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
+
+            messenger.setGroup1(20,0,10,0,true);
+            messenger.setGroup2(0,0,0,0,false);
+            messenger.setGroup3(0, 0, 0, 0, false);
+
+            rc.setIndicatorString(0, "Very Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
+        }
         // Small map
-        if (hqDistance < 2500)
+        else if (hqDistance < 2500)
         {
             primaryStructure = BuildOrderMessaging.BuildHelipad;
             secondaryStructure = BuildOrderMessaging.BuildBaracks;
@@ -103,6 +123,8 @@ public class Strategy
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
             miningType = null;
             miningType2 = null;
+            secondBeaver = null;//BuildOrderMessaging.BuildBeaverBuilder;
+            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
@@ -112,9 +134,11 @@ public class Strategy
             primaryStructure = BuildOrderMessaging.BuildHelipad;
             secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-            flankingStructure = null;
+            flankingStructure = BuildOrderMessaging.BuildTankFactory;
             miningType = BuildOrderMessaging.BuildMiningBaracks;
             miningType2 = BuildOrderMessaging.BuildMiningBaracks;
+            secondBeaver = BuildOrderMessaging.BuildBeaverBuilder;
+            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
 
@@ -128,6 +152,8 @@ public class Strategy
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
             miningType = BuildOrderMessaging.BuildMiningBaracks;
             miningType2 = null;
+            secondBeaver = BuildOrderMessaging.BuildBeaverBuilder;
+            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Default " + debug + ", " + mostEndGameUnit + ", dist: " + hqDistance);
         }
@@ -138,19 +164,25 @@ public class Strategy
             secondaryStructure = null;
             flankingStructure = null;
         }
+
+        if (Strategy.loneTowers(rc) <= 0)
+        {
+            flankingStructure = null;
+        }
         //strat = new BuildOrderMessaging[43];
 
 
         BuildOrderMessaging[] strat = {
                 BuildOrderMessaging.BuildBeaverBuilder,
                 BuildOrderMessaging.BuildMinerFactory,
-                BuildOrderMessaging.BuildBeaverBuilder,
+                secondBeaver,
                 BuildOrderMessaging.BuildTechnologyInstitute,
                 miningType,
                 BuildOrderMessaging.BuildTrainingField,
                 defensiveStructure,
                 primaryStructure,
                 tertiaryStructure,
+                thirdBeaver,
                 tertiaryStructure,
                 secondaryStructure,
                 flankingStructure,
@@ -160,7 +192,6 @@ public class Strategy
                 tertiaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 tertiaryStructure,
-                BuildOrderMessaging.BuildBeaverBuilder,
                 tertiaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,

@@ -7,9 +7,9 @@ import java.util.Random;
 public class Navigator
 {
     private RobotController rc;
-    private MapLocation dog, target;
+    private MapLocation dog, target, lastLoc;
     private Random rand;
-    private boolean goingLeft, goingAround;
+    private boolean goingLeft, goingAround, turnedAround;
     private boolean avoidTowers, avoidHQ, ignoreVoids, lowBytecodes, badDog, circle;
     private Direction lastFacing;
     private int HQRange = 24;
@@ -21,9 +21,11 @@ public class Navigator
         this.rc = rc;
         dog = rc.getLocation();
         target = rc.getLocation();
+        lastLoc = rc.getLocation();
         rand = new Random(rc.getID());
         goingLeft = rand.nextBoolean();
         goingAround = false;
+        turnedAround = false;
         lastFacing = Direction.NONE;
         this.avoidTowers = avoidTowers;
         this.avoidHQ = avoidHQ;
@@ -65,6 +67,12 @@ public class Navigator
     {
         //if target changed, act like dog is next to owner
         MapLocation myLoc = rc.getLocation();
+        if(!myLoc.equals(lastLoc))
+        {
+            lastLoc = myLoc;
+            dog = myLoc;
+            goingAround = false;
+        }
         if(!target.equals(this.target))
         {
             dog = myLoc;
@@ -73,18 +81,51 @@ public class Navigator
 
         if(rc.getType() == RobotType.COMMANDER)
         {
-            if(rc.senseTerrainTile(myLoc.add(myLoc.directionTo(target))) == TerrainTile.VOID)
+            MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
+            if(badSpot(myLoc.add(myLoc.directionTo(target)), enemyTowers) ||
+               isUnit(myLoc.add(myLoc.directionTo(target))))
             {
                 MapLocation loc = rc.getLocation();
-                while(loc.distanceSquaredTo(myLoc) < 10)
+                int count = 0;
+                while(loc.distanceSquaredTo(myLoc) <= 10 && count < 5)
                 {
                     loc = loc.add(loc.directionTo(target));
+                    count++;
                 }
-                loc.subtract(loc.directionTo(target));
-                loc = FightMicroUtilities.flashToLoc(rc, loc);
-                if(loc != null && rc.getFlashCooldown() == 0 && rc.isCoreReady())
+                loc = loc.subtract(loc.directionTo(target));
+                boolean bad = badSpot(loc, enemyTowers);
+                boolean unit = isUnit(loc);
+                if(!bad && rc.getFlashCooldown() == 0 && rc.isCoreReady() &&
+                   myLoc.distanceSquaredTo(loc) <= 10 && !unit)
                 {
                     rc.castFlash(loc);
+                    lastLoc = loc;
+                    dog = loc;
+                    goingAround = false;
+                }
+                if(!bad && myLoc.distanceSquaredTo(loc) <= 10 && !unit)
+                {
+                    return false;
+                }
+            }
+            if(myLoc.distanceSquaredTo(target) > 100 && rc.getFlashCooldown() == 0 &&
+               rc.isCoreReady() && !goingAround)
+            {
+                MapLocation loc = rc.getLocation();
+                int count = 0;
+                while(loc.distanceSquaredTo(myLoc) <= 10 && count < 5)
+                {
+                    loc = loc.add(loc.directionTo(target));
+                    count++;
+                }
+                loc = loc.subtract(loc.directionTo(target));
+                boolean bad = badSpot(loc, enemyTowers);
+                boolean unit = isUnit(loc);
+                if(!bad && rc.getFlashCooldown() == 0 && rc.isCoreReady() &&
+                   myLoc.distanceSquaredTo(loc) <= 10 && !unit)
+                {
+                    rc.castFlash(loc);
+                    lastLoc = loc;
                     dog = loc;
                 }
             }
@@ -117,6 +158,7 @@ public class Navigator
         if (!badSpot(myLoc.add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
+            lastLoc = myLoc.add(dir);
             return true;
         }
         //if it is another unit, go around it
@@ -126,30 +168,51 @@ public class Navigator
             if(!badSpot(myLoc.add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
             {
                 rc.move(dir.rotateRight());
+                lastLoc = myLoc.add(dir.rotateRight());
+                dog = myLoc;
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
+                lastLoc = myLoc.add(dir.rotateRight().rotateRight());
+                dog = myLoc;
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight().rotateRight());
+                lastLoc = myLoc.add(dir.rotateRight().rotateRight().rotateRight());
+                dog = myLoc;
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
+                lastLoc = myLoc.add(dir.rotateLeft());
+                dog = myLoc;
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
+                lastLoc = myLoc.add(dir.rotateLeft().rotateLeft());
+                dog = myLoc;
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft().rotateLeft());
+                lastLoc = myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft());
+                dog = myLoc;
+                return true;
             }
             else if(!badSpot(myLoc.add(dir.opposite()), towers) && rc.canMove(dir.opposite()))
             {
                 rc.move(dir.opposite());
+                lastLoc = myLoc.add(dir.opposite());
+                dog = myLoc;
+                return true;
             }
         }
         //otherwise, if you can move, something is in the way, so reroute
@@ -162,6 +225,7 @@ public class Navigator
             dog = myLoc;
         }
 
+        lastLoc = rc.getLocation();
         return false;
     }
 
@@ -175,15 +239,21 @@ public class Navigator
         //go till out of site
         while(dogInSight(towers) && !dog.equals(target))
         {
-            if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
-            {
-                return;
-            }
             //This is used so the dog knows if it is going around an object
             //prevents bugging around exterior of map
             if(goingAround && buggingAroundBorder())
             {
                 goingLeft = !goingLeft;
+                if(turnedAround)
+                {
+                    dog = rc.getLocation();
+                    turnedAround = false;
+                    goingAround = false;
+                }
+                else
+                {
+                    turnedAround = true;
+                }
                 lastFacing = lastFacing.opposite();
             }
 
@@ -217,6 +287,7 @@ public class Navigator
             else if(lastDir == dog.directionTo(target))
             {
                 goingAround = false;
+                turnedAround = false;
             }
 
             //while way is blocked, rotate till free
@@ -235,6 +306,10 @@ public class Navigator
 
             lastFacing = lastDir;
             dog = dog.add(lastDir);
+            if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
+            {
+                return;
+            }
         }
 
         //now go back one so in sight if not at target

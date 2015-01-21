@@ -1,11 +1,12 @@
 package team044.Units;
 
-import battlecode.world.Util;
-import team044.*;
+import battlecode.common.Clock;
+import battlecode.common.GameActionException;
+import battlecode.common.RobotController;
+import battlecode.common.RobotInfo;
+import team044.Unit;
 
-import java.util.*;
-
-import battlecode.common.*;
+import java.util.Random;
 
 public class Commander extends Unit
 {
@@ -22,6 +23,7 @@ public class Commander extends Unit
         super(rc);
         target = enemyHQ;
         random = new Random(rc.getID());
+        nav.setCircle(true);
 
         rc.setIndicatorString(0, "I am Achilles");
         rc.setIndicatorString(1, "Demigod of Greece");

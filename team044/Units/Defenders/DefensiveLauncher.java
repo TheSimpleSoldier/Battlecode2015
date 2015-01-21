@@ -1,9 +1,10 @@
-package team044.Units;
+package team044.Units.Defenders;
 
 
 import battlecode.common.*;
 import team044.*;
 import team044.Units.Rushers.LauncherRusher;
+import team044.Units.DefensiveUnits;
 
 public class DefensiveLauncher extends DefensiveUnits
 {

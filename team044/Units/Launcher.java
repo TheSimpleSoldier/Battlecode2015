@@ -6,6 +6,7 @@ import team044.*;
 import battlecode.common.*;
 import team044.Units.Rushers.LauncherRusher;
 import team044.Units.SquadUnits.LauncherSquad;
+import team044.Units.Defenders.*;
 
 public class Launcher extends DefensiveUnits
 {
@@ -14,6 +15,8 @@ public class Launcher extends DefensiveUnits
         super(rc);
         // override supers range as it is 0 but missiles can go a long ways
         range = 35;
+        nav.setAvoidHQ(false);
+        nav.setAvoidTowers(false);
     }
 
     // override to follow Commander
@@ -104,7 +107,7 @@ public class Launcher extends DefensiveUnits
         }
         else if (type == BuildOrderMessaging.BuildDefensiveLauncher.ordinal())
         {
-            return new team044.Units.DefensiveLauncher(rc);
+            return new team044.Units.Defenders.DefensiveLauncher(rc);
         }
         else if (type == BuildOrderMessaging.BuildSquadLauncher.ordinal())
         {

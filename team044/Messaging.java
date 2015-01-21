@@ -100,6 +100,7 @@ public enum Messaging {
     ScannerMemoryY2,
     ScannerChannel,
     MapSymmetry,
+    MapSize,
     DroneMinX,
     DroneMinY,
     DroneMaxX,

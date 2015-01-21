@@ -33,6 +33,7 @@ public class SearchAndDestroyDrone extends Drone
     public void collectData() throws GameActionException
     {
         super.collectData();
+
         if (enemies != null) {
             for (int k = 0; k < enemies.length; k++) {
                 if (enemies[k].type == RobotType.MINER || enemies[k].type == RobotType.MINERFACTORY) {

@@ -72,10 +72,10 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        /*else if (Clock.getRoundNum() > 750)
+        else if (Clock.getRoundNum() > 1500)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
-        }*/
+        }
 
         // even round so odd channel has data
         if (Clock.getRoundNum() % 2 == 0)
@@ -300,6 +300,10 @@ public class HQ extends Structure
 
         if(average > 250)
         {
+            rc.setTeamMemory(TeamMemory.harassDrone.ordinal(), 0);
+        }
+        else
+        {
             rc.setTeamMemory(TeamMemory.harassDrone.ordinal(), 1);
         }
 
@@ -423,12 +427,15 @@ public class HQ extends Structure
                 }
 
                 //rc.setIndicatorString(1, "" + strat[currentUnit]);
-                rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
+                if (strat[currentUnit] != null)
+                {
+                    rc.broadcast(Messaging.BuildOrder.ordinal(), strat[currentUnit].ordinal());
+                }
                 return true;
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if (numbOfBeavers < 1 && Clock.getRoundNum() > 750)
+        else if ((numbOfBeavers < 1 && Clock.getRoundNum() > 500) || rc.getTeamOre() > 1500)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
@@ -439,8 +446,7 @@ public class HQ extends Structure
         return false;
     }
 
-    public void distributeSupply() throws GameActionException
-    {
+    public void distributeSupply() throws GameActionException {
         Utilities.shareSupplies(rc);
     }
 }

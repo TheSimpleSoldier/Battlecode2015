@@ -55,7 +55,7 @@ public class Miner extends Unit
             }
             else if (rc.senseOre(lastSpot) <= 5)
             {
-                miningAmount = 2;
+                miningAmount = 1;
             }
             else
             {

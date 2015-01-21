@@ -66,6 +66,7 @@ public class MapDiscovery
             xLimit = map[0].length;
             yLimit = map.length;
         }
+        rc.broadcast(Messaging.MapSize.ordinal(), xLimit*yLimit);
         MapLocation point = new MapLocation(minX,minY);
         int[][] fog = new int[2][2];
         int oreSpot = 0;
