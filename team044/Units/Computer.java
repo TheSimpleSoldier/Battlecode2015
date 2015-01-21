@@ -7,12 +7,14 @@ public class Computer extends Unit
 {
     boolean scanning;
     MapDiscovery map;
+    int job;
     public Computer(RobotController rc) throws GameActionException
     {
         super(rc);
         map = new MapDiscovery();
         scanning = true;
         rc.broadcast(Messaging.NumbOfComps.ordinal(), 1);
+        job = 0;
 
         MapLocation[] towers = rc.senseTowerLocations();
         target = enemyHQ;
@@ -48,6 +50,7 @@ public class Computer extends Unit
                 break;
             case 1:
                 rc.broadcast(Messaging.ComputerOnline.ordinal(), 2);
+                job = 1;
                 break;
 
         }

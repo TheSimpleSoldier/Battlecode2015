@@ -84,7 +84,7 @@ public class Miner extends Unit
         if (target == null || rc.getLocation() == target || (rc.canSenseLocation(target) && (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))))
         {
             rc.setIndicatorString(2, "get greedy spot: " + Clock.getRoundNum());
-            target = Utilities.greedyBestMiningSpot(rc);
+            target = Utilities.newOreSpot(rc);
         }
 
         if (changeDir)

@@ -106,5 +106,8 @@ public enum Messaging {
     DroneMaxY,
     NumbOfHarassers,
     ComputerOnline,
+    OreX,
+    OreY,
+    BestSpotMiners,
     // etc
 }

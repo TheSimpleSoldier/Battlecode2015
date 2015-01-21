@@ -23,11 +23,6 @@ public class TechnologyInstitute extends Structure {
         if (numbComputers == 0 && !Utilities.cutProd(rc) && Utilities.spawnUnit(RobotType.COMPUTER, rc))
         {
             numbComputers = 1;
-            rc.broadcast(Messaging.ScannerChannel.ordinal(), 0);
-            rc.broadcast(Messaging.ScannerMemoryY.ordinal(), 0);
-            rc.broadcast(Messaging.ScannerMemoryY2.ordinal(), 0);
-            rc.broadcast(Messaging.ScannerMemoryX.ordinal(), 0);
-            rc.broadcast(Messaging.ScannerMemoryX2.ordinal(), 0);
             return true;
         }
 
