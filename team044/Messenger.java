@@ -15,13 +15,13 @@ public class Messenger
 
     // these variables are for our groups
     // group 1
-    int group1Launchers = 8;
+    int group1Launchers = 5;
     int group1Tanks = 0;
     int group1Soldiers = 20;
     int group1Bashers = 0;
     boolean group1Launched = false;
     boolean group1LauncherGroup = true;
-    boolean group1Offensive = false;
+    boolean group1Offensive = true;
     int group1LauncherCount = 0;
     int group1TankCount = 0;
     int group1SoldierCount = 0;
