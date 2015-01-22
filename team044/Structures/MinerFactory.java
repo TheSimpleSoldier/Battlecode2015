@@ -39,10 +39,30 @@ public class MinerFactory extends Structure
         {
             return false;
         }
-        else if (Utilities.spawnUnit(RobotType.MINER, rc))
+        int mapSize = rc.readBroadcast(Messaging.MapSize.ordinal());
+        int bestOre = rc.readBroadcast(Messaging.BestOre.ordinal());
+        switch (actualMiners/5)
         {
-            numbOfMiners++;
-            return true;
+            case 0:
+            case 1:
+            case 2:
+                if (Utilities.spawnUnit(RobotType.MINER,rc))
+                    return true;
+                break;
+            case 3:
+                if (mapSize > 1600 && bestOre > 10 && Utilities.spawnUnit(RobotType.MINER,rc))
+                    return true;
+                break;
+            case 4:
+                if (mapSize > 2000 && bestOre > 10 && Utilities.spawnUnit(RobotType.MINER,rc))
+                    return true;
+                break;
+            case 5:
+                if (mapSize > 2500 && bestOre > 10 && Utilities.spawnUnit(RobotType.MINER,rc))
+                    return true;
+                break;
+            default:
+                return false;
         }
         return false;
     }

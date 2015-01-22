@@ -278,16 +278,16 @@ public class Strategy
             if (far[2].y < towers[i][1])
                 far[2] = enemyTowers[i];
         }
-        for (int i = 0; i < enemyTowers.length; i++) {
-            if (far[3].x == towers[i][0])
-                System.out.println("Far West: " + far[3].x + "," + far[3].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
-            if (far[1].x == towers[i][0])
-                System.out.println("Far East: " + far[1].x + "," + far[1].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
-            if (far[0].y == towers[i][1])
-                System.out.println("Far North: " + far[0].x + "," + far[0].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
-            if (far[2].y == towers[i][1])
-                System.out.println("Far South: " + far[2].x + "," + far[2].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
-        }
+//        for (int i = 0; i < enemyTowers.length; i++) {
+//            if (far[3].x == towers[i][0])
+//                System.out.println("Far West: " + far[3].x + "," + far[3].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
+//            if (far[1].x == towers[i][0])
+//                System.out.println("Far East: " + far[1].x + "," + far[1].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
+//            if (far[0].y == towers[i][1])
+//                System.out.println("Far North: " + far[0].x + "," + far[0].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
+//            if (far[2].y == towers[i][1])
+//                System.out.println("Far South: " + far[2].x + "," + far[2].y + "; Distance: " + towers[i][3] + "; HQ Distance: " + towers[i][2]);
+//        }
         MapLocation ourHQ = rc.senseHQLocation();
         Direction toCenter = ourHQ.directionTo(enemyHQ);
         Direction[] extremes = new Direction[4];
@@ -316,7 +316,7 @@ public class Strategy
                 case 4:
                     if (far[i].distanceSquaredTo(center) > 300) {
                         group2 = 1;
-                        System.out.println(far[i].x + ","+far[i].y);
+//                        System.out.println(far[i].x + ","+far[i].y);
                     }
                     break;
                 case 5:

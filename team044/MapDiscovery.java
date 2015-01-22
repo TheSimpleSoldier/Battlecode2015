@@ -26,17 +26,7 @@ public class MapDiscovery
         int currentY = minY;
         int xIteration = 0;
         int yIteration = 0;
-        if (check != 0)
-        {
-            minY = rc.readBroadcast(Messaging.ScannerMemoryY2.ordinal());
-            minX = rc.readBroadcast(Messaging.ScannerMemoryX2.ordinal());
-            currentY = rc.readBroadcast(Messaging.ScannerMemoryY.ordinal());
-            currentX = rc.readBroadcast(Messaging.ScannerMemoryX.ordinal());
-            rc.broadcast(Messaging.ScannerChannel.ordinal(), 0);
-            yIteration = currentY - minY;
-            xIteration = currentX - minX;
-        }
-        else if (mapExtremes != 0)
+        if (mapExtremes != 0)
         {
             minX = rc.readBroadcast(Messaging.MapLimitWest.ordinal());
             minY = rc.readBroadcast(Messaging.MapLimitNorth.ordinal());
@@ -57,96 +47,165 @@ public class MapDiscovery
         }
         else if (check == 0 && xLimit > map[0].length)
         {
-            map = new int[map.length][xLimit];
+            yLimit = map.length;
+            map = new int[yLimit][xLimit];
             nwX = minX;
             seX = maxX;
             rc.broadcast(Messaging.CurrentOriginX.ordinal(), minX);
         }
         else if (check == 0 && yLimit > map.length)
         {
-            map = new int[yLimit][map[0].length];
+            xLimit = map[0].length;
+            map = new int[yLimit][xLimit];
             nwY = minY;
             seY = maxY;
             rc.broadcast(Messaging.CurrentOriginY.ordinal(), minY);
         }
+        else
+        {
+            xLimit = map[0].length;
+            yLimit = map.length;
+        }
+        rc.broadcast(Messaging.MapSize.ordinal(), xLimit*yLimit);
         MapLocation point = new MapLocation(minX,minY);
-        int fog1 = 0;
-        int fog2 = 0;
-        int fog3 = 0;
-        int fog4 = 0;
+        int[][] fog = new int[2][2];
+        int oreSpot = 0;
+        int oreSpot2 = 0;
+        int oreSpotX = 0;
+        int oreSpotY = 0;
+        int oreSpotX2 = 0;
+        int oreSpotY2 = 0;
+        int[] sectorX = new int[3];
+        int[] sectorY = new int[3];
+        sectorX[0] = xLimit/4;
+        sectorY[0] = yLimit/4;
+        sectorX[1] = xLimit/2 + 1;
+        sectorY[1] = yLimit/2 + 1;
+        sectorX[2] = xLimit/2 + sectorX[0];
+        sectorY[2] = yLimit/2 + sectorY[0];
         MapLocation nextPoint = new MapLocation(currentX, currentY);
-        //System.out.println(xLimit + " " + yLimit + " ");
+//        System.out.println(xLimit + " " + yLimit + " ");
         for (int i = yIteration; i < yLimit; i++)
         {
-            //System.out.println("yIteration:  " + Clock.getBytecodesLeft());
+//            System.out.println("yIteration:  " + Clock.getBytecodesLeft());
             for (int j = xIteration; j < xLimit; j++)
             {
-                //System.out.println("xIteration:  " + Clock.getBytecodesLeft());
+//                System.out.println("xIteration:  " + Clock.getBytecodesLeft());
                 int byteCodesLeft = Clock.getBytecodesLeft();
-                if (byteCodesLeft < 400)
+                if (byteCodesLeft < 300)
                 {
-                    rc.broadcast(Messaging.ScannerMemoryX.ordinal(), nextPoint.x);
-                    rc.broadcast(Messaging.ScannerMemoryY.ordinal(), nextPoint.y);
-                    rc.broadcast(Messaging.ScannerMemoryY2.ordinal(), point.y);
-                    rc.broadcast(Messaging.ScannerMemoryX2.ordinal(), point.x);
-                    rc.broadcast(Messaging.ScannerChannel.ordinal(), 1);
-                    return true;
+                    rc.yield();
                 }
                 if (map[i][j] == 0)
                 {
                     TerrainTile nextTile = rc.senseTerrainTile(nextPoint);
-                    if (nextTile.equals(TerrainTile.NORMAL))
+                    switch (nextTile)
                     {
-                        map[i][j] = 1;
-                    } else if (nextTile.equals(TerrainTile.VOID))
-                    {
-                        map[i][j] = 2;
-                    } else if (nextTile.equals(TerrainTile.OFF_MAP))
-                    {
-                        map[i][j] = 3;
+                        case NORMAL:
+                            map[i][j] = 1;
+                            break;
+                        case VOID:
+                            map[i][j] = 2;
+                            break;
+                        case OFF_MAP:
+                            map[i][j] = 3;
+                            break;
+                        default:
+                            if (mapExtremes != 0)
+                            {
+                                int quadX = j / sectorX[1];
+                                int quadY = i / sectorY[1];
+                                fog[quadY][quadX]++;
+                            }
+                            break;
                     }
-                    else if (mapExtremes != 0)
+                }
+                if (rc.canSenseLocation(nextPoint))
+                {
+                    int spot = (int) rc.senseOre(nextPoint);
+                    if (spot > oreSpot)
                     {
-                        if (j < xLimit/2 && i < yLimit/2)
-                            fog1++;
-                        else if (j > xLimit/2 && i < yLimit/2)
-                            fog2++;
-                        else if (j < xLimit/2)
-                            fog2++;
-                        else if (j > xLimit/2)
-                            fog2++;
+                        oreSpotX = nextPoint.x;
+                        oreSpotY = nextPoint.y;
+                        oreSpot = spot;
+                    }
+                    else if (spot == oreSpot)
+                    {
+                        oreSpotX2 = nextPoint.x;
+                        oreSpotY2 = nextPoint.y;
+                        oreSpot2 = spot;
                     }
                 }
                 nextPoint = nextPoint.add(Direction.EAST);
-                //System.out.print(map[i][j]);
+//                System.out.print(map[i][j]);
             }
             xIteration = 0;
             point = point.add(Direction.SOUTH);
             nextPoint = new MapLocation(point.x,point.y);
-            //System.out.println();
+//            System.out.println();
         }
-        //System.out.print("Exit:  " + Clock.getBytecodesLeft());
+        int byteCodesLeft = Clock.getBytecodesLeft();
+        if (byteCodesLeft < 300)
+        {
+            rc.yield();
+        }
+//        System.out.print("Exit:  " + Clock.getBytecodesLeft());
         if (mapExtremes != 0)
         {
             MapLocation enemyHQ = rc.senseEnemyHQLocation();
-            int broadcast = 0;
-            if (enemyHQ.x - minX < xLimit/2 && enemyHQ.y < yLimit/2)
-                broadcast = Math.max(Math.max(fog2,fog3),fog4);
-            else if (enemyHQ.x - minX < xLimit/2)
-                broadcast = Math.max(Math.max(fog1,fog2),fog4);
-            else if (enemyHQ.x - minX > xLimit/2 && enemyHQ.y < yLimit/2)
-                broadcast = Math.max(Math.max(fog1,fog3),fog4);
+            int broadcastFog = 0;
+            if (enemyHQ.x - minX < sectorX[1] && enemyHQ.y - minY < sectorY[1]) {
+                broadcastFog = Math.max(Math.max(fog[0][1], fog[1][0]), fog[1][1]);
+            } else if (enemyHQ.x - minX < sectorX[1]) {
+                broadcastFog = Math.max(Math.max(fog[0][0], fog[1][0]), fog[1][1]);
+            } else if (enemyHQ.x - minX > sectorX[1] && enemyHQ.y < sectorY[1]) {
+                broadcastFog = Math.max(Math.max(fog[0][0], fog[0][1]), fog[1][1]);
+            } else {
+                broadcastFog = Math.max(Math.max(fog[0][0], fog[0][1]), fog[1][0]);
+            }
+            if (broadcastFog == fog[0][0])
+                broadcastFog = 1;
+            else if (broadcastFog == fog[0][1])
+                broadcastFog = 2;
+            else if (broadcastFog == fog[1][0])
+                broadcastFog = 3;
             else
-                broadcast = Math.max(Math.max(fog1,fog2),fog3);
-            rc.broadcast(Messaging.MapExtremes.ordinal(), broadcast);
+                broadcastFog = 4;
+            rc.broadcast(Messaging.MapExtremes.ordinal(), broadcastFog);
         }
-        rc.broadcast(Messaging.ScannerChannel.ordinal(), 0);
-        rc.broadcast(Messaging.ScannerMemoryY.ordinal(), 0);
-        rc.broadcast(Messaging.ScannerMemoryX.ordinal(), 0);
-        rc.broadcast(Messaging.ScannerMemoryX2.ordinal(), 0);
-        rc.broadcast(Messaging.ScannerMemoryY2.ordinal(), 0);
-        //System.out.println("  " + Clock.getBytecodesLeft());
-        //System.out.println();
+        int oreX = rc.readBroadcast(Messaging.OreX.ordinal());
+        int oreY = rc.readBroadcast(Messaging.OreY.ordinal());
+        int oldAmount = rc.readBroadcast(Messaging.BestOre.ordinal());
+        MapLocation oldBest = new MapLocation(oreX,oreY);
+        MapLocation newBest = new MapLocation(oreSpotX,oreSpotY);
+        if (oldAmount <= oreSpot && oreX != oreSpotX || oreY != oreSpotY) {
+            rc.broadcast(Messaging.BestOre.ordinal(), oreSpot);
+            rc.broadcast(Messaging.OreX.ordinal(), oreSpotX);
+            rc.broadcast(Messaging.OreY.ordinal(), oreSpotY);
+            if (oldBest.distanceSquaredTo(newBest) > 36) {
+                rc.broadcast(Messaging.BestSpotMiners.ordinal(), 0);
+            }
+//            System.out.println("X: " + oreSpotX + ", Y: " + oreSpotY);
+        }
+        else
+        {
+            newBest = oldBest;
+        }
+        oldAmount = rc.readBroadcast(Messaging.BestOre2.ordinal());
+        MapLocation newBest2 = new MapLocation(oreSpotX,oreSpotY);
+        oreX = rc.readBroadcast(Messaging.OreX2.ordinal());
+        oreY = rc.readBroadcast(Messaging.OreY2.ordinal());
+        oldBest = new MapLocation(oreX,oreY);
+        if (oldAmount <= oreSpot2) {
+            rc.broadcast(Messaging.BestOre2.ordinal(), oreSpot2);
+            rc.broadcast(Messaging.OreX2.ordinal(), oreSpotX2);
+            rc.broadcast(Messaging.OreY2.ordinal(), oreSpotY2);
+            if (oldBest.distanceSquaredTo(newBest2) > 36)
+                rc.broadcast(Messaging.BestSpot2Miners.ordinal(), 0);
+//            System.out.println("X2: " + oreSpotX2 + ", Y2: " + oreSpotY2);
+        }
+//        System.out.println("  " + Clock.getBytecodesLeft());
+//        System.out.println();
         return true;
     }
 
@@ -314,10 +373,7 @@ public class MapDiscovery
             return false;
         }
     }
-    public int[][] checkMap(RobotController rc) throws GameActionException
-    {
-        int bytecodes = Clock.getBytecodesLeft();
-        if (bytecodes > 1500) {
+    public int[][] checkMap(RobotController rc) throws GameActionException {
             int minX = rc.readBroadcast(Messaging.MapLimitWest.ordinal());
             int minY = rc.readBroadcast(Messaging.MapLimitNorth.ordinal());
             int maxX = rc.readBroadcast(Messaging.MapLimitEast.ordinal());
@@ -329,7 +385,6 @@ public class MapDiscovery
             } else {
                 findMap(rc);
             }
-        }
         return map;
     }
 }
