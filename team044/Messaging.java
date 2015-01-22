@@ -114,5 +114,8 @@ public enum Messaging {
     OreY2,
     BestSpot2Miners,
     BestOre,
+    BestOre2,
+    FoundOre,
+    FoundOre2,
     // etc
 }

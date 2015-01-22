@@ -50,15 +50,15 @@ public class MinerFactory extends Structure
                     return true;
                 break;
             case 3:
-                if (mapSize > 1600 && bestOre > 15 && Utilities.spawnUnit(RobotType.MINER,rc))
+                if (mapSize > 1600 && bestOre > 10 && Utilities.spawnUnit(RobotType.MINER,rc))
                     return true;
                 break;
             case 4:
-                if (mapSize > 2000 && bestOre > 15 && Utilities.spawnUnit(RobotType.MINER,rc))
+                if (mapSize > 2000 && bestOre > 10 && Utilities.spawnUnit(RobotType.MINER,rc))
                     return true;
                 break;
             case 5:
-                if (mapSize > 2500 && bestOre > 15 && Utilities.spawnUnit(RobotType.MINER,rc))
+                if (mapSize > 2500 && bestOre > 10 && Utilities.spawnUnit(RobotType.MINER,rc))
                     return true;
                 break;
             default:

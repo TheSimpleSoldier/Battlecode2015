@@ -70,6 +70,7 @@ public class MapDiscovery
         MapLocation point = new MapLocation(minX,minY);
         int[][] fog = new int[2][2];
         int oreSpot = 0;
+        int oreSpot2 = 0;
         int oreSpotX = 0;
         int oreSpotY = 0;
         int oreSpotX2 = 0;
@@ -132,6 +133,7 @@ public class MapDiscovery
                     {
                         oreSpotX2 = nextPoint.x;
                         oreSpotY2 = nextPoint.y;
+                        oreSpot2 = spot;
                     }
                 }
                 nextPoint = nextPoint.add(Direction.EAST);
@@ -141,6 +143,11 @@ public class MapDiscovery
             point = point.add(Direction.SOUTH);
             nextPoint = new MapLocation(point.x,point.y);
 //            System.out.println();
+        }
+        int byteCodesLeft = Clock.getBytecodesLeft();
+        if (byteCodesLeft < 300)
+        {
+            rc.yield();
         }
 //        System.out.print("Exit:  " + Clock.getBytecodesLeft());
         if (mapExtremes != 0)
@@ -168,15 +175,35 @@ public class MapDiscovery
         }
         int oreX = rc.readBroadcast(Messaging.OreX.ordinal());
         int oreY = rc.readBroadcast(Messaging.OreY.ordinal());
-        if (oreX == oreSpotX || oreY == oreSpotY)
-            return true;
-        rc.broadcast(Messaging.BestOre.ordinal(),oreSpot);
-        rc.broadcast(Messaging.OreX.ordinal(),oreSpotX);
-        rc.broadcast(Messaging.OreY.ordinal(),oreSpotY);
-        rc.broadcast(Messaging.BestSpotMiners.ordinal(),0);
-        rc.broadcast(Messaging.OreX2.ordinal(),oreSpotX2);
-        rc.broadcast(Messaging.OreY2.ordinal(),oreSpotY2);
-        rc.broadcast(Messaging.BestSpot2Miners.ordinal(),0);
+        int oldAmount = rc.readBroadcast(Messaging.BestOre.ordinal());
+        MapLocation oldBest = new MapLocation(oreX,oreY);
+        MapLocation newBest = new MapLocation(oreSpotX,oreSpotY);
+        if (oldAmount <= oreSpot && oreX != oreSpotX || oreY != oreSpotY) {
+            rc.broadcast(Messaging.BestOre.ordinal(), oreSpot);
+            rc.broadcast(Messaging.OreX.ordinal(), oreSpotX);
+            rc.broadcast(Messaging.OreY.ordinal(), oreSpotY);
+            if (oldBest.distanceSquaredTo(newBest) > 36) {
+                rc.broadcast(Messaging.BestSpotMiners.ordinal(), 0);
+            }
+//            System.out.println("X: " + oreSpotX + ", Y: " + oreSpotY);
+        }
+        else
+        {
+            newBest = oldBest;
+        }
+        oldAmount = rc.readBroadcast(Messaging.BestOre2.ordinal());
+        MapLocation newBest2 = new MapLocation(oreSpotX,oreSpotY);
+        oreX = rc.readBroadcast(Messaging.OreX2.ordinal());
+        oreY = rc.readBroadcast(Messaging.OreY2.ordinal());
+        oldBest = new MapLocation(oreX,oreY);
+        if (oldAmount <= oreSpot2) {
+            rc.broadcast(Messaging.BestOre2.ordinal(), oreSpot2);
+            rc.broadcast(Messaging.OreX2.ordinal(), oreSpotX2);
+            rc.broadcast(Messaging.OreY2.ordinal(), oreSpotY2);
+            if (oldBest.distanceSquaredTo(newBest2) > 36)
+                rc.broadcast(Messaging.BestSpot2Miners.ordinal(), 0);
+//            System.out.println("X2: " + oreSpotX2 + ", Y2: " + oreSpotY2);
+        }
 //        System.out.println("  " + Clock.getBytecodesLeft());
 //        System.out.println();
         return true;
