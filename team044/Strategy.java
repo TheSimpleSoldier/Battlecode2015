@@ -175,7 +175,7 @@ public class Strategy
         BuildOrderMessaging[] strat = {
                 BuildOrderMessaging.BuildBeaverBuilder,
                 BuildOrderMessaging.BuildMinerFactory,
-                secondBeaver,
+                BuildOrderMessaging.BuildBeaverBuilder,
                 BuildOrderMessaging.BuildHelipad,
                 BuildOrderMessaging.BuildTechnologyInstitute,
                 BuildOrderMessaging.BuildAerospaceLab,
