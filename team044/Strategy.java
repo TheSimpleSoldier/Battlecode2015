@@ -108,9 +108,9 @@ public class Strategy
             secondBeaver = null;
             thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
-            messenger.setGroup1(20,0,10,0,true);
-            messenger.setGroup2(0,0,0,0,false);
-            messenger.setGroup3(0, 0, 0, 0, false);
+            //messenger.setGroup1(20,0,10,0,true);
+            //messenger.setGroup2(0,0,0,0,false);
+            //messenger.setGroup3(0, 0, 0, 0, false);
 
             rc.setIndicatorString(0, "Very Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
@@ -175,28 +175,20 @@ public class Strategy
         BuildOrderMessaging[] strat = {
                 BuildOrderMessaging.BuildBeaverBuilder,
                 BuildOrderMessaging.BuildMinerFactory,
-                secondBeaver,
-                BuildOrderMessaging.BuildTechnologyInstitute,
-                miningType,
-                BuildOrderMessaging.BuildTrainingField,
-                defensiveStructure,
-                primaryStructure,
-                tertiaryStructure,
-                thirdBeaver,
-                tertiaryStructure,
-                secondaryStructure,
-                flankingStructure,
                 BuildOrderMessaging.BuildBeaverBuilder,
-                miningType2,
-                tertiaryStructure,
-                tertiaryStructure,
+                BuildOrderMessaging.BuildBaracks,
+                BuildOrderMessaging.BuildTechnologyInstitute,
+                BuildOrderMessaging.BuildTankFactory,
+                BuildOrderMessaging.BuildTrainingField,
+                BuildOrderMessaging.BuildTankFactory,
+                BuildOrderMessaging.BuildTankFactory,
+                BuildOrderMessaging.BuildTankFactory,
+                BuildOrderMessaging.BuildTankFactory,
+                BuildOrderMessaging.BuildBeaverBuilder,
                 BuildOrderMessaging.BuildSupplyDepot,
-                tertiaryStructure,
-                tertiaryStructure,
+                BuildOrderMessaging.BuildTankFactory,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot,
-                tertiaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,

@@ -15,13 +15,13 @@ public class Messenger
 
     // these variables are for our groups
     // group 1
-    int group1Launchers = 8;
-    int group1Tanks = 0;
-    int group1Soldiers = 20;
+    int group1Launchers = 0;
+    int group1Tanks = 10;
+    int group1Soldiers = 0;
     int group1Bashers = 0;
     boolean group1Launched = false;
-    boolean group1LauncherGroup = true;
-    boolean group1Offensive = false;
+    boolean group1LauncherGroup = false;
+    boolean group1Offensive = true;
     int group1LauncherCount = 0;
     int group1TankCount = 0;
     int group1SoldierCount = 0;
@@ -32,7 +32,7 @@ public class Messenger
 
     // group 2
     int group2Launchers = 0;
-    int group2Tanks = 0;
+    int group2Tanks = 10;
     int group2Soldiers = 0;
     int group2Bashers = 0;
     boolean group2Launched = false;
@@ -49,7 +49,7 @@ public class Messenger
 
     // group 3
     int group3Launchers = 0;
-    int group3Tanks = 0;
+    int group3Tanks = 10;
     int group3Soldiers = 0;
     int group3Bashers = 0;
     boolean group3Launched = false;
@@ -102,7 +102,7 @@ public class Messenger
         soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
-        tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
+        tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
 
         droneStrat = new BuildOrderMessaging[1];
         droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
@@ -226,7 +226,7 @@ public class Messenger
             group3Launched = true;
         }
 
-        if (group1Launched && (group1Offensive || group1LauncherCount >= 20) && group1CurrentSpot != null)
+        if (group1Launched && group1Offensive && group1CurrentSpot != null)
         {
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
@@ -415,6 +415,7 @@ public class Messenger
             else if (group1Launched)
             {
                 group1TankCount = 0;
+                rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
 

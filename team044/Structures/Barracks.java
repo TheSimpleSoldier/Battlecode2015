@@ -31,7 +31,7 @@ public class Barracks extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-
+        /*
         if (rc.readBroadcast(Messaging.ShutOffBasherProd.ordinal()) == 0)
         {
             if (Utilities.spawnUnit(RobotType.BASHER, rc))
@@ -48,6 +48,7 @@ public class Barracks extends Structure
                 return true;
             }
         }
+        */
         return false;
     }
 }
