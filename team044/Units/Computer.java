@@ -1,16 +1,34 @@
 package team044.Units;
 
-import team044.Messaging;
-import team044.Navigator;
-import team044.Unit;
+import team044.*;
 import battlecode.common.*;
-import team044.Utilities;
 
 public class Computer extends Unit
 {
-    public Computer(RobotController rc)
+    boolean scanning;
+    MapDiscovery map;
+    int job;
+    public Computer(RobotController rc) throws GameActionException
     {
         super(rc);
+        map = new MapDiscovery();
+        scanning = true;
+        rc.broadcast(Messaging.NumbOfComps.ordinal(), 1);
+        job = 0;
+
+        MapLocation[] towers = rc.senseTowerLocations();
+        target = enemyHQ;
+        MapLocation myLoc = rc.getLocation();
+        for (int i = 0; i < towers.length; i++)
+        {
+            if (towers[i].distanceSquaredTo(myLoc) < target.distanceSquaredTo(myLoc))
+                target = towers[i];
+        }
+        if (target.equals(enemyHQ)) {
+            target = myLoc.add(myLoc.directionTo(ourHQ).opposite());
+            target = target.add(myLoc.directionTo(ourHQ).opposite());
+            target = target.add(myLoc.directionTo(ourHQ).opposite());
+        }
     }
 
     public void collectData() throws GameActionException
@@ -22,13 +40,30 @@ public class Computer extends Unit
     public void handleMessages() throws GameActionException
     {
         super.handleMessages();
+        rc.broadcast(Messaging.ComputerOnline.ordinal(), 1);
+        int broadcast = rc.readBroadcast(Messaging.ComputerOnline.ordinal());
+        switch (broadcast)
+        {
+            case 0:
+                rc.broadcast(Messaging.ComputerOnline.ordinal(), 1);
+                map.checkMap(rc);
+                break;
+            case 1:
+                rc.broadcast(Messaging.ComputerOnline.ordinal(), 2);
+                job = 1;
+                break;
 
+        }
         Utilities.handleMessageCounter(rc, Messaging.NumbOfCompsOdd.ordinal(), Messaging.NumbOfCompsEven.ordinal());
     }
 
     public boolean takeNextStep() throws GameActionException
     {
-        return false;
+        if (target == null || target.equals(rc.getLocation()))
+        {
+            return false;
+        }
+        return nav.takeNextStep(target);
     }
 
     public boolean fight() throws GameActionException
@@ -43,6 +78,7 @@ public class Computer extends Unit
 
     public boolean carryOutAbility() throws GameActionException
     {
+        map.checkMap(rc);
         return false;
     }
 }

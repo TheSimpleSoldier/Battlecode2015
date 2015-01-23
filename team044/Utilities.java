@@ -51,6 +51,28 @@ public class Utilities
         return rc.getLocation();
     }
 
+    public static MapLocation newOreSpot(RobotController rc) throws GameActionException
+    {
+        MapLocation current = rc.getLocation();
+        MapLocation best = new MapLocation(rc.readBroadcast(Messaging.OreX.ordinal()),rc.readBroadcast(Messaging.OreY.ordinal()));
+        MapLocation best2 = new MapLocation(rc.readBroadcast(Messaging.OreX2.ordinal()),rc.readBroadcast(Messaging.OreY2.ordinal()));
+        int bestSpotMiners = rc.readBroadcast(Messaging.BestSpotMiners.ordinal());
+        if (bestSpotMiners < 7 && best.distanceSquaredTo(current) < best2.distanceSquaredTo(current))
+        {
+            bestSpotMiners++;
+            rc.broadcast(Messaging.BestSpotMiners.ordinal(),bestSpotMiners);
+            return best;
+        }
+        bestSpotMiners = rc.readBroadcast(Messaging.BestSpot2Miners.ordinal());
+        if (bestSpotMiners < 7)
+        {
+            bestSpotMiners++;
+            rc.broadcast(Messaging.BestSpot2Miners.ordinal(),bestSpotMiners);
+            return best2;
+        }
+        return greedyBestMiningSpot(rc);
+    }
+
     public static MapLocation getBestSpot(RobotController rc, boolean lightWeight) throws GameActionException
     {
         int numberMineSpots = 3;

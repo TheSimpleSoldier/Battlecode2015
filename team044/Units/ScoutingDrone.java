@@ -23,6 +23,7 @@ public class ScoutingDrone extends Drone
     {
         // collect our data
         super.collectData();
+
     }
 
     public boolean takeNextStep() throws GameActionException
@@ -165,7 +166,7 @@ public class ScoutingDrone extends Drone
         MapLocation here = rc.getLocation();
         if (goal.equals(Direction.NORTH) || goal.equals(Direction.SOUTH)) {
 
-            int mean = enemyHQ.x + here.x / 2;
+            int mean = (enemyHQ.x + here.x) / 2;
             int left = mean - rc.readBroadcast(Messaging.MapLimitWest.ordinal());
             int right = rc.readBroadcast(Messaging.MapLimitEast.ordinal()) - mean;
             if ((left > right && goal.equals(Direction.NORTH)) || (left < right && goal.equals(Direction.SOUTH)))
@@ -174,7 +175,7 @@ public class ScoutingDrone extends Drone
             }
             return goal.rotateRight();
         }
-        int mean = enemyHQ.y + here.y / 2;
+        int mean = (enemyHQ.y + here.y) / 2;
         int left = mean - rc.readBroadcast(Messaging.MapLimitNorth.ordinal());
         int right = rc.readBroadcast(Messaging.MapLimitSouth.ordinal()) - mean;
         if ((left < right && goal.equals(Direction.WEST)) || (left > right && goal.equals(Direction.EAST)))
