@@ -21,6 +21,8 @@ public class BasherRusher extends Basher
         super.collectData();
 
         target = Utilities.getRushLocation(rc);
+
+        rc.setIndicatorString(1, "Target: " + target);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

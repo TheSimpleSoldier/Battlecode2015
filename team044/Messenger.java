@@ -86,7 +86,7 @@ public class Messenger
 
         // initialize strategies
         basherStrat = new BuildOrderMessaging[1];
-        basherStrat[0] = BuildOrderMessaging.BuildSquadBasher;
+        basherStrat[0] = BuildOrderMessaging.BuildDefensiveBasher;
 
         computerStrat = new BuildOrderMessaging[1];
         computerStrat[0] = BuildOrderMessaging.BuildComputer;
@@ -97,15 +97,16 @@ public class Messenger
         minerStrat = new BuildOrderMessaging[1];
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
-        soldierStrat = new BuildOrderMessaging[2];
-        soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
-        soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
+        soldierStrat = new BuildOrderMessaging[1];
+        soldierStrat[0] = BuildOrderMessaging.BuildFollowerSoldier;
+        //soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
+        //soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
         tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
 
         droneStrat = new BuildOrderMessaging[1];
-        droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+        droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
 
         MapLocation[] towers = rc.senseTowerLocations();
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
@@ -152,7 +153,7 @@ public class Messenger
         }
         else
         {
-            droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+            droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
             //droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
         }
 

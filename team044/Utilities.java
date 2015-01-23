@@ -408,12 +408,12 @@ public class Utilities
                 {
                     continue;
                 }
-                else if (ally == RobotType.COMMANDER)
+                /*else if (ally == RobotType.COMMANDER)
                 {
                     int supply = (int) rc.getSupplyLevel() - 1;
                     rc.transferSupplies(supply, nearByAllies[i].location);
                     return;
-                }
+                }*/
                 int allySupply = (int) nearByAllies[i].supplyLevel;
                 if (allySupply < ourSupply)
                 {
@@ -1022,7 +1022,7 @@ public class Utilities
         MapLocation best = null;
         for (int i = towers.length; --i>=0; )
         {
-            int dist = towers[i].distanceSquaredTo(rc.senseHQLocation());
+            int dist = towers[i].distanceSquaredTo(rc.getLocation());
             if (dist < bestDist)
             {
                 bestDist = dist;

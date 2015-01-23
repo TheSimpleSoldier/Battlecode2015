@@ -5,12 +5,16 @@ import battlecode.common.RobotController;
 import team044.Units.Basher;
 import team044.Units.DefensiveUnits;
 import team044.*;
+import team044.Units.Rushers.BasherRusher;
 
 public class DefensiveBasher extends DefensiveUnits
 {
     public DefensiveBasher(RobotController rc)
     {
         super(rc);
+
+        nav.setAvoidHQ(true);
+        nav.setAvoidTowers(true);
     }
 
     public void collectData2() throws GameActionException
@@ -31,7 +35,7 @@ public class DefensiveBasher extends DefensiveUnits
         // change to base Basher when it is time to attack
         if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
         {
-            return new Basher(rc);
+            return new BasherRusher(rc);
         }
         return current;
     }

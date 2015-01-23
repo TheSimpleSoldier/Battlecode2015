@@ -7,6 +7,8 @@ import team044.Units.Defenders.DefensiveBasher;
 import team044.Units.Defenders.DefensiveSoldiers;
 import team044.Units.Defenders.DefensiveTank;
 import team044.Units.Defenders.DefensiveLauncher;
+import team044.Units.Followers.DroneFollower;
+import team044.Units.Followers.SoldierFollower;
 import team044.Units.SquadUnits.BasherSquad;
 import team044.Units.SquadUnits.LauncherSquad;
 import team044.Units.SquadUnits.SoldierSquad;
@@ -208,6 +210,10 @@ public class RobotPlayer
         {
             return new SupportingSoldier(rc);
         }
+        else if (type == BuildOrderMessaging.BuildFollowerSoldier.ordinal())
+        {
+            return new SoldierFollower(rc);
+        }
         // default to defensive soldier
         return new Soldier(rc);
     }
@@ -271,6 +277,10 @@ public class RobotPlayer
         else if (type == BuildOrderMessaging.BuildSearchAndDestroyDrone.ordinal())
         {
             return new SearchAndDestroyDrone(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildFollowerDrone.ordinal())
+        {
+            return new DroneFollower(rc);
         }
 
         // default to Search and Destroy Drone
