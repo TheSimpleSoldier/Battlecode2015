@@ -175,11 +175,17 @@ public class Strategy
         BuildOrderMessaging[] strat = {
                 BuildOrderMessaging.BuildBeaverBuilder,
                 BuildOrderMessaging.BuildMinerFactory,
-                secondBeaver,
+                BuildOrderMessaging.BuildBeaverBuilder,
+                BuildOrderMessaging.BuildHelipad,
                 BuildOrderMessaging.BuildTechnologyInstitute,
-                miningType,
+                BuildOrderMessaging.BuildAerospaceLab,
                 BuildOrderMessaging.BuildTrainingField,
-                defensiveStructure,
+                BuildOrderMessaging.BuildAerospaceLab,
+                BuildOrderMessaging.BuildAerospaceLab,
+                BuildOrderMessaging.BuildAerospaceLab,
+                BuildOrderMessaging.BuildAerospaceLab,
+                BuildOrderMessaging.BuildAerospaceLab,
+                /*defensiveStructure,
                 primaryStructure,
                 tertiaryStructure,
                 thirdBeaver,
@@ -217,7 +223,7 @@ public class Strategy
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot
+                BuildOrderMessaging.BuildSupplyDepot*/
         };
 
         return strat;
