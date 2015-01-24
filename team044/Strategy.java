@@ -208,7 +208,7 @@ public class Strategy
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot*/
+                BuildOrderMessaging.BuildSupplyDepot
         };
 
         return strat;
