@@ -15,7 +15,7 @@ public abstract class Unit
     public RobotInfo[] nearByAllies;
     public RobotInfo[] enemies;
     public FightMicro fighter;
-    public Navigator2 nav;
+    public Navigator nav;
     public EnemyMinerTracker tracker;
     public MapLocation target;
     public Direction[] dirs;
@@ -31,7 +31,7 @@ public abstract class Unit
         us = rc.getTeam();
         opponent = us.opponent();
         range = rc.getType().attackRadiusSquared;
-        nav = new Navigator2(rc, false, true, true);
+        nav = new Navigator(rc, true, true, true, false, true);
         fighter = new FightMicro(rc);
         tracker = new EnemyMinerTracker(rc);
         ourHQ = rc.senseHQLocation();

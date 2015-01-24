@@ -262,11 +262,11 @@ public class Navigator
             {
                 if(goingLeft)
                 {
-                    lastDir = lastFacing.rotateRight();
+                    lastDir = lastFacing.rotateRight().rotateRight();
                 }
                 else
                 {
-                    lastDir = lastFacing.rotateLeft();
+                    lastDir = lastFacing.rotateLeft().rotateRight();
                 }
             }
             else
@@ -276,32 +276,33 @@ public class Navigator
 
             MapLocation nextSpot = dog.add(lastDir);
 
-            if(badSpot(nextSpot, towers))
+            if(!goingAround && badSpot(nextSpot, towers))
             {
-                if(!goingAround)
-                {
-                    goingAround = true;
-                    goingLeft = goLeft(lastDir);
-                }
-            }
-            else if(lastDir == dog.directionTo(target))
-            {
-                goingAround = false;
-                turnedAround = false;
+                goingAround = true;
+                goingLeft = goLeft(lastDir);
             }
 
             //while way is blocked, rotate till free
-            while(badSpot(nextSpot, towers))
+            if(goingAround)
             {
-                if(goingLeft)
+                while(badSpot(nextSpot, towers))
                 {
-                    lastDir = lastDir.rotateLeft();
+                    if(goingLeft)
+                    {
+                        lastDir = lastDir.rotateLeft();
+                    }
+                    else
+                    {
+                        lastDir = lastDir.rotateRight();
+                    }
+                    nextSpot = dog.add(lastDir);
                 }
-                else
-                {
-                    lastDir = lastDir.rotateRight();
-                }
-                nextSpot = dog.add(lastDir);
+            }
+
+            if(lastDir == dog.directionTo(target))
+            {
+                goingAround = false;
+                turnedAround = false;
             }
 
             lastFacing = lastDir;
