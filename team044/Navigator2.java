@@ -42,6 +42,8 @@ public class Navigator2
 
     public boolean takeNextStep(MapLocation target) throws GameActionException
     {
+        rc.setIndicatorString(0, "target: " + target);
+        rc.setIndicatorString(1, "dog: " + dog);
         MapLocation myLoc = rc.getLocation();
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
         if (enemyTowers.length >= 5)
@@ -116,6 +118,12 @@ public class Navigator2
                        return false;
                    }
                }
+               else
+               {
+                   dog = myLoc;
+                   tempDog = null;
+                   initialRun = true;
+               }
             }
             else
             {
@@ -139,7 +147,8 @@ public class Navigator2
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
         if(initialRun)
         {
-            while(!badSpot(dog, enemyTowers))
+            initialRun = false;
+            while(!badSpot(dog, enemyTowers) && !dog.equals(target))
             {
                 dog = dog.add(dog.directionTo(target));
                 if(Clock.getBytecodesLeft() < 500 || Clock.getRoundNum() != round)
@@ -147,7 +156,10 @@ public class Navigator2
                     return;
                 }
             }
-            dog = dog.subtract(dog.directionTo(target));
+            if(!dog.equals(target))
+            {
+                dog = dog.subtract(dog.directionTo(target));
+            }
         }
 
         Direction lastDir = Direction.NONE;
@@ -172,11 +184,13 @@ public class Navigator2
             }
 
             MapLocation nextSpot = dog.add(lastFacing);
+
             //preventing it getting stuck in bowls
             if(goingAround)
             {
                 lastDir = lastFacing;
                 nextSpot = dog.add(lastDir);
+                int counter = 0;
                 while(!badSpot(nextSpot, enemyTowers))
                 {
                     if(goingLeft)
@@ -188,25 +202,17 @@ public class Navigator2
                         lastDir = lastDir.rotateLeft();
                     }
                     nextSpot = dog.add(lastDir);
+                    if(counter > 8)
+                    {
+                        lastDir = dog.directionTo(target);
+                        break;
+                    }
+                    counter++;
                 }
             }
             else
             {
                 lastDir = dog.directionTo(target);
-            }
-
-            if(badSpot(nextSpot, towers))
-            {
-                if(!goingAround)
-                {
-                    goingAround = true;
-                    goingLeft = goLeft(lastDir);
-                }
-            }
-            else if(lastDir == dog.directionTo(target))
-            {
-                goingAround = false;
-                turnedAround = false;
             }
 
             //while way is blocked, rotate till free
@@ -221,6 +227,20 @@ public class Navigator2
                     lastDir = lastDir.rotateRight();
                 }
                 nextSpot = dog.add(lastDir);
+            }
+
+            if(badSpot(nextSpot, towers))
+            {
+                if(!goingAround)
+                {
+                    goingAround = true;
+                    goingLeft = goLeft(lastDir);
+                }
+            }
+            else if(lastDir == dog.directionTo(target))
+            {
+                goingAround = false;
+                turnedAround = false;
             }
 
             lastFacing = lastDir;
@@ -277,19 +297,22 @@ public class Navigator2
                 return true;
             }
 
-            RobotInfo bot = null;
-            if (rc.canSenseLocation(spot))
+            if(rc.getLocation().distanceSquaredTo(spot) < 15)
             {
-                bot = rc.senseRobotAtLocation(spot);
-            }
+                RobotInfo bot = null;
+                if(rc.canSenseLocation(spot))
+                {
+                    bot = rc.senseRobotAtLocation(spot);
+                }
 
-            if(bot != null && rc.getID() != bot.ID && rc.getLocation().distanceSquaredTo(bot.location) < 15)
-            {
-                return true;
+                if(bot != null && rc.getID() != bot.ID)
+                {
+                    return true;
+                }
             }
         }
 
-        return true;
+        return false;
     }
 
     //this takes into account flags to check if we are near enemy towers or hq
