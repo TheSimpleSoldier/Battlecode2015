@@ -42,6 +42,12 @@ public class Miner extends Unit
         // collect our data
         super.collectData();
 
+
+        if (target != null && target.x == rc.readBroadcast(Messaging.OreX.ordinal()) && target.y == rc.readBroadcast(Messaging.OreY.ordinal()))
+            rc.broadcast(Messaging.BestOre.ordinal(),0);
+        else if (target != null && target.x == rc.readBroadcast(Messaging.OreX2.ordinal()) && target.y == rc.readBroadcast(Messaging.OreY2.ordinal()))
+            rc.broadcast(Messaging.BestOre2.ordinal(),0);
+
         rc.setIndicatorString(2, "Target: " + target);
 
         if (lastSpot != rc.getLocation())
@@ -84,7 +90,7 @@ public class Miner extends Unit
         if (target == null || rc.getLocation() == target || (rc.canSenseLocation(target) && (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))))
         {
             rc.setIndicatorString(2, "get greedy spot: " + Clock.getRoundNum());
-            target = Utilities.greedyBestMiningSpot(rc);
+            target = Utilities.newOreSpot(rc);
         }
 
         if (changeDir)

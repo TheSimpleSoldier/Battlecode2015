@@ -33,24 +33,21 @@ public class SearchAndDestroyDrone extends Drone
     public void collectData() throws GameActionException
     {
         super.collectData();
-        enemies = rc.senseNearbyRobots(24, opponent);
 
-        for(int k = 0; k < enemies.length; k++)
-        {
-            if(enemies[k].type == RobotType.MINER || enemies[k].type == RobotType.MINERFACTORY)
-            {
-                foundMiners = true;
+        if (enemies != null) {
+            for (int k = 0; k < enemies.length; k++) {
+                if (enemies[k].type == RobotType.MINER || enemies[k].type == RobotType.MINERFACTORY) {
+                    foundMiners = true;
+                }
             }
-        }
-        seenMiners++;
+            seenMiners++;
 
-        if(minerChannel == 0)
-        {
-            for(minerChannel = Constants.startMinerSeenChannel; rc.readBroadcast(minerChannel) != 0; minerChannel++){}
-        }
-        else
-        {
-            rc.broadcast(minerChannel, seenMiners);
+            if (minerChannel == 0) {
+                for (minerChannel = Constants.startMinerSeenChannel; rc.readBroadcast(minerChannel) == 0; minerChannel++) {
+                }
+            } else {
+                rc.broadcast(minerChannel, seenMiners);
+            }
         }
     }
 

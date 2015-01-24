@@ -15,7 +15,6 @@ public class HQ extends Structure
     int currentUnit = 0;
     int numbOfBuildings = 0;
     int lastNumbOfBuildings = 0;
-    MapDiscovery map = new MapDiscovery();
 
     int numbOfBashers   = 0;
     int numbOfBeavers   = 0;
@@ -450,9 +449,7 @@ public class HQ extends Structure
         return false;
     }
 
-    public void distributeSupply() throws GameActionException
-    {
+    public void distributeSupply() throws GameActionException {
         Utilities.shareSupplies(rc);
-        //map.checkMap(rc);
     }
 }

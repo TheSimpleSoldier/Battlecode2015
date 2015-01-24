@@ -51,6 +51,28 @@ public class Utilities
         return rc.getLocation();
     }
 
+    public static MapLocation newOreSpot(RobotController rc) throws GameActionException
+    {
+        MapLocation current = rc.getLocation();
+        MapLocation best = new MapLocation(rc.readBroadcast(Messaging.OreX.ordinal()),rc.readBroadcast(Messaging.OreY.ordinal()));
+        MapLocation best2 = new MapLocation(rc.readBroadcast(Messaging.OreX2.ordinal()),rc.readBroadcast(Messaging.OreY2.ordinal()));
+        int bestSpotMiners = rc.readBroadcast(Messaging.BestSpotMiners.ordinal());
+        if (bestSpotMiners < 7 && best.distanceSquaredTo(current) < best2.distanceSquaredTo(current))
+        {
+            bestSpotMiners++;
+            rc.broadcast(Messaging.BestSpotMiners.ordinal(),bestSpotMiners);
+            return best;
+        }
+        bestSpotMiners = rc.readBroadcast(Messaging.BestSpot2Miners.ordinal());
+        if (bestSpotMiners < 7)
+        {
+            bestSpotMiners++;
+            rc.broadcast(Messaging.BestSpot2Miners.ordinal(),bestSpotMiners);
+            return best2;
+        }
+        return greedyBestMiningSpot(rc);
+    }
+
     public static MapLocation getBestSpot(RobotController rc, boolean lightWeight) throws GameActionException
     {
         int numberMineSpots = 3;
@@ -1291,5 +1313,80 @@ public class Utilities
         }
 
         return location;
+    }
+
+    //ONLY TO BE USED FOR DRONE SURROUNDS!!!
+    //does not factor in voids
+    public static boolean towersBlocking(RobotController rc)
+    {
+        MapLocation[] towers = rc.senseTowerLocations();
+        MapLocation edgeTower = null;
+
+        for(int k = towers.length; --k >= 0;)
+        {
+            if(nextToEdge(rc, towers[k]))
+            {
+                edgeTower = towers[k];
+                break;
+            }
+        }
+
+        if(edgeTower == null)
+        {
+            System.out.println("halfway");
+            return false;
+        }
+
+        MapLocation lastTower = edgeTower;
+        MapLocation currentTower = edgeTower;
+
+        for(int k = towers.length; --k >= 0;)
+        {
+            System.out.println("last: " + lastTower.toString());
+            System.out.println("current: " + currentTower.toString());
+            for(int a = towers.length; --a >= 0;)
+            {
+                System.out.println("try: " + towers[a].toString());
+                MapLocation temp = currentTower.add(currentTower.directionTo(towers[a]));
+                while(currentTower.distanceSquaredTo(temp) <= 24 ||
+                        towers[a].distanceSquaredTo(temp) <= 24)
+                {
+                    temp = temp.add(temp.directionTo(towers[a]));
+                    if(temp.equals(towers[a]))
+                    {
+                        break;
+                    }
+                }
+                if(temp.equals(towers[a]) && !towers[a].equals(currentTower) &&
+                   !towers[a].equals(lastTower))
+                {
+                    System.out.println("works");
+                    lastTower = currentTower;
+                    currentTower = towers[a];
+                    break;
+                }
+            }
+
+            if(nextToEdge(rc, currentTower) && currentTower.distanceSquaredTo(edgeTower) > 100)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean nextToEdge(RobotController rc, MapLocation spot)
+    {
+        Direction[] dirs = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+        for(int a = 4; --a >= 0;)
+        {
+            if(rc.senseTerrainTile(spot.add(dirs[a], 5)) == TerrainTile.OFF_MAP)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
