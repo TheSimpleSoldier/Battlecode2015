@@ -26,7 +26,7 @@ public class DefensiveTank extends DefensiveUnits
 
     public void collectData2() throws GameActionException
     {
-        if (mineDefender)
+        /*if (mineDefender)
         {
             do {
                 target = rc.getLocation().add(dirs[random.nextInt(8)], 3);
@@ -35,7 +35,9 @@ public class DefensiveTank extends DefensiveUnits
         else
         {
             target = Utilities.getTowerClosestToEnemyHQ(rc);
-        }
+        }*/
+
+        target = Utilities.getTowerClosestToEnemyHQ(rc);
 
         rc.setIndicatorString(1, "Target: " + target);
     }

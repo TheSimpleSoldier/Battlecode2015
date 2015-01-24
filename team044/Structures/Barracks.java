@@ -5,11 +5,14 @@ import team044.Messaging;
 import team044.Structure;
 import team044.Utilities;
 
+import java.util.Random;
+
 public class Barracks extends Structure
 {
     boolean basher = true;
     int numbOfSoldiers = 0;
     int counter = 0;
+    Random random;
     public Barracks(RobotController rc)
     {
         super(rc);
@@ -17,6 +20,8 @@ public class Barracks extends Structure
         {
             basher = true;
         }
+
+        random = new Random(rc.getID());
         rc.setIndicatorString(0, "Barracks");
     }
 
@@ -27,11 +32,23 @@ public class Barracks extends Structure
         // collect our data
         super.collectData();
         numbOfSoldiers = rc.readBroadcast(Messaging.NumbOfSoldiers.ordinal());
+        if (random.nextInt(4) < 1)
+        {
+            basher = false;
+        }
+        else
+        {
+            basher = true;
+        }
     }
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (Clock.getRoundNum() > 0 && Utilities.spawnUnit(RobotType.BASHER, rc))
+        if (basher && Utilities.spawnUnit(RobotType.BASHER, rc))
+        {
+            return true;
+        }
+        else if (!basher && Utilities.spawnUnit(RobotType.SOLDIER, rc))
         {
             return true;
         }

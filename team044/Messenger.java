@@ -98,12 +98,12 @@ public class Messenger
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
         soldierStrat = new BuildOrderMessaging[1];
-        soldierStrat[0] = BuildOrderMessaging.BuildFollowerSoldier;
+        soldierStrat[0] = BuildOrderMessaging.BuildDefensiveSoldier;
         //soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
         //soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
-        tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
+        tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
 
         droneStrat = new BuildOrderMessaging[1];
         droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
@@ -116,7 +116,7 @@ public class Messenger
         group2Goal = Utilities.enemyTowerOnRightFlank(rc, enemyTowers);
         int goGoal = Strategy.loneTowers(rc);
         int x,y;
-        if (group2Goal != null && (goGoal == 1 || goGoal == 3))
+        /*if (group2Goal != null && (goGoal == 1 || goGoal == 3))
         {
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group2Goal.x + ", y: " + group2Goal.y);
             x = (group2InitialSpot.x + group2Goal.x) / 2;
@@ -137,7 +137,7 @@ public class Messenger
             group3Tanks = 7;
             group3Bashers = 20;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
-        }
+        }*/
     }
 
     /**

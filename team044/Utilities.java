@@ -847,7 +847,7 @@ public class Utilities
         // don't have the advantage of knowing where we are
         if (bestTower != null)
         {
-            bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
+        //    bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
         }
         else
         {
@@ -1022,7 +1022,7 @@ public class Utilities
         MapLocation best = null;
         for (int i = towers.length; --i>=0; )
         {
-            int dist = towers[i].distanceSquaredTo(rc.getLocation());
+            int dist = towers[i].distanceSquaredTo(rc.senseHQLocation());
             if (dist < bestDist)
             {
                 bestDist = dist;

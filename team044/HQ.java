@@ -72,7 +72,7 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() % 500 < 6)
+        else if (Clock.getRoundNum() % 500 < 6 || Clock.getRoundNum() > 2000)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }

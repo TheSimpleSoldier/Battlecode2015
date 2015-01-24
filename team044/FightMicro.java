@@ -606,14 +606,43 @@ public class FightMicro
             return false;
         }
 
-        RobotInfo[] enemies = rc.senseNearbyRobots(24, rc.getTeam().opponent());
+        RobotInfo[] enemies = rc.senseNearbyRobots(48, rc.getTeam().opponent());
         RobotInfo[] nearByEnemies = rc.senseNearbyRobots(2, rc.getTeam().opponent());
         MapLocation[] towers = rc.senseEnemyTowerLocations();
         MapLocation closestTower = Utilities.closestTower(rc, towers);
 
         if (enemies.length > 0)
         {
-            Direction dir = FightMicroUtilities.bestBasherDir(rc, enemies, nearByEnemies.length);
+            Direction dir;
+
+            dir = FightMicroUtilities.dirToLauncher(rc, enemies);
+
+            if (dir != null)
+            {
+                if (dir == Direction.OMNI)
+                {
+                    // we are next to a launcher
+                    return true;
+                }
+                else if (rc.canMove(dir))
+                {
+                    rc.move(dir);
+                    return true;
+                }
+                else if (rc.canMove(dir.rotateLeft()))
+                {
+                    rc.move(dir.rotateLeft());
+                    return true;
+                }
+                else if (rc.canMove(dir.rotateRight()))
+                {
+                    rc.move(dir.rotateRight());
+                    return true;
+                }
+            }
+
+
+            dir = FightMicroUtilities.bestBasherDir(rc, enemies, nearByEnemies.length);
             rc.setIndicatorString(1, "Moving in basher dir: " + dir);
 
             if (dir != null && rc.canMove(dir))
@@ -639,7 +668,7 @@ public class FightMicro
 
             return false;
         }
-        else if (closestTower != null && rc.getLocation().distanceSquaredTo(closestTower) <= 49)
+        /*else if (closestTower != null && rc.getLocation().distanceSquaredTo(closestTower) <= 49)
         {
             rc.setIndicatorString(1, "going towards enemy tower: " + closestTower);
             Direction dir = rc.getLocation().directionTo(closestTower);
@@ -661,7 +690,7 @@ public class FightMicro
             }
 
             return false;
-        }
+        }*/
         else
         {
             return false;

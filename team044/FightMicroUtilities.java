@@ -677,6 +677,36 @@ public class FightMicroUtilities
         return best;
     }
 
+    public static Direction dirToLauncher(RobotController rc, RobotInfo[] enemies)
+    {
+        MapLocation closestLauncher = null;
+        int closestDist = 9999;
+
+        for (int i = enemies.length; --i>=0; )
+        {
+            if (enemies[i].type == RobotType.LAUNCHER)
+            {
+                MapLocation enemy = enemies[i].location;
+                int dist = enemy.distanceSquaredTo(rc.getLocation());
+                if (dist <= 2)
+                {
+                    return Direction.OMNI;
+                }
+                else if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closestLauncher = enemy;
+                }
+            }
+        }
+
+        if (closestLauncher == null)
+        {
+            return null;
+        }
+        return rc.getLocation().directionTo(closestLauncher);
+    }
+
 
     //======================== Methods for launchers ============================\\
     public static Direction dirToShoot(RobotController rc, RobotInfo[] nearByEnemies, MapLocation enemyStructure)
