@@ -23,7 +23,7 @@ public class TankHarrasser extends HarrasserUnit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
         {
             return new TankRusher(rc);
         }

@@ -36,6 +36,8 @@ public enum BuildOrderMessaging {
     BuildSquadSoldier,
     BuildSquadBasher,
     BuildSupportingSoldier,
+    BuildFollowerSoldier,
+    BuildFollowerDrone,
     // this should be last entry
     DoneBuilding
 }

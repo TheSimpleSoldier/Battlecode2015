@@ -1,10 +1,9 @@
 package team044.Units;
 
-import battlecode.common.Clock;
-import battlecode.common.GameActionException;
-import battlecode.common.RobotController;
-import battlecode.common.RobotInfo;
+import battlecode.common.*;
+import team044.Messaging;
 import team044.Unit;
+import team044.Utilities;
 
 import java.util.Random;
 
@@ -24,12 +23,26 @@ public class Commander extends Unit
         target = enemyHQ;
         random = new Random(rc.getID());
         nav.setCircle(true);
+        nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
 
         rc.setIndicatorString(0, "I am Achilles");
         rc.setIndicatorString(1, "Demigod of Greece");
         rc.setIndicatorString(2, "Prepare to Die!!");
 
         avoidStructures = true;
+    }
+
+    public void handleMessages() throws GameActionException
+    {
+        super.handleMessages();
+
+        MapLocation mySpot = rc.getLocation();
+
+        mySpot = mySpot.add(mySpot.directionTo(enemyHQ), 5);
+
+        rc.broadcast(Messaging.CommanderLocX.ordinal(), mySpot.x);
+        rc.broadcast(Messaging.CommanderLocY.ordinal(), mySpot.y);
     }
 
     public void collectData() throws GameActionException
@@ -55,6 +68,9 @@ public class Commander extends Unit
             regenerating = true;
         }
 
+        target = Utilities.getRushLocation(rc);
+
+        /*
         // change target every 25 turns
         if (Clock.getRoundNum() % 20 != 0 && (!rc.canSenseLocation(target) || rc.isPathable(rc.getType(), target)))
         {
@@ -87,7 +103,7 @@ public class Commander extends Unit
             {
                 target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight().rotateRight(), 6);
             }
-        }
+        }*/
     }
 
     public boolean takeNextStep() throws GameActionException

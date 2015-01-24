@@ -430,12 +430,12 @@ public class Utilities
                 {
                     continue;
                 }
-                else if (ally == RobotType.COMMANDER)
+                /*else if (ally == RobotType.COMMANDER)
                 {
                     int supply = (int) rc.getSupplyLevel() - 1;
                     rc.transferSupplies(supply, nearByAllies[i].location);
                     return;
-                }
+                }*/
                 int allySupply = (int) nearByAllies[i].supplyLevel;
                 if (allySupply < ourSupply)
                 {
@@ -869,7 +869,7 @@ public class Utilities
         // don't have the advantage of knowing where we are
         if (bestTower != null)
         {
-            bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
+        //    bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
         }
         else
         {

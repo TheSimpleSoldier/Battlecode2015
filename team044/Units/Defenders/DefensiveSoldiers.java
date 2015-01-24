@@ -2,7 +2,9 @@ package team044.Units.Defenders;
 
 import battlecode.common.*;
 import team044.Messaging;
+import team044.Unit;
 import team044.Units.DefensiveUnits;
+import team044.Units.Rushers.SoldierRusher;
 import team044.Units.Soldier;
 import team044.Utilities;
 
@@ -28,6 +30,7 @@ public class DefensiveSoldiers extends DefensiveUnits
 
     public void collectData2() throws GameActionException
     {
+        /*
         if (random.nextInt(3) < 2)
         {
             target = rc.getLocation().add(rc.getLocation().directionTo(enemyHQ), 3);
@@ -37,9 +40,21 @@ public class DefensiveSoldiers extends DefensiveUnits
             do {
                 target = rc.getLocation().add(dirs[random.nextInt(8)], 3);
             } while (!rc.isPathable(RobotType.SOLDIER, target));
-        }
+        }*/
+
+        target = Utilities.getTowerClosestToEnemyHQ(rc);
 
 
         rc.setIndicatorString(1, "Target: " + target);
+    }
+
+    public Unit getNewStrategy(Unit current) throws GameActionException
+    {
+        // change to base Basher when it is time to attack
+        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
+        {
+            return new SoldierRusher(rc);
+        }
+        return current;
     }
 }

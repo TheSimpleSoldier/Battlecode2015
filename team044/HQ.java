@@ -60,20 +60,24 @@ public class HQ extends Structure
         rc.broadcast(Messaging.MinerUnderAttackY.ordinal(), 0);
 
         // reset commander position
-        rc.broadcast(Messaging.CommanderLocX.ordinal(), 0);
-        rc.broadcast(Messaging.CommanderLocY.ordinal(), 0);
+        //rc.broadcast(Messaging.CommanderLocX.ordinal(), 0);
+        //rc.broadcast(Messaging.CommanderLocY.ordinal(), 0);
 
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
-        if (Clock.getRoundNum() > 1800)
+        if (rc.getRoundLimit() - Clock.getRoundNum() < 200)
         {
             rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
             //rc.setIndicatorString(2, "Rushing enemy");
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() > 1500)
+        else if (Clock.getRoundNum() % 500 < 6 || Clock.getRoundNum() > 2000)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
+        }
+        else
+        {
+            rc.broadcast(Messaging.Attack.ordinal(), 0);
         }
 
         // even round so odd channel has data

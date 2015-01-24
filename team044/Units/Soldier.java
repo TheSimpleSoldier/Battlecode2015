@@ -5,6 +5,7 @@ import team044.Messaging;
 import team044.Unit;
 import battlecode.common.*;
 import team044.Units.Defenders.DefensiveSoldiers;
+import team044.Units.Followers.SoldierFollower;
 import team044.Units.Rushers.SoldierRusher;
 import team044.Units.SquadUnits.SoldierSquad;
 import team044.Units.SupportingUnits.SupportingSoldier;
@@ -77,6 +78,10 @@ public class Soldier extends Unit
         else if (type == BuildOrderMessaging.BuildSupportingSoldier.ordinal())
         {
             return new SupportingSoldier(rc);
+        }
+        else if (type == BuildOrderMessaging.BuildFollowerSoldier.ordinal())
+        {
+            return new SoldierFollower(rc);
         }
         return current;
     }

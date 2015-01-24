@@ -24,8 +24,11 @@ public class Basher extends Unit
     public void collectData() throws GameActionException
     {
         super.collectData();
+
+        target = Utilities.getRushLocation(rc);
         
         // collect our data
+        /*
         int x = rc.readBroadcast(Messaging.CommanderLocX.ordinal());
         int y = rc.readBroadcast(Messaging.CommanderLocY.ordinal());
 
