@@ -233,7 +233,7 @@ public class Navigator
     private void dogGo() throws GameActionException
     {
         int round = Clock.getRoundNum();
-        Direction lastDir = Direction.NONE;
+        Direction lastDir = lastFacing;
 
         MapLocation[] towers = rc.senseEnemyTowerLocations();
         //go till out of site
