@@ -666,7 +666,7 @@ public class Utilities
 
         Random rand = new Random(rc.getID() * Clock.getRoundNum());
 
-        int dirToTake = rand.nextInt(5);
+        int dirToTake = rand.nextInt(8);
         Direction[] dirs = Direction.values();
         Direction dir = target.directionTo(rc.senseEnemyHQLocation());
         MapLocation next;
@@ -693,10 +693,16 @@ public class Utilities
                     }
                     else
                     {
-                        dirToTake = rand.nextInt(5);
+                        dirToTake = rand.nextInt(8);
                         target = ourHQ;
                     }
                 }
+            }
+
+            if (rc.canSenseLocation(target) && rc.senseTerrainTile(target) == TerrainTile.OFF_MAP)
+            {
+                target = ourHQ;
+                dirToTake = rand.nextInt(8);
             }
 
             if (dirToTake == 0)
@@ -743,7 +749,7 @@ public class Utilities
                     target = target.add(dir.rotateRight().rotateRight(), 2);
                 }
             }
-            else
+            else if (dirToTake == 4)
             {
                 if (dir.isDiagonal())
                 {
@@ -754,6 +760,39 @@ public class Utilities
                     target = target.add(dir.rotateLeft().rotateLeft(), 2);
                 }
             }
+            else if (dirToTake == 5)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateRight().rotateRight().rotateRight(), 2);
+                }
+                else
+                {
+                    target = target.add(dir.rotateRight().rotateRight().rotateRight());
+                }
+            }
+            else if (dirToTake == 6)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateLeft().rotateLeft().rotateLeft(), 2);
+                }
+                else
+                {
+                    target = target.add(dir.rotateLeft().rotateLeft().rotateLeft());
+                }
+            }
+            else
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.opposite());
+                }
+                else
+                {
+                    target = target.add(dir.opposite(), 2);
+                }
+            }
         }
 
         return target;
@@ -761,6 +800,8 @@ public class Utilities
 
     public static boolean locationNotBlocked(RobotController rc, MapLocation spot) throws GameActionException
     {
+
+        int bytecodes = Clock.getBytecodeNum();
         Direction[] dirs = Direction.values();
 
         int openSpots;
@@ -774,18 +815,20 @@ public class Utilities
                 for (int j = 0; j < 8; j++)
                 {
                     MapLocation checking = next.add(dirs[j]);
-                    if (rc.canSenseLocation(checking) && rc.isPathable(RobotType.BEAVER, checking) && !rc.isLocationOccupied(checking))
+                    if (rc.canSenseLocation(checking) && rc.isPathable(RobotType.BEAVER, checking))
                     {
                         openSpots++;
                     }
                 }
 
-                if (openSpots < 3)
+                if (openSpots <= 3)
                 {
+                    rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
                     return false;
                 }
             }
         }
+        rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
         return true;
     }
 

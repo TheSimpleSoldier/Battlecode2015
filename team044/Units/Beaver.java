@@ -35,6 +35,7 @@ public class Beaver extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
+        //rc.setIndicatorString(1, "Bytecodes: " + Clock.getBytecodeNum());
         if (target == null)
         {
             return false;
@@ -50,7 +51,12 @@ public class Beaver extends Unit
 
     public boolean fight() throws GameActionException
     {
-        return fighter.basicFightMicro(nearByEnemies);
+        rc.setIndicatorString(1, "Bytecodes used before nav: " + Clock.getBytecodeNum());
+        if (fighter.basicFightMicro(nearByEnemies))
+        {
+            return true;
+        }
+        return false;
         //return fighter.basicFightMicro(nearByEnemies);
     }
 

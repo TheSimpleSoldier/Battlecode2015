@@ -42,6 +42,7 @@ public class BuildingBeaver extends Beaver
     {
         super.collectData();
 
+        /*
         if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal() || type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal() && !foundSpot && Clock.getRoundNum() % 15 == 0)
         {
             MapLocation temp = Utilities.getBestSpotSimple(rc);
@@ -52,7 +53,7 @@ public class BuildingBeaver extends Beaver
                 target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
                 foundSpot = true;
             }
-        }
+        }*/
 
         if (building == null && rc.isCoreReady())
         {
@@ -142,86 +143,29 @@ public class BuildingBeaver extends Beaver
                     target = buildingSpot.add(dirs[i]);
                 }
                 rc.setIndicatorString(0, "Numb: " + numb);
-                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot + ", target: " + target);
+                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot + ", target: " + target + ", Round numb:" + Clock.getRoundNum());
             }
         }
 
-        /*
-
-        if (target != null && rc.canSenseLocation(target) && rc.getLocation().distanceSquaredTo(target) < 24)
+        if (buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.getLocation().distanceSquaredTo(buildingSpot) < 10 && (!rc.isPathable(rc.getType(), buildingSpot) || !Utilities.locationNotBlocked(rc, buildingSpot)))
         {
-            rc.setIndicatorString(1, "can sense Spot");
-            if (rc.senseTerrainTile(target) == TerrainTile.OFF_MAP || rc.senseTerrainTile(target) == TerrainTile.VOID || rc.isLocationOccupied(target))
+            target = Utilities.findLocationForBuilding(rc, numb, building);
+            buildingSpot = target;
+            target = target.add(target.directionTo(rc.getLocation()));
+            int i = 8;
+            while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
             {
-                if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal() && type != BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal())
+                --i;
+                if (i < 0)
                 {
-                    buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
-                    int i = 8;
-                    while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
-                    {
-                        --i;
-                        if (i < 0)
-                        {
-                            break;
-                        }
-                        target = buildingSpot.add(dirs[i]);
-                    }
-
-                    if (i == 0)
-                    {
-                        rc.setIndicatorString(0, "Houston we have a problem: " + buildingSpot);
-                    }
+                    break;
                 }
-                else
-                {
-                    //rc.setIndicatorString(2, "build = true");
-                    target = rc.getLocation();
-                    build = true;
-                }
+                target = buildingSpot.add(dirs[i]);
             }
+            rc.setIndicatorString(0, "Numb: " + numb);
+            rc.setIndicatorString(1, "Reseting build spot round: " + Clock.getRoundNum());
+            rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot + ", target: " + target + ", Round numb: " + Clock.getRoundNum());
         }
-
-        if (type != BuildOrderMessaging.BuildMiningBaracks.ordinal() && type != BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal() && target != null && buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.isLocationOccupied(buildingSpot))
-        {
-            buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
-            rc.setIndicatorString(2, "New Building Spot: " + buildingSpot + ", old Target");
-            target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
-        }
-
-        if (target != null && rc.canSenseLocation(target))
-        {
-            int numbOfMoves = 0;
-
-            for (int i = 8; --i>=0;)
-            {
-                if (rc.isPathable(rc.getType(), target.add(dirs[i])))
-                {
-                    numbOfMoves++;
-                }
-            }
-
-            if (numbOfMoves <= 1)
-            {
-                buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
-                target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
-                int i = 8;
-                while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
-                {
-                    --i;
-                    if (i < 0)
-                    {
-                        break;
-                    }
-                    target = buildingSpot.add(dirs[i]);
-                }
-
-                if (i == 0)
-                {
-                    rc.setIndicatorString(0, "Houston we have a problem: " + buildingSpot);
-                }
-            }
-        }
-        */
     }
 
     public boolean carryOutAbility() throws GameActionException
