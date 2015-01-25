@@ -1,10 +1,7 @@
 package team044.Units;
 
 
-import team044.Messaging;
-import team044.TeamMemory;
-import team044.Unit;
-import team044.Utilities;
+import team044.*;
 
 import battlecode.common.*;
 import team044.Units.Rushers.MinerRusher;
@@ -42,24 +39,26 @@ public class Miner extends Unit
         // collect our data
         super.collectData();
 
-
-        if (target != null && target.x == rc.readBroadcast(Messaging.OreX.ordinal()) && target.y == rc.readBroadcast(Messaging.OreY.ordinal()))
-            rc.broadcast(Messaging.BestOre.ordinal(),0);
-        else if (target != null && target.x == rc.readBroadcast(Messaging.OreX2.ordinal()) && target.y == rc.readBroadcast(Messaging.OreY2.ordinal()))
-            rc.broadcast(Messaging.BestOre2.ordinal(),0);
+        if (target != null) {
+            if (target.x == rc.readBroadcast(Messaging.OreX.ordinal()) && target.y == rc.readBroadcast(Messaging.OreY.ordinal()))
+                rc.broadcast(Messaging.BestOre.ordinal(), 0);
+            else if (target.x == rc.readBroadcast(Messaging.OreX2.ordinal()) && target.y == rc.readBroadcast(Messaging.OreY2.ordinal()))
+                rc.broadcast(Messaging.BestOre2.ordinal(), 0);
+        }
 
         rc.setIndicatorString(2, "Target: " + target);
 
         if (lastSpot != rc.getLocation())
         {
             lastSpot = rc.getLocation();
+            double senseOre = rc.senseOre(lastSpot);
             // get new target every time we move
             //target = Utilities.greedyBestMiningSpot(rc);
-            if (rc.senseOre(lastSpot) > 10)
+            if (senseOre > 10)
             {
                 miningAmount = 10;
             }
-            else if (rc.senseOre(lastSpot) <= 5)
+            else if (senseOre <= 5)
             {
                 miningAmount = 1;
             }
@@ -85,12 +84,10 @@ public class Miner extends Unit
             }
         }
 
-
-
         if (target == null || rc.getLocation() == target || (rc.canSenseLocation(target) && (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))))
         {
             rc.setIndicatorString(2, "get greedy spot: " + Clock.getRoundNum());
-            target = Utilities.newOreSpot(rc);
+            target = MapDiscovery.lightOreSearch(rc);
         }
 
         if (changeDir)
@@ -146,7 +143,7 @@ public class Miner extends Unit
             target = enemyHQ;
         }
         // no need to move if our location is good enough
-        else if (rc.senseOre(rc.getLocation()) >= miningAmount)
+        else if (rc.senseOre(rc.getLocation()) >= miningAmount && rc.senseOre(target) < 15)
         {
             return false;
         }

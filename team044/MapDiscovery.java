@@ -120,21 +120,18 @@ public class MapDiscovery
                             break;
                     }
                 }
-                if (rc.canSenseLocation(nextPoint))
+                int spot = (int) rc.senseOre(nextPoint);
+                if (spot > oreSpot)
                 {
-                    int spot = (int) rc.senseOre(nextPoint);
-                    if (spot > oreSpot)
-                    {
-                        oreSpotX = nextPoint.x;
-                        oreSpotY = nextPoint.y;
-                        oreSpot = spot;
-                    }
-                    else if (spot == oreSpot)
-                    {
-                        oreSpotX2 = nextPoint.x;
-                        oreSpotY2 = nextPoint.y;
-                        oreSpot2 = spot;
-                    }
+                    oreSpotX = nextPoint.x;
+                    oreSpotY = nextPoint.y;
+                    oreSpot = spot;
+                }
+                else if (spot == oreSpot)
+                {
+                    oreSpotX2 = nextPoint.x;
+                    oreSpotY2 = nextPoint.y;
+                    oreSpot2 = spot;
                 }
                 nextPoint = nextPoint.add(Direction.EAST);
 //                System.out.print(map[i][j]);
@@ -386,5 +383,218 @@ public class MapDiscovery
                 findMap(rc);
             }
         return map;
+    }
+
+    public static void oreOnHorizon(RobotController rc, int addToStart) throws GameActionException
+    {
+        Direction lastTurn = Direction.NORTH;
+        MapLocation sweep = new MapLocation(rc.getLocation().x-(4+addToStart),rc.getLocation().y+(2+addToStart));
+        MapLocation best = null;
+        MapLocation best2 = null;
+        int big = rc.readBroadcast(Messaging.BestOre.ordinal());
+        int big2 = rc.readBroadcast(Messaging.BestOre2.ordinal());
+        for (int i = 0; i < 4; i++)
+        {
+            double ore = rc.senseOre(sweep);
+            if (ore > big)
+            {
+                big = (int) ore;
+                best = sweep;
+            }
+            else if (ore > big2)
+            {
+                big2 = (int) ore;
+                best2 = sweep;
+            }
+            lastTurn = lastTurn.rotateRight();
+            sweep = sweep.add(lastTurn);
+            ore = rc.senseOre(sweep);
+            if (ore > big)
+            {
+                big = (int) ore;
+                best = sweep;
+            }
+            else if (ore > big2)
+            {
+                big2 = (int) ore;
+                best2 = sweep;
+            }
+            sweep = sweep.add(lastTurn);
+            lastTurn = lastTurn.rotateRight();
+            for (int j = 0; j < 4+addToStart+addToStart; j++)
+            {
+                ore = rc.senseOre(sweep);
+                if (ore > big)
+                {
+                    big = (int) ore;
+                    best = sweep;
+                }
+                else if (ore > big2)
+                {
+                    big2 = (int) ore;
+                    best2 = sweep;
+                }
+                sweep = sweep.add(lastTurn);
+            }
+        }
+        if (best != null) {
+            rc.broadcast(Messaging.BestOre.ordinal(), big);
+            rc.broadcast(Messaging.OreX.ordinal(), sweep.x);
+            rc.broadcast(Messaging.OreY.ordinal(), sweep.y);
+        } else if (best2 != null) {
+            rc.broadcast(Messaging.BestOre2.ordinal(), big2);
+            rc.broadcast(Messaging.OreX2.ordinal(), sweep.x);
+            rc.broadcast(Messaging.OreY2.ordinal(), sweep.y);
+        }
+    }
+
+    public static MapLocation lightOreSearch(RobotController rc) throws GameActionException
+    {
+        MapLocation current = rc.getLocation();
+        MapLocation[] spots = new MapLocation[12];
+        spots[0] = new MapLocation(current.x-4,current.y+2);
+        spots[1] = new MapLocation(current.x-4,current.y);
+        spots[2] = new MapLocation(current.x-4,current.y-2);
+        spots[3] = new MapLocation(current.x+4,current.y+2);
+        spots[4] = new MapLocation(current.x+4,current.y);
+        spots[5] = new MapLocation(current.x+4,current.y-2);
+        spots[6] = new MapLocation(current.x-2,current.y+4);
+        spots[7] = new MapLocation(current.x,current.y+4);
+        spots[8] = new MapLocation(current.x+2,current.y+4);
+        spots[9] = new MapLocation(current.x-2,current.y-4);
+        spots[10] = new MapLocation(current.x,current.y-4);
+        spots[11] = new MapLocation(current.x+2,current.y-4);
+        double[] ore = new double[12];
+        ore[0] = rc.senseOre(spots[0]);
+        ore[1] = rc.senseOre(spots[1]);
+        ore[2] = rc.senseOre(spots[2]);
+        ore[3] = rc.senseOre(spots[3]);
+        ore[4] = rc.senseOre(spots[4]);
+        ore[5] = rc.senseOre(spots[5]);
+        ore[6] = rc.senseOre(spots[6]);
+        ore[7] = rc.senseOre(spots[7]);
+        ore[8] = rc.senseOre(spots[8]);
+        ore[9] = rc.senseOre(spots[9]);
+        ore[10] = rc.senseOre(spots[10]);
+        ore[11] = rc.senseOre(spots[11]);
+        int big = 0;
+        if (ore[1] > ore[big])
+            big = 1;
+        if (ore[2] > ore[big])
+            big = 2;
+        if (ore[3] > ore[big])
+            big = 3;
+        if (ore[4] > ore[big])
+            big = 4;
+        if (ore[5] > ore[big])
+            big = 5;
+        if (ore[6] > ore[big])
+            big = 6;
+        if (ore[7] > ore[big])
+            big = 7;
+        if (ore[8] > ore[big])
+            big = 8;
+        if (ore[9] > ore[big])
+            big = 9;
+        if (ore[10] > ore[big])
+            big = 10;
+        if (ore[11] > ore[big])
+            big = 11;
+        int spot1Count = Messaging.BestSpotMiners.ordinal();
+        int spot2Count = Messaging.BestSpot2Miners.ordinal();
+        int best = Messaging.BestOre.ordinal();
+        if (ore[big] >= rc.readBroadcast(best)) {
+            rc.broadcast(best, big);
+            rc.broadcast(Messaging.OreX.ordinal(), spots[big].x);
+            rc.broadcast(Messaging.OreY.ordinal(), spots[big].y);
+            rc.broadcast(spot1Count, 1);
+            return spots[big];
+        }
+        best = Messaging.BestOre2.ordinal();
+        if (ore[big] >= rc.readBroadcast(best)) {
+            rc.broadcast(best, big);
+            rc.broadcast(Messaging.OreX2.ordinal(), spots[big].x);
+            rc.broadcast(Messaging.OreY2.ordinal(), spots[big].y);
+            rc.broadcast(spot2Count, 1);
+            return spots[big];
+        }
+        int best1 = rc.readBroadcast(spot1Count);
+        int best2 = rc.readBroadcast(spot2Count);
+        if (best1 <= best2) {
+            rc.broadcast(spot1Count, ++best1);
+            return new MapLocation(rc.readBroadcast(Messaging.OreX.ordinal()), rc.readBroadcast(Messaging.OreY.ordinal()));
+        }
+        rc.broadcast(spot2Count, ++best2);
+        return new MapLocation(rc.readBroadcast(Messaging.OreX2.ordinal()),rc.readBroadcast(Messaging.OreY2.ordinal()));
+
+    }
+    public static void towerOreSearch(RobotController rc) throws GameActionException
+    {
+        MapLocation current = rc.getLocation();
+        MapLocation[] spots = new MapLocation[12];
+        spots[0] = new MapLocation(current.x-5,current.y+3);
+        spots[1] = new MapLocation(current.x-5,current.y);
+        spots[2] = new MapLocation(current.x-5,current.y-3);
+        spots[3] = new MapLocation(current.x+5,current.y+3);
+        spots[4] = new MapLocation(current.x+5,current.y);
+        spots[5] = new MapLocation(current.x+5,current.y-3);
+        spots[6] = new MapLocation(current.x-3,current.y+5);
+        spots[7] = new MapLocation(current.x,current.y+5);
+        spots[8] = new MapLocation(current.x+3,current.y+5);
+        spots[9] = new MapLocation(current.x-3,current.y-5);
+        spots[10] = new MapLocation(current.x,current.y-5);
+        spots[11] = new MapLocation(current.x+3,current.y-5);
+        double[] ore = new double[12];
+        ore[0] = rc.senseOre(spots[0]);
+        ore[1] = rc.senseOre(spots[1]);
+        ore[2] = rc.senseOre(spots[2]);
+        ore[3] = rc.senseOre(spots[3]);
+        ore[4] = rc.senseOre(spots[4]);
+        ore[5] = rc.senseOre(spots[5]);
+        ore[6] = rc.senseOre(spots[6]);
+        ore[7] = rc.senseOre(spots[7]);
+        ore[8] = rc.senseOre(spots[8]);
+        ore[9] = rc.senseOre(spots[9]);
+        ore[10] = rc.senseOre(spots[10]);
+        ore[11] = rc.senseOre(spots[11]);
+        int big = 0;
+        if (ore[1] > ore[big])
+            big = 1;
+        if (ore[2] > ore[big])
+            big = 2;
+        if (ore[3] > ore[big])
+            big = 3;
+        if (ore[4] > ore[big])
+            big = 4;
+        if (ore[5] > ore[big])
+            big = 5;
+        if (ore[6] > ore[big])
+            big = 6;
+        if (ore[7] > ore[big])
+            big = 7;
+        if (ore[8] > ore[big])
+            big = 8;
+        if (ore[9] > ore[big])
+            big = 9;
+        if (ore[10] > ore[big])
+            big = 10;
+        if (ore[11] > ore[big])
+            big = 11;
+        int best = Messaging.BestOre.ordinal();
+        if (ore[big] >= rc.readBroadcast(best)) {
+            rc.broadcast(best, big);
+            rc.broadcast(Messaging.OreX.ordinal(), spots[big].x);
+            rc.broadcast(Messaging.OreY.ordinal(), spots[big].y);
+            rc.broadcast(Messaging.BestSpotMiners.ordinal(), 0);
+            return;
+        }
+        best = Messaging.BestOre2.ordinal();
+        if (ore[big] >= rc.readBroadcast(best)) {
+            rc.broadcast(best, big);
+            rc.broadcast(Messaging.OreX2.ordinal(), spots[big].x);
+            rc.broadcast(Messaging.OreY2.ordinal(), spots[big].y);
+            rc.broadcast(Messaging.BestSpot2Miners.ordinal(), 0);
+            return;
+        }
     }
 }
