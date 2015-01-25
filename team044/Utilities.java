@@ -635,7 +635,7 @@ public class Utilities
         MapLocation target = null;
 
         // supply depot
-        if (robotType == RobotType.SUPPLYDEPOT)
+        /*if (robotType == RobotType.SUPPLYDEPOT)
         {
             target = buildSupplyDepot(rc);
         }
@@ -649,7 +649,9 @@ public class Utilities
         {
             //target = buildTrainingFacility(rc);
             target = buildSupplyDepot(rc);
-        }
+        }*/
+
+        target = buildSupplyDepot(rc);
 
         return target;
     }
@@ -664,23 +666,36 @@ public class Utilities
 
         Random rand = new Random(rc.getID() * Clock.getRoundNum());
 
-        int dirToTake = rand.nextInt(3);
+        int dirToTake = rand.nextInt(5);
         Direction[] dirs = Direction.values();
         Direction dir = target.directionTo(rc.senseEnemyHQLocation());
         MapLocation next;
 
-        while (rc.canSenseLocation(target) && rc.isLocationOccupied(target))
+        while (rc.canSenseLocation(target) && !rc.isPathable(RobotType.BEAVER, target))
         {
             for (int i = 1; i < 8; i+=2)
             {
                 next = target.add(dirs[i]);
-                if (rc.canSenseLocation(next) && !rc.isLocationOccupied(next) && rc.senseTerrainTile(next) != TerrainTile.VOID && rc.senseTerrainTile(next) != TerrainTile.OFF_MAP)
+                if (rc.canSenseLocation(next) && rc.isPathable(RobotType.BEAVER, next) && locationNotBlocked(rc, next))
                 {
                     return next;
                 }
                 else if (!rc.canSenseLocation(next))
                 {
-                    return next;
+                    MapLocation last = next.add(next.directionTo(ourHQ));
+                    while (!rc.canSenseLocation(last))
+                    {
+                        last = last.add(last.directionTo(ourHQ));
+                    }
+                    if (rc.canSenseLocation(last) && rc.senseTerrainTile(last) != TerrainTile.OFF_MAP)
+                    {
+                        return next;
+                    }
+                    else
+                    {
+                        dirToTake = rand.nextInt(5);
+                        target = ourHQ;
+                    }
                 }
             }
 
@@ -706,7 +721,7 @@ public class Utilities
                     target = target.add(dir.rotateRight());
                 }
             }
-            else
+            else if (dirToTake == 2)
             {
                 if (dir.isDiagonal())
                 {
@@ -717,9 +732,61 @@ public class Utilities
                     target = target.add(dir, 2);
                 }
             }
+            else if (dirToTake == 3)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateRight().rotateRight());
+                }
+                else
+                {
+                    target = target.add(dir.rotateRight().rotateRight(), 2);
+                }
+            }
+            else
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateLeft().rotateLeft());
+                }
+                else
+                {
+                    target = target.add(dir.rotateLeft().rotateLeft(), 2);
+                }
+            }
         }
 
         return target;
+    }
+
+    public static boolean locationNotBlocked(RobotController rc, MapLocation spot) throws GameActionException
+    {
+        Direction[] dirs = Direction.values();
+
+        int openSpots;
+
+        for (int i = 0; i < 8; i++)
+        {
+            openSpots = 0;
+            MapLocation next = spot.add(dirs[i]);
+            if (rc.isPathable(RobotType.BEAVER, next))
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    MapLocation checking = next.add(dirs[j]);
+                    if (rc.canSenseLocation(checking) && rc.isPathable(RobotType.BEAVER, checking) && !rc.isLocationOccupied(checking))
+                    {
+                        openSpots++;
+                    }
+                }
+
+                if (openSpots < 3)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -1388,5 +1455,136 @@ public class Utilities
         }
 
         return false;
+    }
+
+    public static MapLocation[] buildingSpots(RobotController rc)
+    {
+        MapLocation start = rc.getLocation();
+
+        MapLocation[] buildSpots = new MapLocation[10];
+
+        MapLocation next;
+
+        int index = 0;
+
+        int count = openSpots(rc, start);
+
+        // if there is no voids around HQ
+        if (count == 8)
+        {
+            buildSpots[0] = start.add(Direction.NORTH_EAST);
+            buildSpots[1] = start.add(Direction.NORTH_WEST);
+            buildSpots[2] = start.add(Direction.SOUTH_EAST);
+            buildSpots[3] = start.add(Direction.SOUTH_WEST);
+            index = 4;
+        }
+        else if (count > 1)
+        {
+            next = start.add(Direction.NORTH_EAST);
+            if (rc.isPathable(RobotType.SOLDIER, next))
+            {
+                buildSpots[index] = next;
+                index++;
+            }
+
+            if (index < count)
+            {
+                next = start.add(Direction.NORTH_WEST);
+                if (rc.isPathable(RobotType.SOLDIER, next))
+                {
+                    buildSpots[index] = next;
+                    index++;
+                }
+            }
+
+            if (index < count)
+            {
+                next = start.add(Direction.SOUTH_EAST);
+                if (rc.isPathable(RobotType.SOLDIER, next))
+                {
+                    buildSpots[index] = next;
+                    index++;
+                }
+            }
+
+            if (index < count)
+            {
+                next = start.add(Direction.SOUTH_WEST);
+                if (rc.isPathable(RobotType.SOLDIER, next))
+                {
+                    buildSpots[index] = next;
+                    index++;
+                }
+            }
+        }
+        // if there is only one open spot then we don't want to build next to our HQ
+        else
+        {
+        }
+
+        // then we are in a checkered board map
+        if (index == 0 && count > 1)
+        {
+            next = start.add(Direction.NORTH);
+            if (rc.isPathable(RobotType.SOLDIER, next))
+            {
+                buildSpots[index] = next;
+                index++;
+            }
+
+            if (index < count)
+            {
+                next = start.add(Direction.SOUTH);
+                if (rc.isPathable(RobotType.SOLDIER, next))
+                {
+                    buildSpots[index] = next;
+                    index++;
+                }
+
+                if (index < count)
+                {
+                    next = start.add(Direction.EAST);
+                    if (rc.isPathable(RobotType.SOLDIER, next))
+                    {
+                        buildSpots[index] = next;
+                        index++;
+                    }
+
+                    if (index < count)
+                    {
+                        next = start.add(Direction.WEST);
+                        if (rc.isPathable(RobotType.SOLDIER, next))
+                        {
+                            buildSpots[index] = next;
+                            index++;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+
+        }
+
+        return buildSpots;
+    }
+
+    public static int openSpots(RobotController rc, MapLocation center)
+    {
+        Direction[] dirs = Direction.values();
+        int count = 0;
+
+        for (int i = 0; i<8; i++)
+        {
+            MapLocation next = center.add(dirs[i]);
+
+            if (rc.canSenseLocation(next) && rc.isPathable(RobotType.SOLDIER, next))
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 }

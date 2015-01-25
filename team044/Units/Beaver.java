@@ -1,5 +1,6 @@
 package team044.Units;
 
+import battlecode.common.Clock;
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
 import team044.Messaging;
@@ -38,8 +39,13 @@ public class Beaver extends Unit
         {
             return false;
         }
-        rc.setIndicatorString(0, "In navigation: " + target);
-        return nav.takeNextStep(target);
+        if (nav.takeNextStep(target))
+        {
+            rc.setIndicatorString(0, "In navigation: " + target + ", Round: " + Clock.getRoundNum());
+            return true;
+        }
+        rc.setIndicatorString(0, "Failed navigation: " + target + ", Round: " + Clock.getRoundNum());
+        return false;
     }
 
     public boolean fight() throws GameActionException

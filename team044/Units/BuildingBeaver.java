@@ -146,6 +146,8 @@ public class BuildingBeaver extends Beaver
             }
         }
 
+        /*
+
         if (target != null && rc.canSenseLocation(target) && rc.getLocation().distanceSquaredTo(target) < 24)
         {
             rc.setIndicatorString(1, "can sense Spot");
@@ -163,6 +165,11 @@ public class BuildingBeaver extends Beaver
                             break;
                         }
                         target = buildingSpot.add(dirs[i]);
+                    }
+
+                    if (i == 0)
+                    {
+                        rc.setIndicatorString(0, "Houston we have a problem: " + buildingSpot);
                     }
                 }
                 else
@@ -197,12 +204,29 @@ public class BuildingBeaver extends Beaver
             {
                 buildingSpot = Utilities.findLocationForBuilding(rc, numb, building);
                 target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
+                int i = 8;
+                while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
+                {
+                    --i;
+                    if (i < 0)
+                    {
+                        break;
+                    }
+                    target = buildingSpot.add(dirs[i]);
+                }
+
+                if (i == 0)
+                {
+                    rc.setIndicatorString(0, "Houston we have a problem: " + buildingSpot);
+                }
             }
         }
+        */
     }
 
     public boolean carryOutAbility() throws GameActionException
     {
+        rc.setIndicatorString(0, "carryOutAbility");
         if (!rc.isCoreReady())
         {
             return false;

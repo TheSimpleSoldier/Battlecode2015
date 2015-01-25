@@ -357,6 +357,11 @@ public class Messenger
                 group3Launched = true;
                 group3RoundFinished = Clock.getRoundNum();
             }
+
+            if (group3InitialSpot == null)
+            {
+                group3InitialSpot = rc.senseEnemyHQLocation();
+            }
             rc.broadcast(Messaging.ThirdGroupX.ordinal(), group3InitialSpot.x);
             rc.broadcast(Messaging.ThirdGroupY.ordinal(), group3InitialSpot.y);
 
