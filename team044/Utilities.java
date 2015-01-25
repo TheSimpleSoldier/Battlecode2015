@@ -810,23 +810,22 @@ public class Utilities
         {
             openSpots = 0;
             MapLocation next = spot.add(dirs[i]);
-            if (rc.isPathable(RobotType.BEAVER, next))
-            {
-                for (int j = 0; j < 8; j++)
-                {
-                    MapLocation checking = next.add(dirs[j]);
-                    if (rc.canSenseLocation(checking) && rc.isPathable(RobotType.BEAVER, checking))
-                    {
-                        openSpots++;
-                    }
-                }
 
-                if (openSpots <= 3)
+            for (int j = 0; j < 8; j++)
+            {
+                MapLocation checking = next.add(dirs[j]);
+                if (rc.canSenseLocation(checking) && rc.isPathable(RobotType.BEAVER, checking))
                 {
-                    rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
-                    return false;
+                    openSpots++;
                 }
             }
+
+            if (openSpots <= 3)
+            {
+                rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
+                return false;
+            }
+
         }
         rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
         return true;
