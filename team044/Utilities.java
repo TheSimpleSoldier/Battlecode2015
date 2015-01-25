@@ -670,32 +670,35 @@ public class Utilities
         Direction[] dirs = Direction.values();
         Direction dir = target.directionTo(rc.senseEnemyHQLocation());
         MapLocation next;
+        int numbOfTries = 0;
 
-        while (rc.canSenseLocation(target) && !rc.isPathable(RobotType.BEAVER, target))
+        while (true) //rc.canSenseLocation(target) && !rc.isPathable(RobotType.BEAVER, target))
         {
             for (int i = 1; i < 8; i+=2)
             {
                 next = target.add(dirs[i]);
-                if (rc.canSenseLocation(next) && rc.isPathable(RobotType.BEAVER, next) && locationNotBlocked(rc, next))
+                if (rc.canSenseLocation(next) && rc.isPathable(RobotType.BEAVER, next) && locationNotBlocked(rc, next, 3))
                 {
                     return next;
                 }
                 else if (!rc.canSenseLocation(next))
                 {
-                    /*MapLocation last = next.add(next.directionTo(ourHQ));
+                    MapLocation last = next.add(next.directionTo(ourHQ));
                     while (!rc.canSenseLocation(last))
                     {
                         last = last.add(last.directionTo(ourHQ));
                     }
-                    if (rc.canSenseLocation(last) && rc.senseTerrainTile(last) != TerrainTile.OFF_MAP)
+
+                    if (rc.canSenseLocation(last) && rc.senseTerrainTile(last) != TerrainTile.OFF_MAP && numbOfTries > 6)
                     {
                         return next;
                     }
                     else
-                    {*/
+                    {
+                        numbOfTries++;
                         dirToTake = rand.nextInt(8);
                         target = ourHQ;
-                    //}
+                    }
                 }
             }
 
@@ -795,37 +798,50 @@ public class Utilities
             }
         }
 
-        return target;
+        //System.out.println("Target returned");
+        //return target;
     }
 
-    public static boolean locationNotBlocked(RobotController rc, MapLocation spot) throws GameActionException
+    public static boolean locationNotBlocked(RobotController rc, MapLocation spot, int openings) throws GameActionException
     {
         int bytecodes = Clock.getBytecodeNum();
         Direction[] dirs = Direction.values();
 
         int openSpots;
+        int openSpots2 = 0;
 
         for (int i = 0; i < 8; i++)
         {
             openSpots = 0;
             MapLocation next = spot.add(dirs[i]);
 
+            if (rc.isPathable(RobotType.BEAVER, spot))
+            {
+                openSpots2++;
+            }
+
             for (int j = 0; j < 8; j++)
             {
                 MapLocation checking = next.add(dirs[j]);
-                if (rc.canSenseLocation(checking) && rc.isPathable(RobotType.BEAVER, checking))
+                if (rc.isPathable(RobotType.BEAVER, checking))
                 {
                     openSpots++;
                 }
             }
 
-            if (openSpots <= 3)
+            if (openSpots <= openings)
             {
                 rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
                 return false;
             }
 
         }
+
+        if (openSpots2 < openings)
+        {
+            return false;
+        }
+
         rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
         return true;
     }
@@ -1498,134 +1514,35 @@ public class Utilities
         return false;
     }
 
-    public static MapLocation[] buildingSpots(RobotController rc)
+    public static boolean mobileUnit(RobotInfo unit)
     {
-        MapLocation start = rc.getLocation();
-
-        MapLocation[] buildSpots = new MapLocation[10];
-
-        MapLocation next;
-
-        int index = 0;
-
-        int count = openSpots(rc, start);
-
-        // if there is no voids around HQ
-        if (count == 8)
+        if (unit == null)
         {
-            buildSpots[0] = start.add(Direction.NORTH_EAST);
-            buildSpots[1] = start.add(Direction.NORTH_WEST);
-            buildSpots[2] = start.add(Direction.SOUTH_EAST);
-            buildSpots[3] = start.add(Direction.SOUTH_WEST);
-            index = 4;
-        }
-        else if (count > 1)
-        {
-            next = start.add(Direction.NORTH_EAST);
-            if (rc.isPathable(RobotType.SOLDIER, next))
-            {
-                buildSpots[index] = next;
-                index++;
-            }
-
-            if (index < count)
-            {
-                next = start.add(Direction.NORTH_WEST);
-                if (rc.isPathable(RobotType.SOLDIER, next))
-                {
-                    buildSpots[index] = next;
-                    index++;
-                }
-            }
-
-            if (index < count)
-            {
-                next = start.add(Direction.SOUTH_EAST);
-                if (rc.isPathable(RobotType.SOLDIER, next))
-                {
-                    buildSpots[index] = next;
-                    index++;
-                }
-            }
-
-            if (index < count)
-            {
-                next = start.add(Direction.SOUTH_WEST);
-                if (rc.isPathable(RobotType.SOLDIER, next))
-                {
-                    buildSpots[index] = next;
-                    index++;
-                }
-            }
-        }
-        // if there is only one open spot then we don't want to build next to our HQ
-        else
-        {
+            return false;
         }
 
-        // then we are in a checkered board map
-        if (index == 0 && count > 1)
+        switch(unit.type)
         {
-            next = start.add(Direction.NORTH);
-            if (rc.isPathable(RobotType.SOLDIER, next))
-            {
-                buildSpots[index] = next;
-                index++;
-            }
-
-            if (index < count)
-            {
-                next = start.add(Direction.SOUTH);
-                if (rc.isPathable(RobotType.SOLDIER, next))
-                {
-                    buildSpots[index] = next;
-                    index++;
-                }
-
-                if (index < count)
-                {
-                    next = start.add(Direction.EAST);
-                    if (rc.isPathable(RobotType.SOLDIER, next))
-                    {
-                        buildSpots[index] = next;
-                        index++;
-                    }
-
-                    if (index < count)
-                    {
-                        next = start.add(Direction.WEST);
-                        if (rc.isPathable(RobotType.SOLDIER, next))
-                        {
-                            buildSpots[index] = next;
-                            index++;
-                        }
-                    }
-                }
-            }
+            case LAUNCHER:
+                return true;
+            case MISSILE:
+                return true;
+            case BASHER:
+                return true;
+            case BEAVER:
+                return true;
+            case SOLDIER:
+                return true;
+            case COMPUTER:
+                return true;
+            case TANK:
+                return true;
+            case COMMANDER:
+                return true;
+            case DRONE:
+                return true;
+            default:
+                return false;
         }
-        else
-        {
-
-        }
-
-        return buildSpots;
-    }
-
-    public static int openSpots(RobotController rc, MapLocation center)
-    {
-        Direction[] dirs = Direction.values();
-        int count = 0;
-
-        for (int i = 0; i<8; i++)
-        {
-            MapLocation next = center.add(dirs[i]);
-
-            if (rc.canSenseLocation(next) && rc.isPathable(RobotType.SOLDIER, next))
-            {
-                count++;
-            }
-        }
-
-        return count;
     }
 }

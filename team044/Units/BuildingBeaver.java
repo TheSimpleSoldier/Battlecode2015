@@ -147,24 +147,35 @@ public class BuildingBeaver extends Beaver
             }
         }
 
-        if (buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.getLocation().distanceSquaredTo(buildingSpot) < 10 && (!rc.isPathable(rc.getType(), buildingSpot) || !Utilities.locationNotBlocked(rc, buildingSpot)))
+        if (buildingSpot != null && rc.canSenseLocation(buildingSpot) && rc.getLocation().distanceSquaredTo(buildingSpot) <= 10 && (!rc.isPathable(rc.getType(), buildingSpot) /*|| !Utilities.locationNotBlocked(rc, buildingSpot, 2)*/))
         {
-            target = Utilities.findLocationForBuilding(rc, numb, building);
-            buildingSpot = target;
-            target = target.add(target.directionTo(rc.getLocation()));
-            int i = 8;
-            while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
+            RobotInfo unit = null;
+
+            if (target != null)
             {
-                --i;
-                if (i < 0)
-                {
-                    break;
-                }
-                target = buildingSpot.add(dirs[i]);
+                unit = rc.senseRobotAtLocation(target);
             }
-            rc.setIndicatorString(0, "Numb: " + numb);
-            rc.setIndicatorString(1, "Reseting build spot round: " + Clock.getRoundNum());
-            rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot + ", target: " + target + ", Round numb: " + Clock.getRoundNum());
+
+            if (unit == null || !Utilities.mobileUnit(unit))
+            {
+                target = Utilities.findLocationForBuilding(rc, numb, building);
+                buildingSpot = target;
+                target = target.add(target.directionTo(rc.getLocation()));
+                int i = 8;
+                while (rc.canSenseLocation(target) && !rc.isPathable(rc.getType(), target))
+                {
+                    --i;
+                    if (i < 0)
+                    {
+                        break;
+                    }
+                    target = buildingSpot.add(dirs[i]);
+                }
+                rc.setIndicatorString(0, "Numb: " + numb);
+                rc.setIndicatorString(1, "Reseting build spot round: " + Clock.getRoundNum());
+                rc.setIndicatorString(2, "Building: " + building + ", Building Spot" + buildingSpot + ", target: " + target + ", Round numb: " + Clock.getRoundNum());
+            }
+
         }
     }
 
@@ -217,7 +228,7 @@ public class BuildingBeaver extends Beaver
                 rc.setIndicatorString(1, "Building requirement");
                 Utilities.buildRequirement(rc, buildingSpot, building);
             }
-            else if (rc.getTeamOre() < (building.oreCost - 20) && rc.senseOre(rc.getLocation()) > 0)
+            else if (rc.getTeamOre() < (building.oreCost - 20) && rc.senseOre(rc.getLocation()) > 0 && target != null && rc.getLocation().equals(target))
             {
                 rc.mine();
             }
