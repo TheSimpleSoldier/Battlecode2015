@@ -266,7 +266,7 @@ public class Navigator
                 }
                 else
                 {
-                    lastDir = lastFacing.rotateLeft().rotateRight();
+                    lastDir = lastFacing.rotateLeft().rotateLeft();
                 }
             }
             else
