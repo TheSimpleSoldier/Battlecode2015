@@ -430,12 +430,12 @@ public class Utilities
                 {
                     continue;
                 }
-                else if (ally == RobotType.COMMANDER)
+                /*else if (ally == RobotType.COMMANDER)
                 {
                     int supply = (int) rc.getSupplyLevel() - 1;
                     rc.transferSupplies(supply, nearByAllies[i].location);
                     return;
-                }
+                }*/
                 int allySupply = (int) nearByAllies[i].supplyLevel;
                 if (allySupply < ourSupply)
                 {
@@ -869,7 +869,7 @@ public class Utilities
         // don't have the advantage of knowing where we are
         if (bestTower != null)
         {
-            bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
+        //    bestTower = bestTower.add(bestTower.directionTo(enemyHQ), 5);
         }
         else
         {
@@ -1313,5 +1313,80 @@ public class Utilities
         }
 
         return location;
+    }
+
+    //ONLY TO BE USED FOR DRONE SURROUNDS!!!
+    //does not factor in voids
+    public static boolean towersBlocking(RobotController rc)
+    {
+        MapLocation[] towers = rc.senseTowerLocations();
+        MapLocation edgeTower = null;
+
+        for(int k = towers.length; --k >= 0;)
+        {
+            if(nextToEdge(rc, towers[k]))
+            {
+                edgeTower = towers[k];
+                break;
+            }
+        }
+
+        if(edgeTower == null)
+        {
+            System.out.println("halfway");
+            return false;
+        }
+
+        MapLocation lastTower = edgeTower;
+        MapLocation currentTower = edgeTower;
+
+        for(int k = towers.length; --k >= 0;)
+        {
+            System.out.println("last: " + lastTower.toString());
+            System.out.println("current: " + currentTower.toString());
+            for(int a = towers.length; --a >= 0;)
+            {
+                System.out.println("try: " + towers[a].toString());
+                MapLocation temp = currentTower.add(currentTower.directionTo(towers[a]));
+                while(currentTower.distanceSquaredTo(temp) <= 24 ||
+                        towers[a].distanceSquaredTo(temp) <= 24)
+                {
+                    temp = temp.add(temp.directionTo(towers[a]));
+                    if(temp.equals(towers[a]))
+                    {
+                        break;
+                    }
+                }
+                if(temp.equals(towers[a]) && !towers[a].equals(currentTower) &&
+                   !towers[a].equals(lastTower))
+                {
+                    System.out.println("works");
+                    lastTower = currentTower;
+                    currentTower = towers[a];
+                    break;
+                }
+            }
+
+            if(nextToEdge(rc, currentTower) && currentTower.distanceSquaredTo(edgeTower) > 100)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean nextToEdge(RobotController rc, MapLocation spot)
+    {
+        Direction[] dirs = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+        for(int a = 4; --a >= 0;)
+        {
+            if(rc.senseTerrainTile(spot.add(dirs[a], 5)) == TerrainTile.OFF_MAP)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

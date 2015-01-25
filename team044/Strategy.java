@@ -108,9 +108,9 @@ public class Strategy
             secondBeaver = null;
             thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
-            messenger.setGroup1(20,0,10,0,true);
-            messenger.setGroup2(0,0,0,0,false);
-            messenger.setGroup3(0, 0, 0, 0, false);
+            //messenger.setGroup1(20,0,10,0,true);
+            //messenger.setGroup2(0,0,0,0,false);
+            //messenger.setGroup3(0, 0, 0, 0, false);
 
             rc.setIndicatorString(0, "Very Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
@@ -176,33 +176,16 @@ public class Strategy
                 BuildOrderMessaging.BuildBeaverBuilder,
                 BuildOrderMessaging.BuildMinerFactory,
                 BuildOrderMessaging.BuildBeaverBuilder,
-                BuildOrderMessaging.BuildHelipad,
-                BuildOrderMessaging.BuildTechnologyInstitute,
-                BuildOrderMessaging.BuildAerospaceLab,
-                BuildOrderMessaging.BuildTrainingField,
-                BuildOrderMessaging.BuildAerospaceLab,
-                BuildOrderMessaging.BuildAerospaceLab,
-                BuildOrderMessaging.BuildAerospaceLab,
-                BuildOrderMessaging.BuildAerospaceLab,
-                BuildOrderMessaging.BuildAerospaceLab,
-                /*defensiveStructure,
-                primaryStructure,
-                tertiaryStructure,
-                thirdBeaver,
-                tertiaryStructure,
-                secondaryStructure,
-                flankingStructure,
-                BuildOrderMessaging.BuildBeaverBuilder,
-                miningType2,
-                tertiaryStructure,
-                tertiaryStructure,
-                BuildOrderMessaging.BuildSupplyDepot,
-                tertiaryStructure,
-                tertiaryStructure,
+                BuildOrderMessaging.BuildBaracks,
+                BuildOrderMessaging.BuildBaracks,
+                BuildOrderMessaging.BuildTankFactory,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                tertiaryStructure,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildTankFactory,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildBaracks,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
@@ -223,7 +206,9 @@ public class Strategy
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot*/
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot
         };
 
         return strat;

@@ -15,12 +15,12 @@ public class Messenger
 
     // these variables are for our groups
     // group 1
-    int group1Launchers = 5;
-    int group1Tanks = 0;
-    int group1Soldiers = 20;
+    int group1Launchers = 0;
+    int group1Tanks = 10;
+    int group1Soldiers = 0;
     int group1Bashers = 0;
     boolean group1Launched = false;
-    boolean group1LauncherGroup = true;
+    boolean group1LauncherGroup = false;
     boolean group1Offensive = true;
     int group1LauncherCount = 0;
     int group1TankCount = 0;
@@ -32,7 +32,7 @@ public class Messenger
 
     // group 2
     int group2Launchers = 0;
-    int group2Tanks = 0;
+    int group2Tanks = 10;
     int group2Soldiers = 0;
     int group2Bashers = 0;
     boolean group2Launched = false;
@@ -49,7 +49,7 @@ public class Messenger
 
     // group 3
     int group3Launchers = 0;
-    int group3Tanks = 0;
+    int group3Tanks = 10;
     int group3Soldiers = 0;
     int group3Bashers = 0;
     boolean group3Launched = false;
@@ -86,7 +86,7 @@ public class Messenger
 
         // initialize strategies
         basherStrat = new BuildOrderMessaging[1];
-        basherStrat[0] = BuildOrderMessaging.BuildSquadBasher;
+        basherStrat[0] = BuildOrderMessaging.BuildDefensiveBasher;
 
         computerStrat = new BuildOrderMessaging[1];
         computerStrat[0] = BuildOrderMessaging.BuildComputer;
@@ -97,15 +97,16 @@ public class Messenger
         minerStrat = new BuildOrderMessaging[1];
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
-        soldierStrat = new BuildOrderMessaging[2];
-        soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
-        soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
+        soldierStrat = new BuildOrderMessaging[1];
+        soldierStrat[0] = BuildOrderMessaging.BuildDefensiveSoldier;
+        //soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
+        //soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
         tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
 
         droneStrat = new BuildOrderMessaging[1];
-        droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+        droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
 
         MapLocation[] towers = rc.senseTowerLocations();
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
@@ -115,7 +116,7 @@ public class Messenger
         group2Goal = Utilities.enemyTowerOnRightFlank(rc, enemyTowers);
         int goGoal = Strategy.loneTowers(rc);
         int x,y;
-        if (group2Goal != null && (goGoal == 1 || goGoal == 3))
+        /*if (group2Goal != null && (goGoal == 1 || goGoal == 3))
         {
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group2Goal.x + ", y: " + group2Goal.y);
             x = (group2InitialSpot.x + group2Goal.x) / 2;
@@ -136,7 +137,7 @@ public class Messenger
             group3Tanks = 7;
             group3Bashers = 20;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
-        }
+        }*/
     }
 
     /**
@@ -152,7 +153,7 @@ public class Messenger
         }
         else
         {
-            droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+            droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
             //droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
         }
 
@@ -226,7 +227,7 @@ public class Messenger
             group3Launched = true;
         }
 
-        if (group1Launched && (group1Offensive || group1LauncherCount >= 20) && group1CurrentSpot != null)
+        if (group1Launched && group1Offensive && group1CurrentSpot != null)
         {
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
@@ -415,6 +416,7 @@ public class Messenger
             else if (group1Launched)
             {
                 group1TankCount = 0;
+                rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
 

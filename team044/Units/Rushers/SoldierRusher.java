@@ -16,10 +16,41 @@ public class SoldierRusher extends Soldier
     {
         super.collectData();
 
+        RobotInfo[] allies = rc.senseNearbyRobots(24, us);
+
         target = Utilities.getRushLocation(rc);
 
-        nav.setAvoidTowers(false);
-        nav.setAvoidHQ(false);
+        if (allies.length > 4 || rc.getLocation().distanceSquaredTo(target) > 48)
+        {
+            // just keep advancing
+            nav.setAvoidTowers(false);
+            nav.setAvoidHQ(false);
+        }
+        else if (allies.length > 0)
+        {
+            nav.setAvoidTowers(true);
+            nav.setAvoidHQ(true);
+            int closestToTower = 999999;
+            MapLocation closestAlly = target;
+
+            for (int i = allies.length; --i>=0; )
+            {
+                MapLocation ally = allies[i].location;
+                int dist = ally.distanceSquaredTo(target);
+                if (dist < closestToTower)
+                {
+                    closestToTower = dist;
+                    closestAlly = ally;
+                }
+            }
+
+            target = closestAlly;
+        }
+        else
+        {
+            nav.setAvoidTowers(true);
+            nav.setAvoidHQ(true);
+        }
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

@@ -4,6 +4,7 @@ import battlecode.common.*;
 import team044.Messaging;
 import team044.Unit;
 import team044.Units.HarrasserUnit;
+import team044.Units.Rushers.BasherRusher;
 import team044.Units.Rushers.SoldierRusher;
 import team044.Utilities;
 
@@ -12,6 +13,8 @@ public class BasherHarrass extends HarrasserUnit
     public BasherHarrass(RobotController rc)
     {
         super(rc);
+        nav.setAvoidHQ(true);
+        nav.setAvoidTowers(true);
     }
 
     public void handleMessages() throws GameActionException
@@ -23,10 +26,15 @@ public class BasherHarrass extends HarrasserUnit
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
         {
-            return new SoldierRusher(rc);
+            return new BasherRusher(rc);
         }
         return current;
+    }
+
+    public boolean fight() throws GameActionException
+    {
+        return fighter.basherFightMicro();
     }
 }

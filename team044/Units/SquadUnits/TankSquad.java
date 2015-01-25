@@ -25,6 +25,7 @@ public class TankSquad extends SquadUnit
         {
             group = rc.readBroadcast(Messaging.TankGroup.ordinal());
             rc.broadcast(Messaging.TankGroup.ordinal(), -1);
+            rc.setIndicatorString(0, "Squad Tank group:" + group);
         }
     }
 
