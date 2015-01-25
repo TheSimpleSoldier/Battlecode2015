@@ -635,7 +635,7 @@ public class Utilities
         MapLocation target = null;
 
         // supply depot
-        if (robotType == RobotType.SUPPLYDEPOT)
+        /*if (robotType == RobotType.SUPPLYDEPOT)
         {
             target = buildSupplyDepot(rc);
         }
@@ -649,7 +649,9 @@ public class Utilities
         {
             //target = buildTrainingFacility(rc);
             target = buildSupplyDepot(rc);
-        }
+        }*/
+
+        target = buildSupplyDepot(rc);
 
         return target;
     }
@@ -664,24 +666,46 @@ public class Utilities
 
         Random rand = new Random(rc.getID() * Clock.getRoundNum());
 
-        int dirToTake = rand.nextInt(3);
+        int dirToTake = rand.nextInt(8);
         Direction[] dirs = Direction.values();
         Direction dir = target.directionTo(rc.senseEnemyHQLocation());
         MapLocation next;
+        int numbOfTries = 0;
 
-        while (rc.canSenseLocation(target) && rc.isLocationOccupied(target))
+        while (true) //rc.canSenseLocation(target) && !rc.isPathable(RobotType.BEAVER, target))
         {
             for (int i = 1; i < 8; i+=2)
             {
                 next = target.add(dirs[i]);
-                if (rc.canSenseLocation(next) && !rc.isLocationOccupied(next) && rc.senseTerrainTile(next) != TerrainTile.VOID && rc.senseTerrainTile(next) != TerrainTile.OFF_MAP)
+                if (rc.canSenseLocation(next) && rc.isPathable(RobotType.BEAVER, next) && locationNotBlocked(rc, next, 3))
                 {
                     return next;
                 }
                 else if (!rc.canSenseLocation(next))
                 {
-                    return next;
+                    MapLocation last = next.add(next.directionTo(ourHQ));
+                    while (!rc.canSenseLocation(last))
+                    {
+                        last = last.add(last.directionTo(ourHQ));
+                    }
+
+                    if (rc.canSenseLocation(last) && rc.senseTerrainTile(last) != TerrainTile.OFF_MAP && numbOfTries > 6)
+                    {
+                        return next;
+                    }
+                    else
+                    {
+                        numbOfTries++;
+                        dirToTake = rand.nextInt(8);
+                        target = ourHQ;
+                    }
                 }
+            }
+
+            if (rc.canSenseLocation(target) && rc.senseTerrainTile(target) == TerrainTile.OFF_MAP)
+            {
+                target = ourHQ;
+                dirToTake = rand.nextInt(8);
             }
 
             if (dirToTake == 0)
@@ -706,7 +730,7 @@ public class Utilities
                     target = target.add(dir.rotateRight());
                 }
             }
-            else
+            else if (dirToTake == 2)
             {
                 if (dir.isDiagonal())
                 {
@@ -717,9 +741,109 @@ public class Utilities
                     target = target.add(dir, 2);
                 }
             }
+            else if (dirToTake == 3)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateRight().rotateRight());
+                }
+                else
+                {
+                    target = target.add(dir.rotateRight().rotateRight(), 2);
+                }
+            }
+            else if (dirToTake == 4)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateLeft().rotateLeft());
+                }
+                else
+                {
+                    target = target.add(dir.rotateLeft().rotateLeft(), 2);
+                }
+            }
+            else if (dirToTake == 5)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateRight().rotateRight().rotateRight(), 2);
+                }
+                else
+                {
+                    target = target.add(dir.rotateRight().rotateRight().rotateRight());
+                }
+            }
+            else if (dirToTake == 6)
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.rotateLeft().rotateLeft().rotateLeft(), 2);
+                }
+                else
+                {
+                    target = target.add(dir.rotateLeft().rotateLeft().rotateLeft());
+                }
+            }
+            else
+            {
+                if (dir.isDiagonal())
+                {
+                    target = target.add(dir.opposite());
+                }
+                else
+                {
+                    target = target.add(dir.opposite(), 2);
+                }
+            }
         }
 
-        return target;
+        //System.out.println("Target returned");
+        //return target;
+    }
+
+    public static boolean locationNotBlocked(RobotController rc, MapLocation spot, int openings) throws GameActionException
+    {
+        int bytecodes = Clock.getBytecodeNum();
+        Direction[] dirs = Direction.values();
+
+        int openSpots;
+        int openSpots2 = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            openSpots = 0;
+            MapLocation next = spot.add(dirs[i]);
+
+            if (rc.isPathable(RobotType.BEAVER, spot))
+            {
+                openSpots2++;
+            }
+
+            for (int j = 0; j < 8; j++)
+            {
+                MapLocation checking = next.add(dirs[j]);
+                if (rc.isPathable(RobotType.BEAVER, checking))
+                {
+                    openSpots++;
+                }
+            }
+
+            if (openSpots <= openings)
+            {
+                rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
+                return false;
+            }
+
+        }
+
+        if (openSpots2 < openings)
+        {
+            return false;
+        }
+
+        rc.setIndicatorString(1, "Bytecodes used: " + (Clock.getBytecodeNum() - bytecodes) + ", Round: " + Clock.getRoundNum());
+        return true;
     }
 
     /**
@@ -1388,5 +1512,37 @@ public class Utilities
         }
 
         return false;
+    }
+
+    public static boolean mobileUnit(RobotInfo unit)
+    {
+        if (unit == null)
+        {
+            return false;
+        }
+
+        switch(unit.type)
+        {
+            case LAUNCHER:
+                return true;
+            case MISSILE:
+                return true;
+            case BASHER:
+                return true;
+            case BEAVER:
+                return true;
+            case SOLDIER:
+                return true;
+            case COMPUTER:
+                return true;
+            case TANK:
+                return true;
+            case COMMANDER:
+                return true;
+            case DRONE:
+                return true;
+            default:
+                return false;
+        }
     }
 }
