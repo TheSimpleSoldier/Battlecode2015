@@ -58,7 +58,7 @@ public class Miner extends Unit
             {
                 miningAmount = 10;
             }
-            else if (senseOre <= 5)
+            else if (senseOre <= 5 && rc.senseOre(target) < 15)
             {
                 miningAmount = 1;
             }
@@ -86,7 +86,7 @@ public class Miner extends Unit
 
         if (target == null || rc.getLocation() == target || (rc.canSenseLocation(target) && (rc.isLocationOccupied(target) || !rc.isPathable(rc.getType(), target))))
         {
-            rc.setIndicatorString(2, "get greedy spot: " + Clock.getRoundNum());
+            //rc.setIndicatorString(2, "get greedy spot: " + Clock.getRoundNum());
             target = MapDiscovery.lightOreSearch(rc);
         }
 

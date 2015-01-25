@@ -44,7 +44,7 @@ public abstract class Unit
     {
         nearByEnemies = rc.senseNearbyRobots(range, opponent);
         nearByAllies = rc.senseNearbyRobots(range, us);
-        if(nearByEnemies != null)
+        if(nearByEnemies != null && nearByEnemies.length > 0)
         {
             tracker.record(nearByEnemies);
         }

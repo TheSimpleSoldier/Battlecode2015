@@ -158,6 +158,7 @@ public class Navigator
         if (!badSpot(myLoc.add(dir), towers) && rc.canMove(dir) && rc.isCoreReady())
         {
             rc.move(dir);
+            lastFacing = dir;
             lastLoc = myLoc.add(dir);
             return true;
         }
@@ -168,6 +169,7 @@ public class Navigator
             if(!badSpot(myLoc.add(dir.rotateRight()), towers) && rc.canMove(dir.rotateRight()))
             {
                 rc.move(dir.rotateRight());
+                lastFacing = dir.rotateRight();
                 lastLoc = myLoc.add(dir.rotateRight());
                 dog = myLoc;
                 return true;
@@ -175,6 +177,7 @@ public class Navigator
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight());
+                lastFacing = dir.rotateRight().rotateRight();
                 lastLoc = myLoc.add(dir.rotateRight().rotateRight());
                 dog = myLoc;
                 return true;
@@ -182,6 +185,7 @@ public class Navigator
             else if(!badSpot(myLoc.add(dir.rotateRight().rotateRight().rotateRight()), towers) && rc.canMove(dir.rotateRight().rotateRight().rotateRight()))
             {
                 rc.move(dir.rotateRight().rotateRight().rotateRight());
+                lastFacing = dir.rotateRight().rotateRight().rotateRight();
                 lastLoc = myLoc.add(dir.rotateRight().rotateRight().rotateRight());
                 dog = myLoc;
                 return true;
@@ -189,6 +193,7 @@ public class Navigator
             else if(!badSpot(myLoc.add(dir.rotateLeft()), towers) && rc.canMove(dir.rotateLeft()))
             {
                 rc.move(dir.rotateLeft());
+                lastFacing = dir.rotateLeft();
                 lastLoc = myLoc.add(dir.rotateLeft());
                 dog = myLoc;
                 return true;
@@ -196,6 +201,7 @@ public class Navigator
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft());
+                lastFacing = dir.rotateLeft().rotateLeft();
                 lastLoc = myLoc.add(dir.rotateLeft().rotateLeft());
                 dog = myLoc;
                 return true;
@@ -203,6 +209,7 @@ public class Navigator
             else if(!badSpot(myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft()), towers) && rc.canMove(dir.rotateLeft().rotateLeft().rotateLeft()))
             {
                 rc.move(dir.rotateLeft().rotateLeft().rotateLeft());
+                lastFacing = dir.rotateLeft().rotateLeft().rotateLeft();
                 lastLoc = myLoc.add(dir.rotateLeft().rotateLeft().rotateLeft());
                 dog = myLoc;
                 return true;
@@ -210,6 +217,7 @@ public class Navigator
             else if(!badSpot(myLoc.add(dir.opposite()), towers) && rc.canMove(dir.opposite()))
             {
                 rc.move(dir.opposite());
+                lastFacing = dir.opposite();
                 lastLoc = myLoc.add(dir.opposite());
                 dog = myLoc;
                 return true;
@@ -233,7 +241,7 @@ public class Navigator
     private void dogGo() throws GameActionException
     {
         int round = Clock.getRoundNum();
-        Direction lastDir = Direction.NONE;
+        Direction lastDir = lastFacing;
 
         MapLocation[] towers = rc.senseEnemyTowerLocations();
         //go till out of site
@@ -262,11 +270,11 @@ public class Navigator
             {
                 if(goingLeft)
                 {
-                    lastDir = lastFacing.rotateRight().rotateRight();
+                    lastDir = lastFacing.rotateRight();
                 }
                 else
                 {
-                    lastDir = lastFacing.rotateLeft().rotateLeft();
+                    lastDir = lastFacing.rotateLeft();
                 }
             }
             else
@@ -314,7 +322,7 @@ public class Navigator
         }
 
         //now go back one so in sight if not at target
-        if(!dog.equals(target))
+        if(!dog.equals(target) || !dogInSight(towers))
         {
             dog = dog.subtract(lastDir);
         }

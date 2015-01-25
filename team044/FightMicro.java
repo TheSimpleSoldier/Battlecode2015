@@ -37,7 +37,7 @@ public class FightMicro
             return false;
         }
 
-        if (nearByEnemies.length < 1)
+        if (nearByEnemies == null || nearByEnemies.length < 1)
         {
             return false;
         }

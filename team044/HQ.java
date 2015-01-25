@@ -71,7 +71,7 @@ public class HQ extends Structure
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() % 500 < 6 || Clock.getRoundNum() > 2000)
+        else if (Clock.getRoundNum() % 500 < 6 || (rc.getRoundLimit() - Clock.getRoundNum()) < 200)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
@@ -286,10 +286,11 @@ public class HQ extends Structure
         int average = 0;
         int count = 0;
 
-        while (currentUnit == 2 && rc.getTeamOre() > 450)
+        while (Clock.getRoundNum() > 20 && Clock.getRoundNum() < 40 && rc.getTeamOre() > 300)
         {
             rc.yield();
         }
+
 
         for(int k = Constants.startMinerSeenChannel; rc.readBroadcast(k) != 0; k++)
         {
