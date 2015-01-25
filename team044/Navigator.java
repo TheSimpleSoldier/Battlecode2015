@@ -317,6 +317,10 @@ public class Navigator
             dog = dog.add(lastDir);
             if(lowBytecodes && (Clock.getBytecodesLeft() < 1500 || Clock.getRoundNum() != round))
             {
+                if(!dog.equals(target) || !dogInSight(towers))
+                {
+                    dog = dog.subtract(lastDir);
+                }
                 return;
             }
         }
