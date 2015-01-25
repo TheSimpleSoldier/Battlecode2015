@@ -1,10 +1,7 @@
 package team044.Structures;
 
 import battlecode.common.*;
-import team044.FightMicro;
-import team044.Messaging;
-import team044.Structure;
-import team044.TeamMemory;
+import team044.*;
 
 public class Tower extends Structure
 {
@@ -17,6 +14,12 @@ public class Tower extends Structure
     {
         super(rc);
         fighter = new FightMicro(rc);
+        try {
+            MapDiscovery.oreOnHorizon(rc, 1);
+        } catch (GameActionException x) {
+
+        }
+
     }
 
     public void handleMessages() throws GameActionException
@@ -128,4 +131,14 @@ public class Tower extends Structure
         return fighter.structureFightMicro(nearByEnemies);
     }
 
+    public void distributeSupply(RobotController rc)
+    {
+        try {
+            MapDiscovery.towerOreSearch(rc);
+            Utilities.shareSupplies(rc);
+        }catch (GameActionException x)
+        {
+
+        }
+    }
 }
