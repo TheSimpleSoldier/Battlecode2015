@@ -682,7 +682,7 @@ public class Utilities
                 }
                 else if (!rc.canSenseLocation(next))
                 {
-                    MapLocation last = next.add(next.directionTo(ourHQ));
+                    /*MapLocation last = next.add(next.directionTo(ourHQ));
                     while (!rc.canSenseLocation(last))
                     {
                         last = last.add(last.directionTo(ourHQ));
@@ -692,10 +692,10 @@ public class Utilities
                         return next;
                     }
                     else
-                    {
+                    {*/
                         dirToTake = rand.nextInt(8);
                         target = ourHQ;
-                    }
+                    //}
                 }
             }
 
@@ -800,7 +800,6 @@ public class Utilities
 
     public static boolean locationNotBlocked(RobotController rc, MapLocation spot) throws GameActionException
     {
-
         int bytecodes = Clock.getBytecodeNum();
         Direction[] dirs = Direction.values();
 
