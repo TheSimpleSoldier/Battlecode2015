@@ -15,12 +15,12 @@ public class Messenger
 
     // these variables are for our groups
     // group 1
-    int group1Launchers = 0;
-    int group1Tanks = 10;
+    int group1Launchers = 10;
+    int group1Tanks = 0;
     int group1Soldiers = 0;
     int group1Bashers = 0;
     boolean group1Launched = false;
-    boolean group1LauncherGroup = false;
+    boolean group1LauncherGroup = true;
     boolean group1Offensive = true;
     int group1LauncherCount = 0;
     int group1TankCount = 0;
@@ -98,7 +98,7 @@ public class Messenger
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
         soldierStrat = new BuildOrderMessaging[1];
-        soldierStrat[0] = BuildOrderMessaging.BuildSquadSoldier;
+        soldierStrat[0] = BuildOrderMessaging.BuildHarrassSoldier;
         //soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
         //soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
@@ -147,13 +147,13 @@ public class Messenger
     public void giveUnitOrders() throws GameActionException
     {
         // we want to give a little time before we start managing supply distribution
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 3)
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 5)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
         }
         else
         {
-            droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
+            droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
             //droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
         }
 
