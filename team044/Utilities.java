@@ -1045,7 +1045,7 @@ public class Utilities
         // need to build a technology institue
         else if (type == RobotType.TRAININGFIELD && Clock.getRoundNum() > 500)
         {
-            buildStruct = RobotType.TECHNOLOGYINSTITUTE
+            buildStruct = RobotType.TECHNOLOGYINSTITUTE;
         }
         else
         {
