@@ -70,7 +70,7 @@ public class Barracks extends Structure
                 return true;
             }
         }
-        
+
         return false;
     }
 }
