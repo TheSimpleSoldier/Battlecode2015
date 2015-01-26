@@ -17,7 +17,7 @@ public class Messenger
     // group 1
     int group1Launchers = 10;
     int group1Tanks = 0;
-    int group1Soldiers = 0;
+    int group1Soldiers = 50;
     int group1Bashers = 0;
     boolean group1Launched = false;
     boolean group1LauncherGroup = true;
@@ -98,7 +98,7 @@ public class Messenger
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
         soldierStrat = new BuildOrderMessaging[1];
-        soldierStrat[0] = BuildOrderMessaging.BuildHarrassSoldier;
+        soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
         //soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
         //soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
