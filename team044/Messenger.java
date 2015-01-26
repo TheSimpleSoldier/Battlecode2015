@@ -15,12 +15,12 @@ public class Messenger
 
     // these variables are for our groups
     // group 1
-    int group1Launchers = 1;
+    int group1Launchers = 0;
     int group1Tanks = 0;
-    int group1Soldiers = 50;
+    int group1Soldiers = 0;
     int group1Bashers = 0;
     boolean group1Launched = false;
-    boolean group1LauncherGroup = true;
+    boolean group1LauncherGroup = false;
     boolean group1Offensive = true;
     int group1LauncherCount = 0;
     int group1TankCount = 0;
@@ -32,7 +32,7 @@ public class Messenger
 
     // group 2
     int group2Launchers = 0;
-    int group2Tanks = 10;
+    int group2Tanks = 0;
     int group2Soldiers = 0;
     int group2Bashers = 0;
     boolean group2Launched = false;
@@ -49,7 +49,7 @@ public class Messenger
 
     // group 3
     int group3Launchers = 0;
-    int group3Tanks = 10;
+    int group3Tanks = 0;
     int group3Soldiers = 0;
     int group3Bashers = 0;
     boolean group3Launched = false;
@@ -116,28 +116,33 @@ public class Messenger
         group2Goal = Utilities.enemyTowerOnRightFlank(rc, enemyTowers);
         int goGoal = Strategy.loneTowers(rc);
         int x,y;
-        /*if (group2Goal != null && (goGoal == 1 || goGoal == 3))
+        group3InitialSpot = Utilities.getLeftFlank(rc, towers);
+        group3Goal = Utilities.enemyTowerOnLeftFlank(rc, enemyTowers);
+        if (group2Goal != null && (goGoal == 1 || goGoal == 3))
         {
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group2Goal.x + ", y: " + group2Goal.y);
             x = (group2InitialSpot.x + group2Goal.x) / 2;
             y = (group2InitialSpot.y + group2Goal.y) / 2;
             group2InitialSpot = new MapLocation(x,y);
-            group2Tanks = 7;
+            group2Tanks = 15;
             group2Bashers = 20;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
-        group3InitialSpot = Utilities.getLeftFlank(rc, towers);
-        group3Goal = Utilities.enemyTowerOnLeftFlank(rc, enemyTowers);
-        if (group3Goal != null && goGoal > 1)
+        else if (group3Goal != null && goGoal > 1)
         {
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group3Goal.x + ", y: " + group3Goal.y);
             x = (group3InitialSpot.x + group3Goal.x) / 2;
             y = (group3InitialSpot.y + group3Goal.y) / 2;
             group3InitialSpot = new MapLocation(x,y);
-            group3Tanks = 7;
+            group3Tanks = 15;
             group3Bashers = 20;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
-        }*/
+        }
+        else
+        {
+            group1Tanks = 15;
+            group1Bashers = 20;
+        }
     }
 
     /**
@@ -232,7 +237,7 @@ public class Messenger
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
                 group1Goal = Utilities.closestTowerToLoc(enemyTowers, group1CurrentSpot);
-                if (group1Goal == null)
+                if (group1Goal == null || enemyTowers.length <= 2)
                 {
                     group1Goal = rc.senseEnemyHQLocation();
                 }
@@ -285,7 +290,7 @@ public class Messenger
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
                 group2Goal = Utilities.closestTowerToLoc(enemyTowers, group2CurrentSpot);
-                if (group2Goal == null)
+                if (group2Goal == null || enemyTowers.length <= 2)
                 {
                     group2Goal = rc.senseEnemyHQLocation();
                 }
@@ -328,7 +333,7 @@ public class Messenger
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
                 group3Goal = Utilities.closestTowerToLoc(enemyTowers, group3CurrentSpot);
-                if (group3Goal == null)
+                if (group3Goal == null || enemyTowers.length <= 2)
                 {
                     group3Goal = rc.senseEnemyHQLocation();
                 }
@@ -421,6 +426,8 @@ public class Messenger
             else if (group1Launched)
             {
                 group1TankCount = 0;
+                group2TankCount = 0;
+                group3TankCount = 0;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
