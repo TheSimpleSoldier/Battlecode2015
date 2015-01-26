@@ -15,7 +15,7 @@ public class Messenger
 
     // these variables are for our groups
     // group 1
-    int group1Launchers = 10;
+    int group1Launchers = 1;
     int group1Tanks = 0;
     int group1Soldiers = 50;
     int group1Bashers = 0;
