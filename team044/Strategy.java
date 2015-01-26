@@ -51,14 +51,17 @@ public class Strategy
 //            }
 //        }
 
-        int hqDistance = enemyHQ.distanceSquaredTo(rc.getLocation());
+        long hqDistance = enemyHQ.distanceSquaredTo(rc.getLocation());
         long[] memory = rc.getTeamMemory();     // 32 longs of data from the previous game
         long attackTiming = memory[TeamMemory.AttackTiming.ordinal()] & 4095;
         long mostInitialAttackers = (memory[TeamMemory.AttackTiming.ordinal()] >>> 12) & 15;
         //long secondMost = memory[TeamMemory.AttackTiming.ordinal()] >>> 16;
         long mostEndGameUnit = memory[TeamMemory.EnemyUnitBuild.ordinal()];
-        long endGameHP = memory[TeamMemory.HQHP.ordinal()];
         long enemiesSeen = memory[TeamMemory.EnemyHarrass.ordinal()];
+        long endGameHP = memory[TeamMemory.HQHP.ordinal()];
+
+        boolean lost = lost(memory);
+
         BuildOrderMessaging primaryStructure;
         BuildOrderMessaging secondaryStructure;
         BuildOrderMessaging tertiaryStructure;
@@ -72,12 +75,12 @@ public class Strategy
         MapLocation mapEdge = enemyHQ.add(toEnemy);
         int count = 0;
 
-        while (rc.isPathable(RobotType.MINER, mapEdge)) {
+        while (rc.isPathable(RobotType.DRONE, mapEdge)) {
             count++;
             mapEdge = mapEdge.add(toEnemy);
         }
 
-        hqDistance = (int) Math.sqrt((double) hqDistance);
+        hqDistance = Math.round((Math.sqrt((double) hqDistance)));
         hqDistance += count + count;
 
         hqDistance *= hqDistance;
@@ -321,5 +324,32 @@ public class Strategy
             }
         }
         return group2+group3;
+    }
+
+    public static boolean lost(long[] memory) {
+        // Difference between our towers' total HP and enemy towers' total HP.
+        long towerHPDifference = memory[TeamMemory.TowerHP.ordinal()];  // Positive = our towers had more HP, 0 = equal, negative = enemy towers had more HP
+        // Difference between our tower count and enemy tower count.
+        long towerDifference = memory[TeamMemory.TowersUp.ordinal()];   // Positive = we destroyed more towers, 0 = equal, negative = enemy destroyed more towers
+        // Difference between our HQ's HP and enemyHQ HP.
+        long endGameHP = memory[TeamMemory.HQHP.ordinal()];
+        long timeLeft = memory[TeamMemory.TimeLeft.ordinal()];
+        boolean lost = false;
+        if (endGameHP < 0) {
+            if (timeLeft > 1)               // Time was left on the clock, loss by destruction
+                lost = true;
+            else if (towerDifference <= 0)  // Enemy has more towers, or enemy has equal towers and more HQ HP.
+                lost = true;
+        }
+        else if (timeLeft <= 1 && towerDifference <= 0) // Time had expired and we have equal or fewer towers than the enemy
+        {
+            if (towerDifference == 0) {     // Tower counts are equal
+                if (towerHPDifference < 0)
+                    lost = true;
+            }
+            else
+                lost = true;
+        }
+        return lost;
     }
 }
