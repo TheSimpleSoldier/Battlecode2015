@@ -15,6 +15,8 @@ public class TankSquad extends SquadUnit
         group = rc.readBroadcast(Messaging.TankGroup.ordinal());
         rc.broadcast(Messaging.TankGroup.ordinal(), -1);
         rc.setIndicatorString(0, "Squad Tank group:" + group);
+        nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
 
     public void collectData() throws GameActionException
@@ -27,6 +29,7 @@ public class TankSquad extends SquadUnit
             rc.broadcast(Messaging.TankGroup.ordinal(), -1);
             rc.setIndicatorString(0, "Squad Tank group:" + group);
         }
+        rc.setIndicatorString(1, "Target: " + target);
     }
 
     public Unit getNewStrategy(Unit current) throws GameActionException

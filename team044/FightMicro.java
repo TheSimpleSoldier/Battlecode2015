@@ -173,7 +173,18 @@ public class FightMicro
                     if (nearByEnemies.length > 0)
                     {
                         // we will stand our ground!
-                        return true;
+                        if (nearByEnemies.length == 1 && (nearByEnemies[0].type == RobotType.TOWER || nearByEnemies[0].type == RobotType.HQ))
+                        {
+                            dir = us.directionTo(nearByEnemies[0].location);
+                        }
+                        else if (rc.getLocation().distanceSquaredTo(rc.senseEnemyHQLocation()) <= 100)
+                        {
+                            dir = us.directionTo(rc.senseEnemyHQLocation());
+                        }
+                        else
+                        {
+                            return true;
+                        }
                     }
                     else if (dist <= 24)
                     {

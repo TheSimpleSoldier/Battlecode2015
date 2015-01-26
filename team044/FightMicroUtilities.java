@@ -38,6 +38,7 @@ public class FightMicroUtilities
     {
         RobotInfo weakestTower = null;
         RobotInfo weakestLauncher = null;
+        RobotInfo enemyHQ = null;
         RobotInfo weakest = nearByEnemies[0];
 
         for (int i = 0; i < nearByEnemies.length; i++)
@@ -61,6 +62,10 @@ public class FightMicroUtilities
                     weakestLauncher = nearByEnemies[i];
                 }
             }
+            else if (nearByEnemies[i].type == RobotType.HQ)
+            {
+                enemyHQ = nearByEnemies[i];
+            }
             else if (weakest.health > nearByEnemies[i].health)
             {
                 weakest = nearByEnemies[i];
@@ -74,6 +79,10 @@ public class FightMicroUtilities
         else if (weakestLauncher != null)
         {
             return weakestLauncher;
+        }
+        else if (enemyHQ != null)
+        {
+            return enemyHQ;
         }
         return weakest;
     }

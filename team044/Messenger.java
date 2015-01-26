@@ -124,8 +124,8 @@ public class Messenger
             x = (group2InitialSpot.x + group2Goal.x) / 2;
             y = (group2InitialSpot.y + group2Goal.y) / 2;
             group2InitialSpot = new MapLocation(x,y);
-            group2Tanks = 15;
-            group2Bashers = 20;
+            group2Tanks = 30;
+            group2Bashers = 0;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
         else if (group3Goal != null && goGoal > 1)
@@ -134,14 +134,14 @@ public class Messenger
             x = (group3InitialSpot.x + group3Goal.x) / 2;
             y = (group3InitialSpot.y + group3Goal.y) / 2;
             group3InitialSpot = new MapLocation(x,y);
-            group3Tanks = 15;
-            group3Bashers = 20;
+            group3Tanks = 30;
+            group3Bashers = 0;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
         else
         {
-            group1Tanks = 15;
-            group1Bashers = 20;
+            group1Tanks = 30;
+            group1Bashers = 0;
         }
     }
 
@@ -237,7 +237,7 @@ public class Messenger
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
                 group1Goal = Utilities.closestTowerToLoc(enemyTowers, group1CurrentSpot);
-                if (group1Goal == null || enemyTowers.length <= 2)
+                if (group1Goal == null || enemyTowers.length <= 3)
                 {
                     group1Goal = rc.senseEnemyHQLocation();
                 }
@@ -290,12 +290,13 @@ public class Messenger
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
                 group2Goal = Utilities.closestTowerToLoc(enemyTowers, group2CurrentSpot);
-                if (group2Goal == null || enemyTowers.length <= 2)
+                if (group2Goal == null || enemyTowers.length <= 4)
                 {
                     group2Goal = rc.senseEnemyHQLocation();
                 }
             }
             group2CurrentSpot = setTarget(group2LauncherGroup, group2CurrentSpot, group2Goal);
+            rc.setIndicatorString(2, "Current spot group2: " + group2CurrentSpot);
             rc.broadcast(Messaging.SeconGroupX.ordinal(), group2CurrentSpot.x);
             rc.broadcast(Messaging.SecondGroupY.ordinal(), group2CurrentSpot.y);
         }
@@ -313,12 +314,12 @@ public class Messenger
                 group2Launched = true;
                 group2RoundFinished = Clock.getRoundNum();
             }
-            else if (!group2LauncherGroup && group2TankCount == 0 && group2BasherCount >= group2Bashers)
+            /*else if (!group2LauncherGroup && group2TankCount == 0 && group2BasherCount >= group2Bashers)
             {
                 group2CurrentSpot = group2InitialSpot;
                 group2Launched = true;
                 group2RoundFinished = Clock.getRoundNum();
-            }
+            }*/
             rc.broadcast(Messaging.SeconGroupX.ordinal(), group2InitialSpot.x);
             rc.broadcast(Messaging.SecondGroupY.ordinal(), group2InitialSpot.y);
 
@@ -333,7 +334,7 @@ public class Messenger
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
                 group3Goal = Utilities.closestTowerToLoc(enemyTowers, group3CurrentSpot);
-                if (group3Goal == null || enemyTowers.length <= 2)
+                if (group3Goal == null || enemyTowers.length <= 3)
                 {
                     group3Goal = rc.senseEnemyHQLocation();
                 }
@@ -425,9 +426,10 @@ public class Messenger
             }
             else if (group1Launched)
             {
+                group1Tanks = 20;
                 group1TankCount = 0;
-                group2TankCount = 0;
-                group3TankCount = 0;
+                //group2TankCount = 0;
+                //group3TankCount = 0;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
@@ -568,29 +570,19 @@ public class Messenger
                 {
                     current = current.add(current.directionTo(goal));
 
-                } while (!rc.isPathable(RobotType.LAUNCHER, current) && rc.canSenseLocation(current));
+                } while (!rc.isPathable(RobotType.LAUNCHER, current) && rc.canSenseLocation(current) && !current.equals(goal));
             }
         }
         else
         {
-            int numbOfTanks = 0;
-
-            for (int i = allies.length; --i>=0; )
-            {
-                if (allies[i].type == RobotType.TANK || allies[i].type == RobotType.BASHER)
-                {
-                    numbOfTanks++;
-                }
-            }
-
             // if we have a group of launchers near current rally point
-            if (numbOfTanks >= 3 || (rc.canSenseLocation(current) && !rc.isPathable(RobotType.TANK, current)))
+            if (allies.length >= 3 || (rc.canSenseLocation(current) && !rc.isPathable(RobotType.TANK, current)))
             {
                 do
                 {
                     current = current.add(current.directionTo(goal));
 
-                } while (!rc.isPathable(RobotType.TANK, current) && rc.canSenseLocation(current));
+                } while (!rc.isPathable(RobotType.TANK, current) && rc.canSenseLocation(current) && !current.equals(goal));
             }
         }
 
