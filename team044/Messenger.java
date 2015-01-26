@@ -16,7 +16,7 @@ public class Messenger
     // these variables are for our groups
     // group 1
     int group1Launchers = 0;
-    int group1Tanks = 10;
+    int group1Tanks = 0;
     int group1Soldiers = 0;
     int group1Bashers = 0;
     boolean group1Launched = false;
@@ -32,7 +32,7 @@ public class Messenger
 
     // group 2
     int group2Launchers = 0;
-    int group2Tanks = 10;
+    int group2Tanks = 0;
     int group2Soldiers = 0;
     int group2Bashers = 0;
     boolean group2Launched = false;
@@ -49,7 +49,7 @@ public class Messenger
 
     // group 3
     int group3Launchers = 0;
-    int group3Tanks = 10;
+    int group3Tanks = 0;
     int group3Soldiers = 0;
     int group3Bashers = 0;
     boolean group3Launched = false;
@@ -86,7 +86,7 @@ public class Messenger
 
         // initialize strategies
         basherStrat = new BuildOrderMessaging[1];
-        basherStrat[0] = BuildOrderMessaging.BuildDefensiveBasher;
+        basherStrat[0] = BuildOrderMessaging.BuildSquadBasher;
 
         computerStrat = new BuildOrderMessaging[1];
         computerStrat[0] = BuildOrderMessaging.BuildComputer;
@@ -98,12 +98,12 @@ public class Messenger
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
         soldierStrat = new BuildOrderMessaging[1];
-        soldierStrat[0] = BuildOrderMessaging.BuildDefensiveSoldier;
+        soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
         //soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
         //soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
-        tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
+        tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
 
         droneStrat = new BuildOrderMessaging[1];
         droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
@@ -116,28 +116,33 @@ public class Messenger
         group2Goal = Utilities.enemyTowerOnRightFlank(rc, enemyTowers);
         int goGoal = Strategy.loneTowers(rc);
         int x,y;
-        /*if (group2Goal != null && (goGoal == 1 || goGoal == 3))
+        group3InitialSpot = Utilities.getLeftFlank(rc, towers);
+        group3Goal = Utilities.enemyTowerOnLeftFlank(rc, enemyTowers);
+        if (group2Goal != null && (goGoal == 1 || goGoal == 3))
         {
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group2Goal.x + ", y: " + group2Goal.y);
             x = (group2InitialSpot.x + group2Goal.x) / 2;
             y = (group2InitialSpot.y + group2Goal.y) / 2;
             group2InitialSpot = new MapLocation(x,y);
-            group2Tanks = 7;
-            group2Bashers = 20;
+            group2Tanks = 30;
+            group2Bashers = 0;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
-        group3InitialSpot = Utilities.getLeftFlank(rc, towers);
-        group3Goal = Utilities.enemyTowerOnLeftFlank(rc, enemyTowers);
-        if (group3Goal != null && goGoal > 1)
+        else if (group3Goal != null && goGoal > 1)
         {
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group3Goal.x + ", y: " + group3Goal.y);
             x = (group3InitialSpot.x + group3Goal.x) / 2;
             y = (group3InitialSpot.y + group3Goal.y) / 2;
             group3InitialSpot = new MapLocation(x,y);
-            group3Tanks = 7;
-            group3Bashers = 20;
+            group3Tanks = 30;
+            group3Bashers = 0;
             tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
-        }*/
+        }
+        else
+        {
+            group1Tanks = 30;
+            group1Bashers = 0;
+        }
     }
 
     /**
@@ -147,13 +152,13 @@ public class Messenger
     public void giveUnitOrders() throws GameActionException
     {
         // we want to give a little time before we start managing supply distribution
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) == 3)
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 65)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
         }
         else
         {
-            droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
+            droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
             //droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
         }
 
@@ -232,7 +237,7 @@ public class Messenger
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
                 group1Goal = Utilities.closestTowerToLoc(enemyTowers, group1CurrentSpot);
-                if (group1Goal == null)
+                if (group1Goal == null || enemyTowers.length <= 3)
                 {
                     group1Goal = rc.senseEnemyHQLocation();
                 }
@@ -285,12 +290,13 @@ public class Messenger
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
                 group2Goal = Utilities.closestTowerToLoc(enemyTowers, group2CurrentSpot);
-                if (group2Goal == null)
+                if (group2Goal == null || enemyTowers.length <= 4)
                 {
                     group2Goal = rc.senseEnemyHQLocation();
                 }
             }
             group2CurrentSpot = setTarget(group2LauncherGroup, group2CurrentSpot, group2Goal);
+            rc.setIndicatorString(2, "Current spot group2: " + group2CurrentSpot);
             rc.broadcast(Messaging.SeconGroupX.ordinal(), group2CurrentSpot.x);
             rc.broadcast(Messaging.SecondGroupY.ordinal(), group2CurrentSpot.y);
         }
@@ -308,12 +314,12 @@ public class Messenger
                 group2Launched = true;
                 group2RoundFinished = Clock.getRoundNum();
             }
-            else if (!group2LauncherGroup && group2TankCount == 0 && group2BasherCount >= group2Bashers)
+            /*else if (!group2LauncherGroup && group2TankCount == 0 && group2BasherCount >= group2Bashers)
             {
                 group2CurrentSpot = group2InitialSpot;
                 group2Launched = true;
                 group2RoundFinished = Clock.getRoundNum();
-            }
+            }*/
             rc.broadcast(Messaging.SeconGroupX.ordinal(), group2InitialSpot.x);
             rc.broadcast(Messaging.SecondGroupY.ordinal(), group2InitialSpot.y);
 
@@ -328,7 +334,7 @@ public class Messenger
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
                 group3Goal = Utilities.closestTowerToLoc(enemyTowers, group3CurrentSpot);
-                if (group3Goal == null)
+                if (group3Goal == null || enemyTowers.length <= 3)
                 {
                     group3Goal = rc.senseEnemyHQLocation();
                 }
@@ -420,7 +426,10 @@ public class Messenger
             }
             else if (group1Launched)
             {
+                group1Tanks = 20;
                 group1TankCount = 0;
+                //group2TankCount = 0;
+                //group3TankCount = 0;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
@@ -561,29 +570,19 @@ public class Messenger
                 {
                     current = current.add(current.directionTo(goal));
 
-                } while (!rc.isPathable(RobotType.LAUNCHER, current) && rc.canSenseLocation(current));
+                } while (!rc.isPathable(RobotType.LAUNCHER, current) && rc.canSenseLocation(current) && !current.equals(goal));
             }
         }
         else
         {
-            int numbOfTanks = 0;
-
-            for (int i = allies.length; --i>=0; )
-            {
-                if (allies[i].type == RobotType.TANK || allies[i].type == RobotType.BASHER)
-                {
-                    numbOfTanks++;
-                }
-            }
-
             // if we have a group of launchers near current rally point
-            if (numbOfTanks >= 3 || (rc.canSenseLocation(current) && !rc.isPathable(RobotType.TANK, current)))
+            if (allies.length >= 3 || (rc.canSenseLocation(current) && !rc.isPathable(RobotType.TANK, current)))
             {
                 do
                 {
                     current = current.add(current.directionTo(goal));
 
-                } while (!rc.isPathable(RobotType.TANK, current) && rc.canSenseLocation(current));
+                } while (!rc.isPathable(RobotType.TANK, current) && rc.canSenseLocation(current) && !current.equals(goal));
             }
         }
 

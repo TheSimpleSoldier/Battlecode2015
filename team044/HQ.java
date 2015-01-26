@@ -40,8 +40,11 @@ public class HQ extends Structure
     public void handleMessages() throws GameActionException
     {
         //rc.setIndicatorString(0, "Messaging");
+        int roundNumb = Clock.getRoundNum();
         messenger.giveUnitOrders();
+        rc.setIndicatorString(0, "Rounds elapsed:" + (Clock.getRoundNum() - roundNumb));
         messenger.manageGroups();
+
         //rc.setIndicatorString(0, "after give unit orders");
 
         // reset tower under attack channel every round
@@ -138,14 +141,14 @@ public class HQ extends Structure
         }
 
         // now broadcast the value for anyone else to use
-        rc.broadcast(Messaging.NumbOfBashers.ordinal(), numbOfBashers);
+        /*rc.broadcast(Messaging.NumbOfBashers.ordinal(), numbOfBashers);
         rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numbOfBeavers);
         rc.broadcast(Messaging.NumbOfComps.ordinal(), numbOfComps);
         rc.broadcast(Messaging.NumbOfDrones.ordinal(), numbOfDrones);
         rc.broadcast(Messaging.NumbOfLaunchers.ordinal(), numbOfLaunchers);
         rc.broadcast(Messaging.NumbOfMiners.ordinal(), numbOfMiners);
         rc.broadcast(Messaging.NumbOfSoldiers.ordinal(), numbOfSoldiers);
-        rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);
+        rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);*/
 
         //rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + ", Tanks: " + numbOfTanks);
         //numbOfBuildings = Utilities.test(rc);
@@ -333,7 +336,7 @@ public class HQ extends Structure
             {
                 rc.setIndicatorString(1, "Adding AeroSpaceLab");
                 currentUnit--;
-                strat[currentUnit+1] = BuildOrderMessaging.BuildAerospaceLab;
+                strat[currentUnit] = BuildOrderMessaging.BuildAerospaceLab;
             }
         }
         int[] enemyType = new int[3];
