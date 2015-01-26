@@ -9,12 +9,10 @@ public class MinerFactory extends Structure
 {
     private int numbOfMiners;
     private int actualMiners = 0;
-    private int maxWorkers = 20;
 
     public MinerFactory(RobotController rc)
     {
         super(rc);
-        maxWorkers = 20;
     }
 
 
@@ -28,10 +26,6 @@ public class MinerFactory extends Structure
     public boolean carryOutAbility() throws GameActionException
     {
         if (Utilities.cutProd(rc))
-        {
-            return false;
-        }
-        else if (numbOfMiners > maxWorkers)
         {
             return false;
         }
@@ -55,17 +49,18 @@ public class MinerFactory extends Structure
                 }
                 break;
             case 5:
-                if (mapSize > 1600 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
-                    return true;
-                }
-                break;
             case 6:
-                if (mapSize > 2500 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
+                if (mapSize > 1600 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
                     return true;
                 }
                 break;
             case 7:
             case 8:
+                if (mapSize > 2500 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
+                    return true;
+                }
+                break;
+            case 9:
                 if (mapSize > 3600 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
                     return true;
                 }

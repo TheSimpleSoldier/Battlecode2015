@@ -141,14 +141,14 @@ public class HQ extends Structure
         }
 
         // now broadcast the value for anyone else to use
-        /*rc.broadcast(Messaging.NumbOfBashers.ordinal(), numbOfBashers);
+        rc.broadcast(Messaging.NumbOfBashers.ordinal(), numbOfBashers);
         rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numbOfBeavers);
         rc.broadcast(Messaging.NumbOfComps.ordinal(), numbOfComps);
         rc.broadcast(Messaging.NumbOfDrones.ordinal(), numbOfDrones);
         rc.broadcast(Messaging.NumbOfLaunchers.ordinal(), numbOfLaunchers);
         rc.broadcast(Messaging.NumbOfMiners.ordinal(), numbOfMiners);
         rc.broadcast(Messaging.NumbOfSoldiers.ordinal(), numbOfSoldiers);
-        rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);*/
+        rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);
 
         //rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + ", Tanks: " + numbOfTanks);
         //numbOfBuildings = Utilities.test(rc);
