@@ -6,6 +6,8 @@ public class HQ extends Structure
 {
     RobotInfo[] enemies;
     RobotInfo[] allies;
+    MapLocation[] badTowers;
+    int[] badTowerHP;
     RobotInfo[] nearByAllies;
     int numberOfMinerFactories = -1;
     Direction[] dirs;
@@ -26,6 +28,7 @@ public class HQ extends Structure
     int numbOfTanks     = 0;
 
     int lastGameEnemy = 0;
+    int towersUp;
 
     public HQ(RobotController rc) throws GameActionException
     {
@@ -34,6 +37,12 @@ public class HQ extends Structure
         messenger = new Messenger(rc);
         lastGameEnemy = (int) rc.getTeamMemory()[TeamMemory.EnemyUnitBuild.ordinal()];
         strat = Strategy.initialStrategy(rc, messenger);
+        towersUp = rc.senseTowerLocations().length;
+        badTowers = rc.senseEnemyTowerLocations();
+        badTowerHP = new int[badTowers.length];
+        for (int i = 0; i < badTowers.length; i++) {
+            badTowerHP[i] = 1000;
+        }
         //rc.setIndicatorString(2, "HQ: " + rc.getType().attackRadiusSquared + ", sight Range : " + rc.getType().sensorRadiusSquared);
     }
 
@@ -280,6 +289,44 @@ public class HQ extends Structure
         {
             rc.broadcast(Messaging.HQUnderAttack.ordinal(), 0);
         }
+        int hp = 0;
+        int up = badTowers.length;
+        for (int i = 0; i < badTowers.length; i++) {
+            if (badTowers[i] != null) {
+                boolean canSenseTower = rc.canSenseLocation(badTowers[i]);
+                if (canSenseTower) {
+                    RobotInfo tower = rc.senseRobotAtLocation(badTowers[i]);
+                    if (tower == null) {
+                        badTowers[i] = null;
+                        badTowerHP[i] = 0;
+                        up--;
+                    } else if (tower.type != RobotType.TOWER) {
+                        badTowers[i] = null;
+                        badTowerHP[i] = 0;
+                        up--;
+                    } else if (badTowerHP[i] > tower.health) {
+                        badTowerHP[i] -= (badTowerHP[i] - (int) tower.health);
+                    }
+                }
+            }
+            else
+            {
+                up--;
+            }
+            hp += badTowerHP[i];
+        }
+
+        int towerCount = rc.readBroadcast(Messaging.TowersUp.ordinal());
+        towerCount -= up;
+        rc.setTeamMemory(TeamMemory.TowersUp.ordinal(),towerCount);
+
+        hp = rc.readBroadcast(Messaging.TowerHP.ordinal()) - hp;
+        rc.setTeamMemory(TeamMemory.TowerHP.ordinal(), hp);
+        rc.setTeamMemory(TeamMemory.TimeLeft.ordinal(), rc.getRoundLimit() - Clock.getRoundNum());
+        if (rc.canSenseLocation(enemyHQ))
+            rc.setTeamMemory(TeamMemory.HQHP.ordinal(), (long) (rc.getHealth() - rc.senseRobotAtLocation(enemyHQ).health));
+        rc.broadcast(Messaging.TowersUp.ordinal(), 0);
+        rc.broadcast(Messaging.TowerHP.ordinal(), 0);
     }
 
     public void collectData() throws GameActionException
