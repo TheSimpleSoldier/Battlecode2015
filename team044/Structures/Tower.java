@@ -10,10 +10,13 @@ public class Tower extends Structure
     RobotInfo[] nearByEnemies;
     RobotInfo[] allies;
     RobotInfo[] nearByAllies;
+    double health;
+
     public Tower(RobotController rc)
     {
         super(rc);
         fighter = new FightMicro(rc);
+        health = RobotType.TOWER.maxHealth;
         try {
             MapDiscovery.oreOnHorizon(rc, 1);
         } catch (GameActionException x) {
@@ -115,7 +118,19 @@ public class Tower extends Structure
                     rc.setTeamMemory(TeamMemory.AttackTiming.ordinal(), timing);
                 }
             }
+            else if (rc.getHealth() < health)
+            {
+                health = rc.getHealth();
+            }
         }
+
+        int channel = Messaging.TowerHP.ordinal();
+        int towerHP = rc.readBroadcast(channel);
+        rc.broadcast(channel, towerHP + (int) health);
+
+        channel = Messaging.TowersUp.ordinal();
+        int towers = rc.readBroadcast(channel);
+        rc.broadcast(channel,++towers);
     }
 
     public void collectData() throws GameActionException
@@ -133,12 +148,14 @@ public class Tower extends Structure
 
     public void distributeSupply(RobotController rc)
     {
-        try {
-            MapDiscovery.towerOreSearch(rc);
-            Utilities.shareSupplies(rc);
-        }catch (GameActionException x)
-        {
+        if (Clock.getBytecodesLeft() > 1000) {
+            try {
+                MapDiscovery.towerOreSearch(rc);
+                if (Clock.getBytecodesLeft() > 600)
+                    Utilities.shareSupplies(rc);
+            } catch (GameActionException x) {
 
+            }
         }
     }
 }

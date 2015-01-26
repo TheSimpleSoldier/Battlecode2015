@@ -117,5 +117,9 @@ public enum Messaging {
     BestOre2,
     FoundOre,
     FoundOre2,
+    TowerHP,
+    TowersUp,
+    EnemyTowerHP,
+    EnemyHQHP,
     // etc
 }
