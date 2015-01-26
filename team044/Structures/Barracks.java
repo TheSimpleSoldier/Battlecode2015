@@ -32,7 +32,7 @@ public class Barracks extends Structure
         // collect our data
         super.collectData();
         numbOfSoldiers = rc.readBroadcast(Messaging.NumbOfSoldiers.ordinal());
-        if (random.nextInt(4) < 1)
+        if (random.nextInt(4) < 0)
         {
             basher = false;
         }
