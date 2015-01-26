@@ -98,7 +98,7 @@ public class Messenger
         minerStrat[0] = BuildOrderMessaging.BuildMiner;
 
         soldierStrat = new BuildOrderMessaging[1];
-        soldierStrat[0] = BuildOrderMessaging.BuildDefensiveSoldier;
+        soldierStrat[0] = BuildOrderMessaging.BuildSquadSoldier;
         //soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
         //soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
