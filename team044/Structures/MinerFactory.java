@@ -45,27 +45,23 @@ public class MinerFactory extends Structure
             case 3:
             case 4:
                 if (Utilities.spawnUnit(RobotType.MINER,rc)) {
-                    rc.broadcast(Messaging.NumbOfMiners.ordinal(), ++actualMiners);
                     return true;
                 }
                 break;
             case 5:
             case 6:
                 if (mapSize > 1600 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
-                    rc.broadcast(Messaging.NumbOfMiners.ordinal(),++actualMiners);
                     return true;
                 }
                 break;
             case 7:
             case 8:
                 if (mapSize > 2500 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
-                    rc.broadcast(Messaging.NumbOfMiners.ordinal(),++actualMiners);
                     return true;
                 }
                 break;
             case 9:
                 if (mapSize > 3600 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
-                    rc.broadcast(Messaging.NumbOfMiners.ordinal(),++actualMiners);
                     return true;
                 }
                 break;
