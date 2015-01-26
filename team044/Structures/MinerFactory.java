@@ -35,6 +35,10 @@ public class MinerFactory extends Structure
         {
             return false;
         }
+        if (Clock.getRoundNum() > rc.getRoundLimit() - 500){
+            return false;
+        }
+
         int mapSize = rc.readBroadcast(Messaging.MapSize.ordinal());
         if (mapSize == 0)
             mapSize = ourHQ.distanceSquaredTo(enemyHQ);
@@ -44,20 +48,27 @@ public class MinerFactory extends Structure
             case 0:
             case 1:
             case 2:
-                if (Utilities.spawnUnit(RobotType.MINER,rc))
-                    return true;
-                break;
             case 3:
-                if (mapSize > 1600 && bestOre > 25 && Utilities.spawnUnit(RobotType.MINER,rc))
-                    return true;
-                break;
             case 4:
-                if (mapSize > 2000 && bestOre > 25 && Utilities.spawnUnit(RobotType.MINER,rc))
+                if (Utilities.spawnUnit(RobotType.MINER,rc)) {
                     return true;
+                }
                 break;
             case 5:
-                if (mapSize > 2500 && bestOre > 25 && Utilities.spawnUnit(RobotType.MINER,rc))
+                if (mapSize > 1600 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
                     return true;
+                }
+                break;
+            case 6:
+                if (mapSize > 2500 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
+                    return true;
+                }
+                break;
+            case 7:
+            case 8:
+                if (mapSize > 3600 && bestOre > 9 && Utilities.spawnUnit(RobotType.MINER,rc)){
+                    return true;
+                }
                 break;
             default:
                 return false;
