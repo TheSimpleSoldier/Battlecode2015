@@ -40,9 +40,7 @@ public class HQ extends Structure
     public void handleMessages() throws GameActionException
     {
         //rc.setIndicatorString(0, "Messaging");
-        int roundNumb = Clock.getRoundNum();
         messenger.giveUnitOrders();
-        rc.setIndicatorString(0, "Rounds elapsed:" + (Clock.getRoundNum() - roundNumb));
         messenger.manageGroups();
 
         //rc.setIndicatorString(0, "after give unit orders");
@@ -70,11 +68,11 @@ public class HQ extends Structure
         if (rc.getRoundLimit() - Clock.getRoundNum() < 200)
         {
             rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
-            //rc.setIndicatorString(2, "Rushing enemy");
+            rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() % 500 < 6 || (rc.getRoundLimit() - Clock.getRoundNum()) < 200)
+        else if (Clock.getRoundNum() > 500 && Clock.getRoundNum() % 250 < 6)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
@@ -141,14 +139,14 @@ public class HQ extends Structure
         }
 
         // now broadcast the value for anyone else to use
-        /*rc.broadcast(Messaging.NumbOfBashers.ordinal(), numbOfBashers);
+        rc.broadcast(Messaging.NumbOfBashers.ordinal(), numbOfBashers);
         rc.broadcast(Messaging.NumbOfBeavers.ordinal(), numbOfBeavers);
         rc.broadcast(Messaging.NumbOfComps.ordinal(), numbOfComps);
         rc.broadcast(Messaging.NumbOfDrones.ordinal(), numbOfDrones);
         rc.broadcast(Messaging.NumbOfLaunchers.ordinal(), numbOfLaunchers);
         rc.broadcast(Messaging.NumbOfMiners.ordinal(), numbOfMiners);
         rc.broadcast(Messaging.NumbOfSoldiers.ordinal(), numbOfSoldiers);
-        rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);*/
+        rc.broadcast(Messaging.NumbOfTanks.ordinal(), numbOfTanks);
 
         //rc.setIndicatorString(0, "Bashers: " + numbOfBashers + ", Beavers: " + numbOfBeavers + ", Comps: " + numbOfComps + ", Drones: " + numbOfDrones + ", Launchers: " + numbOfLaunchers + ", Miners: " + numbOfMiners + ", Soldiers: " + ", Tanks: " + numbOfTanks);
         //numbOfBuildings = Utilities.test(rc);

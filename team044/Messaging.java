@@ -117,5 +117,7 @@ public enum Messaging {
     BestOre2,
     FoundOre,
     FoundOre2,
+    BasherRatio,
+    BasherRush,
     // etc
 }

@@ -99,8 +99,6 @@ public class Messenger
 
         soldierStrat = new BuildOrderMessaging[1];
         soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
-        //soldierStrat[0] = BuildOrderMessaging.BuildSupportingSoldier;
-        //soldierStrat[1] = BuildOrderMessaging.BuildDefensiveSoldier;
 
         tankStrat = new BuildOrderMessaging[1];
         tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
@@ -124,24 +122,13 @@ public class Messenger
             x = (group2InitialSpot.x + group2Goal.x) / 2;
             y = (group2InitialSpot.y + group2Goal.y) / 2;
             group2InitialSpot = new MapLocation(x,y);
-            group2Tanks = 30;
-            group2Bashers = 0;
-            tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
         }
-        else if (group3Goal != null && goGoal > 1)
+        if (group3Goal != null && goGoal > 1)
         {
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group3Goal.x + ", y: " + group3Goal.y);
             x = (group3InitialSpot.x + group3Goal.x) / 2;
             y = (group3InitialSpot.y + group3Goal.y) / 2;
             group3InitialSpot = new MapLocation(x,y);
-            group3Tanks = 30;
-            group3Bashers = 0;
-            tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
-        }
-        else
-        {
-            group1Tanks = 30;
-            group1Bashers = 0;
         }
     }
 

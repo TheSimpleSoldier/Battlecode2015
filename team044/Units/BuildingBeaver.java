@@ -42,19 +42,6 @@ public class BuildingBeaver extends Beaver
     {
         super.collectData();
 
-        /*
-        if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal() || type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal() && !foundSpot && Clock.getRoundNum() % 15 == 0)
-        {
-            MapLocation temp = Utilities.getBestSpotSimple(rc);
-            if(!temp.equals(rc.getLocation()))
-            {
-                rc.setIndicatorString(1, "Building in new spot: " + temp);
-                buildingSpot = temp;
-                target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
-                foundSpot = true;
-            }
-        }*/
-
         if (building == null && rc.isCoreReady())
         {
             type = rc.readBroadcast(Messaging.BuildOrder.ordinal());
@@ -65,7 +52,14 @@ public class BuildingBeaver extends Beaver
 
             if (building == null && Clock.getRoundNum() > 500)
             {
-                building = RobotType.SUPPLYDEPOT;
+                if (rc.getTeamOre() > 2000)
+                {
+                    building = RobotType.AEROSPACELAB;
+                }
+                else
+                {
+                    building = RobotType.SUPPLYDEPOT;
+                }
             }
 
             if (type == BuildOrderMessaging.DoneBuilding.ordinal())

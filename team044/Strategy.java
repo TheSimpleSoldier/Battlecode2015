@@ -55,7 +55,7 @@ public class Strategy
         long[] memory = rc.getTeamMemory();     // 32 longs of data from the previous game
         long attackTiming = memory[TeamMemory.AttackTiming.ordinal()] & 4095;
         long mostInitialAttackers = (memory[TeamMemory.AttackTiming.ordinal()] >>> 12) & 15;
-        //long secondMost = memory[TeamMemory.AttackTiming.ordinal()] >>> 16;
+        long secondMost = memory[TeamMemory.AttackTiming.ordinal()] >>> 16;
         long mostEndGameUnit = memory[TeamMemory.EnemyUnitBuild.ordinal()];
         long endGameHP = memory[TeamMemory.HQHP.ordinal()];
         long enemiesSeen = memory[TeamMemory.EnemyHarrass.ordinal()];
@@ -102,15 +102,6 @@ public class Strategy
             primaryStructure = BuildOrderMessaging.BuildHelipad;
             secondaryStructure = BuildOrderMessaging.BuildBaracks;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-            flankingStructure = null;
-            miningType = null;
-            miningType2 = null;
-            secondBeaver = null;
-            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
-
-            //messenger.setGroup1(20,0,10,0,true);
-            //messenger.setGroup2(0,0,0,0,false);
-            //messenger.setGroup3(0, 0, 0, 0, false);
 
             rc.setIndicatorString(0, "Very Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
@@ -121,10 +112,6 @@ public class Strategy
             secondaryStructure = BuildOrderMessaging.BuildBaracks;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
-            miningType = null;
-            miningType2 = null;
-            secondBeaver = null;//BuildOrderMessaging.BuildBeaverBuilder;
-            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
@@ -135,10 +122,6 @@ public class Strategy
             secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
-            miningType = BuildOrderMessaging.BuildMiningBaracks;
-            miningType2 = BuildOrderMessaging.BuildMiningBaracks;
-            secondBeaver = BuildOrderMessaging.BuildBeaverBuilder;
-            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
 
@@ -150,64 +133,105 @@ public class Strategy
             secondaryStructure = BuildOrderMessaging.BuildBaracks;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             flankingStructure = BuildOrderMessaging.BuildTankFactory;
-            miningType = BuildOrderMessaging.BuildMiningBaracks;
-            miningType2 = null;
-            secondBeaver = BuildOrderMessaging.BuildBeaverBuilder;
-            thirdBeaver = BuildOrderMessaging.BuildBeaverBuilder;
 
             rc.setIndicatorString(0, "Default " + debug + ", " + mostEndGameUnit + ", dist: " + hqDistance);
         }
 
 
-        if (defensiveStructure != null)
-        {
-            secondaryStructure = null;
-            flankingStructure = null;
-        }
+        int numbOfTowers = enemyTowers.length;
+        int flankingTowers = Strategy.loneTowers(rc);
 
-        if (Strategy.loneTowers(rc) <= 0)
+        // Basher Soldier Rush
+        if (numbOfTowers <= 3 && hqDistance < 5000)
         {
-            flankingStructure = null;
+            primaryStructure = BuildOrderMessaging.BuildBaracks;
+            secondaryStructure = BuildOrderMessaging.BuildBaracks;
+            tertiaryStructure = BuildOrderMessaging.BuildTrainingField;
+
+            BuildOrderMessaging[] basherStrat = {BuildOrderMessaging.BuildDefensiveBasher};
+            messenger.changeBasherStrat(basherStrat);
+            BuildOrderMessaging[] soldierStrat = {BuildOrderMessaging.BuildDefensiveSoldier};
+            messenger.changeSoldierStrat(soldierStrat);
+
+            rc.broadcast(Messaging.BasherRatio.ordinal(), 1);
+            rc.broadcast(Messaging.BasherRush.ordinal(), 1);
         }
-        //strat = new BuildOrderMessaging[43];
+        // Tank Flanking
+        else if (flankingTowers > 0 && hqDistance > 3000)
+        {
+            primaryStructure = BuildOrderMessaging.BuildBaracks;
+            secondaryStructure = BuildOrderMessaging.BuildTankFactory;
+            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+
+            messenger.setGroup1(10, 0, 0, 0, false);
+            messenger.setGroup2(0, 20, 0, 0, true);
+            messenger.setGroup3(0, 20, 0, 0, true);
+        }
+        // soldier Launcher
+        else if (mostInitialAttackers == 2 || secondMost == 2)
+        {
+            primaryStructure = BuildOrderMessaging.BuildHelipad;
+            secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+            tertiaryStructure = BuildOrderMessaging.BuildBaracks;
+
+            messenger.setGroup1(10, 0, 50, 0, true);
+        }
+        // Launcher Timing Attack
+        else if (hqDistance < 4000)
+        {
+            primaryStructure = BuildOrderMessaging.BuildHelipad;
+            secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+
+            messenger.setGroup1(10, 0, 0, 0, true);
+        }
+        // stream launchers
+        else
+        {
+            primaryStructure = BuildOrderMessaging.BuildHelipad;
+            secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+
+            messenger.setGroup1(2, 0, 0, 0, true);
+        }
 
 
         BuildOrderMessaging[] strat = {
                 BuildOrderMessaging.BuildBeaverBuilder,
                 BuildOrderMessaging.BuildMinerFactory,
                 BuildOrderMessaging.BuildBeaverBuilder,
-                BuildOrderMessaging.BuildBaracks,
-                BuildOrderMessaging.BuildTankFactory,
-                BuildOrderMessaging.BuildTankFactory,
+                primaryStructure,
+                secondaryStructure,
+                secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildTankFactory,
+                tertiaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildTankFactory,
-                BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildAerospaceLab,
+                secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildTankFactory,
+                secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot,
+                secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
+                secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildSupplyDepot,
+                secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot
         };
 
