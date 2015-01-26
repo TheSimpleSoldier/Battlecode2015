@@ -709,7 +709,7 @@ public class FightMicroUtilities
 
 
     //======================== Methods for launchers ============================\\
-    public static Direction dirToShoot(RobotController rc, RobotInfo[] nearByEnemies, MapLocation enemyStructure)
+    public static Direction dirToShoot(RobotController rc, RobotInfo[] nearByEnemies, MapLocation enemyStructure) throws GameActionException
     {
         Direction dir, toReturn = null;
         MapLocation us = rc.getLocation();
@@ -722,11 +722,11 @@ public class FightMicroUtilities
             {
 
             }
-            if (dist <= 24)
+            else if (dist <= 24)
             {
                 return dir;
             }
-            else if (!alliesInPath(rc.senseNearbyRobots(35, rc.getTeam()), dir, us))
+            else if (!alliesInPath(rc.senseNearbyRobots(35, rc.getTeam()), dir, us) || (rc.canSenseLocation(enemyStructure) && rc.senseRobotAtLocation(enemyStructure).type == RobotType.HQ))
             {
                 return dir;
             }
