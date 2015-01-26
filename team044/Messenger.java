@@ -147,7 +147,7 @@ public class Messenger
     public void giveUnitOrders() throws GameActionException
     {
         // we want to give a little time before we start managing supply distribution
-        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 0)
+        if (rc.readBroadcast(Messaging.NumbOfDrones.ordinal()) < 65)
         {
             droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
         }
