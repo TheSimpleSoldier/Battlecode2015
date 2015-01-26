@@ -1031,25 +1031,38 @@ public class Utilities
      */
     public static void buildRequirement(RobotController rc, MapLocation spot, RobotType type) throws GameActionException
     {
+        RobotType buildStruct = null;
         // need to build barracks
         if (type == RobotType.TANKFACTORY)
         {
-            BuildStructure(rc, spot, RobotType.BARRACKS);
+            buildStruct = RobotType.BARRACKS;
         }
         // need to build a helipad
         else if (type == RobotType.AEROSPACELAB)
         {
-            BuildStructure(rc, spot, RobotType.HELIPAD);
+            buildStruct = RobotType.HELIPAD;
         }
         // need to build a technology institue
         else if (type == RobotType.TRAININGFIELD && Clock.getRoundNum() > 500)
         {
-            BuildStructure(rc, spot, RobotType.TECHNOLOGYINSTITUTE);
+            buildStruct = RobotType.TECHNOLOGYINSTITUTE;
         }
         else
         {
             System.out.println("Unknown building type");
         }
+
+        RobotInfo[] allies = rc.senseNearbyRobots(99999, rc.getTeam());
+
+        for (int i = allies.length; --i>=0;)
+        {
+            if (allies[i].type == buildStruct)
+            {
+                return;
+            }
+        }
+
+        BuildStructure(rc, spot, buildStruct);
     }
 
     /**
@@ -1159,7 +1172,7 @@ public class Utilities
     {
         MapLocation[] towers = rc.senseEnemyTowerLocations();
 
-        if (towers.length == 0)
+        if (towers.length <= 3)
         {
             return rc.senseEnemyHQLocation();
         }
