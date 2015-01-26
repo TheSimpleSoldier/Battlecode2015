@@ -42,6 +42,11 @@ public class BuildingBeaver extends Beaver
     {
         super.collectData();
 
+        if (Clock.getRoundNum() > 1700 && building != RobotType.HANDWASHSTATION)
+        {
+            building = null;
+        }
+
         if (building == null && rc.isCoreReady())
         {
             type = rc.readBroadcast(Messaging.BuildOrder.ordinal());
@@ -52,7 +57,7 @@ public class BuildingBeaver extends Beaver
 
             if (building == null && Clock.getRoundNum() > 500)
             {
-                if (rc.getTeamOre() > 2000)
+                if (rc.getTeamOre() > 2500)
                 {
                     building = RobotType.AEROSPACELAB;
                 }
@@ -60,6 +65,11 @@ public class BuildingBeaver extends Beaver
                 {
                     building = RobotType.SUPPLYDEPOT;
                 }
+            }
+
+            if (Clock.getRoundNum() > 1700)
+            {
+                building = RobotType.HANDWASHSTATION;
             }
 
             if (type == BuildOrderMessaging.DoneBuilding.ordinal())
@@ -176,6 +186,7 @@ public class BuildingBeaver extends Beaver
     public boolean carryOutAbility() throws GameActionException
     {
         rc.setIndicatorString(0, "carryOutAbility");
+        RobotInfo[] enemies = rc.senseNearbyRobots(100, rc.getTeam().opponent());
         if (!rc.isCoreReady())
         {
             return false;
@@ -191,7 +202,7 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 3)
+        if (enemies.length == 0 && build || rc.getLocation().distanceSquaredTo(buildingSpot) < 3)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
@@ -233,10 +244,6 @@ public class BuildingBeaver extends Beaver
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (becomeMiner)
-        {
-            return new MinerBeaver(rc);
-        }
         return current;
     }
 }

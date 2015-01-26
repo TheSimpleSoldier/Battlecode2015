@@ -95,48 +95,6 @@ public class Strategy
             defensiveStructure = null;
         }
 
-        System.out.println(debug);
-        // Very Small map
-        if (hqDistance < 1000)
-        {
-            primaryStructure = BuildOrderMessaging.BuildHelipad;
-            secondaryStructure = BuildOrderMessaging.BuildBaracks;
-            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-
-            rc.setIndicatorString(0, "Very Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
-        }
-        // Small map
-        else if (hqDistance < 2500)
-        {
-            primaryStructure = BuildOrderMessaging.BuildHelipad;
-            secondaryStructure = BuildOrderMessaging.BuildBaracks;
-            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-            flankingStructure = BuildOrderMessaging.BuildTankFactory;
-
-            rc.setIndicatorString(0, "Small map, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
-        }
-        // Large map
-        else if (hqDistance > 5000)
-        {
-            primaryStructure = BuildOrderMessaging.BuildHelipad;
-            secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-            flankingStructure = BuildOrderMessaging.BuildTankFactory;
-
-            rc.setIndicatorString(0, "Large Map, mostUnit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
-
-        }
-        // Default Strategy
-        else
-        {
-            primaryStructure = BuildOrderMessaging.BuildHelipad;
-            secondaryStructure = BuildOrderMessaging.BuildBaracks;
-            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
-            flankingStructure = BuildOrderMessaging.BuildTankFactory;
-
-            rc.setIndicatorString(0, "Default " + debug + ", " + mostEndGameUnit + ", dist: " + hqDistance);
-        }
-
 
         int numbOfTowers = enemyTowers.length;
         int flankingTowers = Strategy.loneTowers(rc);
@@ -155,6 +113,8 @@ public class Strategy
 
             rc.broadcast(Messaging.BasherRatio.ordinal(), 1);
             rc.broadcast(Messaging.BasherRush.ordinal(), 1);
+
+            rc.setIndicatorString(0, "Soldier Basher rush, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
         // Tank Flanking
         else if (flankingTowers > 0 && hqDistance > 3000)
@@ -166,6 +126,8 @@ public class Strategy
             messenger.setGroup1(10, 0, 0, 0, false);
             messenger.setGroup2(0, 20, 0, 0, true);
             messenger.setGroup3(0, 20, 0, 0, true);
+
+            rc.setIndicatorString(0, "Tank Flanking, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
         // soldier Launcher
         else if (mostInitialAttackers == 2 || secondMost == 2)
@@ -175,6 +137,8 @@ public class Strategy
             tertiaryStructure = BuildOrderMessaging.BuildBaracks;
 
             messenger.setGroup1(10, 0, 50, 0, true);
+
+            rc.setIndicatorString(0, "Soldier Launcher, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
         // Launcher Timing Attack
         else if (hqDistance < 4000)
@@ -184,6 +148,8 @@ public class Strategy
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
 
             messenger.setGroup1(10, 0, 0, 0, true);
+
+            rc.setIndicatorString(0, "Launcher Timing, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
         // stream launchers
         else
@@ -193,6 +159,8 @@ public class Strategy
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
 
             messenger.setGroup1(2, 0, 0, 0, true);
+
+            rc.setIndicatorString(0, "Stream Launcher, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
 
 

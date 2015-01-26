@@ -287,7 +287,7 @@ public class HQ extends Structure
         int average = 0;
         int count = 0;
 
-        while (Clock.getRoundNum() > 20 && Clock.getRoundNum() < 40 && rc.getTeamOre() > 300)
+        while (Clock.getRoundNum() > 15 && Clock.getRoundNum() < 50 && rc.getTeamOre() > 300)
         {
             rc.yield();
         }
