@@ -333,7 +333,7 @@ public class HQ extends Structure
             {
                 rc.setIndicatorString(1, "Adding AeroSpaceLab");
                 currentUnit--;
-                strat[currentUnit] = BuildOrderMessaging.BuildAerospaceLab;
+                strat[currentUnit+1] = BuildOrderMessaging.BuildAerospaceLab;
             }
         }
         int[] enemyType = new int[3];
@@ -439,7 +439,7 @@ public class HQ extends Structure
             }
         }
         // if we are trying to build a building but don't have any beavers then create a beaver
-        else if ((numbOfBeavers < 1 && Clock.getRoundNum() > 500) || rc.getTeamOre() > 1500)
+        else if ((numbOfBeavers < 1 && Clock.getRoundNum() > 500) || rc.getTeamOre() > 2000)
         {
             if (Utilities.spawnUnit(RobotType.BEAVER, rc))
             {
