@@ -12,7 +12,7 @@ public class Miner extends Unit
 {
     boolean mineToOurHQ = true;
     MapLocation lastSpot;
-    int miningAmount = 5;
+    double miningAmount = 5;
     int dir;
     Random rand;
     Direction[] dirs = Direction.values();
@@ -60,7 +60,7 @@ public class Miner extends Unit
             }
             else if (senseOre <= 5 && rc.senseOre(target) < 15)
             {
-                miningAmount = 1;
+                miningAmount = 0.5;
             }
             else
             {

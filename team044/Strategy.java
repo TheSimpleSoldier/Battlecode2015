@@ -161,7 +161,7 @@ public class Strategy
             secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
 
-            messenger.setGroup1(2, 0, 0, 0, true);
+            messenger.setGroup1(3, 0, 0, 0, true);
 
             rc.setIndicatorString(0, "Stream Launcher, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }

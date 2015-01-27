@@ -411,10 +411,11 @@ public class Messenger
                 group3TankCount++;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 3);
             }
-            else if (group1Launched)
+            else if (group2Tanks > 0 || group3Tanks > 0)
             {
                 group1Tanks = 20;
                 group1TankCount = 0;
+                group1Offensive = false;
                 //group2TankCount = 0;
                 //group3TankCount = 0;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);

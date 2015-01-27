@@ -42,7 +42,7 @@ public class BuildingBeaver extends Beaver
     {
         super.collectData();
 
-        if (Clock.getRoundNum() > 1700 && building != RobotType.HANDWASHSTATION)
+        if (rc.getRoundLimit() - Clock.getRoundNum() < 300 && building != RobotType.HANDWASHSTATION)
         {
             building = null;
         }
@@ -67,7 +67,7 @@ public class BuildingBeaver extends Beaver
                 }
             }
 
-            if (Clock.getRoundNum() > 1700)
+            if (rc.getRoundLimit() - Clock.getRoundNum() < 300)
             {
                 building = RobotType.HANDWASHSTATION;
             }
