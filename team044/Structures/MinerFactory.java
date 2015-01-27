@@ -29,13 +29,18 @@ public class MinerFactory extends Structure
         {
             return false;
         }
-        if (Clock.getRoundNum() > rc.getRoundLimit() - 500){
+        if (Clock.getRoundNum() > rc.getRoundLimit() - 750){
             return false;
         }
 
         int mapSize = rc.readBroadcast(Messaging.MapSize.ordinal());
         if (mapSize == 0)
             mapSize = ourHQ.distanceSquaredTo(enemyHQ);
+
+        if (mapSize < 2000 && Clock.getRoundNum() > rc.getRoundLimit() - 1000)
+        {
+            return false;
+        }
         int bestOre = rc.readBroadcast(Messaging.BestOre.ordinal());
         switch (actualMiners/5)
         {

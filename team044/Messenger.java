@@ -276,7 +276,7 @@ public class Messenger
         }
 
 
-        if (group2Launched && group3Launched && group2Offensive && group2CurrentSpot != null && (Clock.getRoundNum() - group2RoundFinished) > 25)
+        if (group2Launched && group3Launched && group2Offensive && group2CurrentSpot != null && (Clock.getRoundNum() - group3RoundFinished) > 25)
         {
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
@@ -320,7 +320,7 @@ public class Messenger
             }
         }
 
-        if (group3Launched && group3Offensive && group3CurrentSpot != null && (Clock.getRoundNum() - group3RoundFinished) > 50)
+        if (group3Launched && group3Offensive && group3CurrentSpot != null && (Clock.getRoundNum() - group3RoundFinished) > 75)
         {
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
@@ -411,13 +411,16 @@ public class Messenger
             }
             else if (group2Tanks > 0 || group3Tanks > 0)
             {
-                group1Tanks = 30;
+                group1Tanks = 15;
                 group1TankCount = 0;
                 group1Offensive = true;
                 group1LauncherGroup = false;
-                group1Launched = false;
-                group1Soldiers = 50;
-                group1Bashers = 50;
+                if (group1TankCount == 0)
+                {
+                    group1Launched = false;
+                }
+                group1Soldiers = 20;
+                group1Bashers = 20;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
