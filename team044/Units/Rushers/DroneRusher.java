@@ -28,6 +28,6 @@ public class DroneRusher extends Drone {
 
     public boolean fight() throws GameActionException
     {
-        return fighter.advancedFightMicro(nearByEnemies);
+        return fighter.basicFightMicro(nearByEnemies);
     }
 }

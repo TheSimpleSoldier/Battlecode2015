@@ -27,4 +27,9 @@ public class TankRusher extends Tank
     {
         return current;
     }
+
+    public boolean fight() throws GameActionException
+    {
+        return fighter.basicFightMicro(nearByEnemies);
+    }
 }

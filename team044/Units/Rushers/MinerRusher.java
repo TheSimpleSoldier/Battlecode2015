@@ -42,7 +42,6 @@ public class MinerRusher extends Miner {
 
     public boolean fight() throws GameActionException
     {
-        return fighter.advancedFightMicro(nearByEnemies);
-        //return fighter.basicFightMicro(nearByEnemies);
+        return fighter.basicFightMicro(nearByEnemies);
     }
 }

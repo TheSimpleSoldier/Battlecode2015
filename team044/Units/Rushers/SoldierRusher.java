@@ -53,6 +53,11 @@ public class SoldierRusher extends Soldier
         }
     }
 
+    public boolean fight() throws GameActionException
+    {
+        return fighter.basicFightMicro(nearByEnemies);
+    }
+
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
         return current;
