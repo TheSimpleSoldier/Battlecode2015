@@ -652,7 +652,7 @@ public class FightMicro
             return false;
         }
 
-        RobotInfo[] enemies = rc.senseNearbyRobots(48, rc.getTeam().opponent());
+        RobotInfo[] enemies = rc.senseNearbyRobots(35, rc.getTeam().opponent());
         RobotInfo[] nearByEnemies = rc.senseNearbyRobots(2, rc.getTeam().opponent());
         MapLocation[] towers = rc.senseEnemyTowerLocations();
         MapLocation closestTower = Utilities.closestTower(rc, towers);

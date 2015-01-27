@@ -21,7 +21,7 @@ public class DefensiveBasher extends DefensiveUnits
     {
         target = Utilities.getTowerClosestToEnemyHQ(rc);
 
-        target = target.add(enemyHQ.directionTo(target), 3);
+        target = target.add(enemyHQ.directionTo(target), 4);
 
 
         rc.setIndicatorString(1, "Target: " + target);
