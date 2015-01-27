@@ -412,13 +412,13 @@ public class Messenger
             else if (group2Tanks > 0 || group3Tanks > 0)
             {
                 group1Tanks = 15;
-                group1TankCount = 0;
                 group1Offensive = true;
                 group1LauncherGroup = false;
                 if (group1TankCount == 0)
                 {
                     group1Launched = false;
                 }
+                group1TankCount = 0;
                 group1Soldiers = 20;
                 group1Bashers = 20;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);
