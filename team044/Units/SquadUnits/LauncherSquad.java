@@ -1,9 +1,8 @@
 package team044.Units.SquadUnits;
 
-import battlecode.common.GameActionException;
-import battlecode.common.MapLocation;
-import battlecode.common.RobotController;
+import battlecode.common.*;
 import team044.BuildOrderMessaging;
+import team044.FightMicroUtilities;
 import team044.Messaging;
 import team044.Unit;
 import team044.Units.Rushers.LauncherRusher;
@@ -43,6 +42,26 @@ public class LauncherSquad extends SquadUnit
             rc.broadcast(Messaging.FirstNeedSupplyY.ordinal(), mySpot.y);
         }
     }
+
+    public boolean takeNextStep() throws GameActionException
+    {
+        if (target == null)
+        {
+            return false;
+        }
+        if (rc.getMissileCount() == 5)
+        {
+            Direction dir = rc.getLocation().directionTo(target);
+            RobotInfo[] allies = rc.senseNearbyRobots(rc.getLocation().add(dir, 6), 24, rc.getTeam());
+            if (allies.length == 0 && !FightMicroUtilities.alliesInPath(rc.senseNearbyRobots(100, rc.getTeam()), dir, rc.getLocation()))
+            {
+                rc.launchMissile(dir);
+            }
+        }
+        return nav.takeNextStep(target);
+    }
+
+
 
     public boolean fight() throws GameActionException
     {
