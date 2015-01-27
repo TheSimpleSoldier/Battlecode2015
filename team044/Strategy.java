@@ -124,11 +124,11 @@ public class Strategy
         {
             primaryStructure = BuildOrderMessaging.BuildBaracks;
             secondaryStructure = BuildOrderMessaging.BuildTankFactory;
-            tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
+            tertiaryStructure = BuildOrderMessaging.BuildBaracks;
 
-            messenger.setGroup1(10, 0, 0, 0, false);
-            messenger.setGroup2(0, 20, 0, 0, true);
-            messenger.setGroup3(0, 15, 0, 0, true);
+            messenger.setGroup1(0, 0, 0, 0, false);
+            messenger.setGroup2(0, 10, 10, 10, true);
+            messenger.setGroup3(0, 10, 10, 10, true);
 
             BuildOrderMessaging[] tankStrat = {BuildOrderMessaging.BuildSquadTank};
             messenger.changeTankStrat(tankStrat);
@@ -185,7 +185,7 @@ public class Strategy
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 secondaryStructure,
-                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildTechnologyInstitute,
                 tertiaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
