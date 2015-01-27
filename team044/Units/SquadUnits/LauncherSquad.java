@@ -1,6 +1,7 @@
 package team044.Units.SquadUnits;
 
 import battlecode.common.GameActionException;
+import battlecode.common.MapLocation;
 import battlecode.common.RobotController;
 import team044.BuildOrderMessaging;
 import team044.Messaging;
@@ -27,6 +28,19 @@ public class LauncherSquad extends SquadUnit
         {
             group = rc.readBroadcast(Messaging.LauncherGroup.ordinal());
             rc.broadcast(Messaging.LauncherGroup.ordinal(), -1);
+        }
+    }
+
+    public void handleMessages() throws GameActionException
+    {
+        super.handleMessages();
+
+        // if we are getting low on supply and are near other robots send out request
+        if (rc.getSupplyLevel() < 40)
+        {
+            MapLocation mySpot = rc.getLocation();
+            rc.broadcast(Messaging.FirstNeedSupplyX.ordinal(), mySpot.x);
+            rc.broadcast(Messaging.FirstNeedSupplyY.ordinal(), mySpot.y);
         }
     }
 

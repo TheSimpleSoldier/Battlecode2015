@@ -173,7 +173,7 @@ public class FightMicro
                     if (nearByEnemies.length > 0)
                     {
                         // we will stand our ground!
-                        if (nearByEnemies.length == 1 && (nearByEnemies[0].type == RobotType.TOWER || nearByEnemies[0].type == RobotType.HQ))
+                        if (nearByEnemies.length == 1 && (nearByEnemies[0].type == RobotType.TOWER || nearByEnemies[0].type == RobotType.HQ) && rc.getLocation().distanceSquaredTo(nearByEnemies[0].location) > 2)
                         {
                             dir = us.directionTo(nearByEnemies[0].location);
                         }
@@ -475,23 +475,58 @@ public class FightMicro
         MapLocation enemyHQ = rc.senseEnemyHQLocation();
         MapLocation us = rc.getLocation();
 
-        if (x != 0 && y != 0)
+
+        if (rc.isCoreReady())
         {
-            MapLocation commander = new MapLocation(x, y);
-            dir = rc.getLocation().directionTo(commander);
-            if (rc.isCoreReady())
+            MapLocation missile = null;
+            MapLocation commander = null;
+            MapLocation closestEnemy = null;
+            int closest = 24;
+
+            for (int i = nearByEnemies.length; --i >= 0; )
             {
+                if (nearByEnemies[i].type == RobotType.MISSILE)
+                {
+                    missile = nearByEnemies[i].location;
+                }
+                else if (nearByEnemies[i].type == RobotType.COMMANDER)
+                {
+                    commander = nearByEnemies[i].location;
+                }
+                else
+                {
+                    MapLocation enemy = nearByEnemies[i].location;
+                    int dist = us.distanceSquaredTo(enemy);
+                    if (dist < closest)
+                    {
+                        closest = dist;
+                        closestEnemy = enemy;
+                    }
+                }
+            }
+
+            // if the enemy shot a missile pull back
+            if (missile != null)
+            {
+                dir = us.directionTo(missile).opposite();
                 FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
+                return true;
+            }
+            // don't want to fight commander head on
+            else if (commander != null)
+            {
+                dir = us.directionTo(commander).opposite();
+                FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
+                return true;
+            }
+            else if (closestEnemy != null)
+            {
+                dir = us.directionTo(closestEnemy).opposite();
+                FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
+                return true;
             }
         }
-        else if (dir != null)
-        {
-            dir = dir.opposite();
-            if (rc.isCoreReady())
-            {
-                FightMicroUtilities.moveInDir(rc, enemyHQ, enemyTowers, dir, us);
-            }
-        }
+
         return true;
     }
 

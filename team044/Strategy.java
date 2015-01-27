@@ -128,7 +128,10 @@ public class Strategy
 
             messenger.setGroup1(10, 0, 0, 0, false);
             messenger.setGroup2(0, 20, 0, 0, true);
-            messenger.setGroup3(0, 20, 0, 0, true);
+            messenger.setGroup3(0, 15, 0, 0, true);
+
+            BuildOrderMessaging[] tankStrat = {BuildOrderMessaging.BuildSquadTank};
+            messenger.changeTankStrat(tankStrat);
 
             rc.setIndicatorString(0, "Tank Flanking, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
@@ -152,6 +155,9 @@ public class Strategy
 
             messenger.setGroup1(10, 0, 0, 0, true);
 
+            messenger.setGroup2(3, 0, 0, 0, true);
+            messenger.setGroup3(3, 0, 0, 0, true);
+
             rc.setIndicatorString(0, "Launcher Timing, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
         // stream launchers
@@ -161,7 +167,9 @@ public class Strategy
             secondaryStructure = BuildOrderMessaging.BuildAerospaceLab;
             tertiaryStructure = BuildOrderMessaging.BuildAerospaceLab;
 
-            messenger.setGroup1(2, 0, 0, 0, true);
+            messenger.setGroup1(5, 0, 0, 0, true);
+            messenger.setGroup2(3, 0, 0, 0, true);
+            messenger.setGroup3(3, 0, 0, 0, true);
 
             rc.setIndicatorString(0, "Stream Launcher, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }
@@ -176,11 +184,9 @@ public class Strategy
                 secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
-                BuildOrderMessaging.BuildSupplyDepot,
+                secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 tertiaryStructure,
-                BuildOrderMessaging.BuildSupplyDepot,
-                secondaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 secondaryStructure,

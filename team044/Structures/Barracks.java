@@ -44,7 +44,11 @@ public class Barracks extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-        if (rc.readBroadcast(Messaging.BasherRush.ordinal()) == 1)
+        if (rc.getRoundLimit() - Clock.getRoundNum() < 300 && rc.getTeamOre() < 300)
+        {
+            return false;
+        }
+        else if (rc.readBroadcast(Messaging.BasherRush.ordinal()) == 1)
         {
             if (basher && Utilities.spawnUnit(RobotType.BASHER, rc))
             {

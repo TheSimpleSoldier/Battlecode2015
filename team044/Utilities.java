@@ -1172,7 +1172,7 @@ public class Utilities
     {
         MapLocation[] towers = rc.senseEnemyTowerLocations();
 
-        if (towers.length <= 2)
+        if (towers.length == 0)
         {
             return rc.senseEnemyHQLocation();
         }
@@ -1188,6 +1188,21 @@ public class Utilities
                 best = towers[i];
             }
         }
+
+        if (towers.length <= 2)
+        {
+            MapLocation enemyHQ = rc.senseEnemyHQLocation();
+            if (rc.getLocation().distanceSquaredTo(enemyHQ) > rc.getLocation().distanceSquaredTo(best))
+            {
+                return best;
+            }
+            else
+            {
+                return rc.senseEnemyHQLocation();
+            }
+        }
+
+
         return best;
     }
 

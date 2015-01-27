@@ -224,7 +224,7 @@ public class Messenger
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
                 group1Goal = Utilities.closestTowerToLoc(enemyTowers, group1CurrentSpot);
-                if (group1Goal == null || enemyTowers.length <= 3)
+                if (group1Goal == null || enemyTowers.length <= 2)
                 {
                     group1Goal = rc.senseEnemyHQLocation();
                 }
@@ -277,7 +277,7 @@ public class Messenger
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
                 group2Goal = Utilities.closestTowerToLoc(enemyTowers, group2CurrentSpot);
-                if (group2Goal == null || enemyTowers.length <= 4)
+                if (group2Goal == null || enemyTowers.length <= 2)
                 {
                     group2Goal = rc.senseEnemyHQLocation();
                 }
@@ -321,7 +321,7 @@ public class Messenger
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
                 group3Goal = Utilities.closestTowerToLoc(enemyTowers, group3CurrentSpot);
-                if (group3Goal == null || enemyTowers.length <= 3)
+                if (group3Goal == null || enemyTowers.length <= 2)
                 {
                     group3Goal = rc.senseEnemyHQLocation();
                 }
@@ -339,12 +339,6 @@ public class Messenger
                 group3RoundFinished = Clock.getRoundNum();
             }
             else if (!group3LauncherGroup && group3TankCount >= group3Tanks)
-            {
-                group3CurrentSpot = group3InitialSpot;
-                group3Launched = true;
-                group3RoundFinished = Clock.getRoundNum();
-            }
-            else if (!group3LauncherGroup && group3TankCount == 0 && group2TankCount == 0 && group3BasherCount >= group3Bashers)
             {
                 group3CurrentSpot = group3InitialSpot;
                 group3Launched = true;
@@ -411,12 +405,11 @@ public class Messenger
                 group3TankCount++;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 3);
             }
-            else if (group1Launched)
+            else if (group2Tanks > 0 || group3Tanks > 0)
             {
                 group1Tanks = 20;
                 group1TankCount = 0;
-                //group2TankCount = 0;
-                //group3TankCount = 0;
+                group1Offensive = false;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
