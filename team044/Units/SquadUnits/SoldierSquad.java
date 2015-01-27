@@ -16,6 +16,9 @@ public class SoldierSquad extends SquadUnit
         group = rc.readBroadcast(Messaging.SoldierGroup.ordinal());
         rc.broadcast(Messaging.SoldierGroup.ordinal(), -1);
         rc.setIndicatorString(0, "Squad Tank group: " + group);
+
+        nav.setAvoidTowers(false);
+        nav.setAvoidHQ(false);
     }
     public void collectData() throws GameActionException
     {

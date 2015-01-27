@@ -59,7 +59,7 @@ public class Barracks extends Structure
                 return true;
             }
         }
-        else if (rc.readBroadcast(Messaging.ShutOffBasherProd.ordinal()) == 0)
+        else if (rc.readBroadcast(Messaging.ShutOffBasherProd.ordinal()) == 0 && Clock.getRoundNum() > 300)
         {
             if (Utilities.spawnUnit(RobotType.BASHER, rc))
             {
@@ -67,7 +67,7 @@ public class Barracks extends Structure
                 return true;
             }
         }
-        else if (rc.readBroadcast(Messaging.ShutOffSoldierProd.ordinal()) == 0)
+        else if (rc.readBroadcast(Messaging.ShutOffSoldierProd.ordinal()) == 0 && Clock.getRoundNum() > 300)
         {
             if (Utilities.spawnUnit(RobotType.SOLDIER, rc))
             {

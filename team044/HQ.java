@@ -74,14 +74,14 @@ public class HQ extends Structure
         //rc.broadcast(Messaging.CommanderLocY.ordinal(), 0);
 
         // at the end of the game rush all units to try and take down the enemy as mining will no longer help us
-        if (rc.getRoundLimit() - Clock.getRoundNum() < 300)
+        if (rc.getRoundLimit() - Clock.getRoundNum() < 250)
         {
             rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() > 500 && Clock.getRoundNum() % 250 < 6)
+        else if (Clock.getRoundNum() > 400 && Clock.getRoundNum() % 200 < 6)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
