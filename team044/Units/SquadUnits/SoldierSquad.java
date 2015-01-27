@@ -15,8 +15,7 @@ public class SoldierSquad extends SquadUnit
         super(rc);
         group = rc.readBroadcast(Messaging.SoldierGroup.ordinal());
         rc.broadcast(Messaging.SoldierGroup.ordinal(), -1);
-        rc.setIndicatorString(0, "Squad Tank group: " + group);
-
+        rc.setIndicatorString(0, "Squad Soldier group: " + group);
         nav.setAvoidTowers(false);
         nav.setAvoidHQ(false);
     }
