@@ -128,7 +128,7 @@ public class Strategy
 
             messenger.setGroup1(10, 0, 0, 0, false);
             messenger.setGroup2(0, 20, 0, 0, true);
-            messenger.setGroup3(0, 20, 0, 0, true);
+            messenger.setGroup3(0, 15, 0, 0, true);
 
             rc.setIndicatorString(0, "Tank Flanking, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }

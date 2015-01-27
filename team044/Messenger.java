@@ -344,12 +344,6 @@ public class Messenger
                 group3Launched = true;
                 group3RoundFinished = Clock.getRoundNum();
             }
-            else if (!group3LauncherGroup && group3TankCount == 0 && group2TankCount == 0 && group3BasherCount >= group3Bashers)
-            {
-                group3CurrentSpot = group3InitialSpot;
-                group3Launched = true;
-                group3RoundFinished = Clock.getRoundNum();
-            }
 
             if (group3InitialSpot == null)
             {
