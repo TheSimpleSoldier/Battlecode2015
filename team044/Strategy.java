@@ -185,7 +185,7 @@ public class Strategy
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
                 secondaryStructure,
-                BuildOrderMessaging.BuildSupplyDepot,
+                BuildOrderMessaging.BuildTechnologyInstitute,
                 tertiaryStructure,
                 BuildOrderMessaging.BuildSupplyDepot,
                 BuildOrderMessaging.BuildSupplyDepot,
