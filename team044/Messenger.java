@@ -410,9 +410,6 @@ public class Messenger
                 group1Tanks = 20;
                 group1TankCount = 0;
                 group1Offensive = false;
-                //group2TankCount = 0;
-                //group3TankCount = 0;
-                tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
