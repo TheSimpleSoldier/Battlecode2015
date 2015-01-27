@@ -87,6 +87,34 @@ public class FightMicroUtilities
         return weakest;
     }
 
+    public static RobotInfo prioritizeHeavyHands(RobotInfo[] nearByEnemies)
+    {
+        RobotInfo toAttack = nearByEnemies[0];
+        double attackDelay = toAttack.weaponDelay;
+        double attackPower = toAttack.type.attackPower;
+
+        for (int i = nearByEnemies.length; --i>=1;)
+        {
+            RobotInfo next = nearByEnemies[i];
+            double currentAttackDelay = next.weaponDelay;
+            double currentAttackPower = next.type.attackPower;
+            if (currentAttackDelay < attackDelay)
+            {
+                toAttack = next;
+                attackDelay = currentAttackDelay;
+                attackPower = currentAttackPower;
+            }
+            else if (currentAttackDelay == attackDelay && currentAttackPower > attackPower)
+            {
+                toAttack = next;
+                attackDelay = currentAttackDelay;
+                attackPower = currentAttackPower;
+            }
+        }
+
+        return toAttack;
+    }
+
 
     //========================== Methods for standard units like tanks ==========================\\
 

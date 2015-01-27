@@ -104,7 +104,7 @@ public class Messenger
         tankStrat[0] = BuildOrderMessaging.BuildSquadTank;
 
         droneStrat = new BuildOrderMessaging[1];
-        droneStrat[0] = BuildOrderMessaging.BuildFollowerDrone;
+        droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
 
         MapLocation[] towers = rc.senseTowerLocations();
         MapLocation[] enemyTowers = rc.senseEnemyTowerLocations();
@@ -145,7 +145,7 @@ public class Messenger
         }
         else
         {
-            droneStrat[0] = BuildOrderMessaging.BuildSearchAndDestroyDrone;
+            droneStrat[0] = BuildOrderMessaging.BuildSupplyDrone;
             //droneStrat[0] = BuildOrderMessaging.BuildScoutingDrone;
         }
 

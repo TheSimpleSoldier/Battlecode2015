@@ -914,12 +914,20 @@ public class FightMicro
         }
 
 
-        RobotInfo target = null;
+        RobotInfo target;
         boolean returnVal = false;
 
         if (rc.isWeaponReady() && nearByEnemies.length > 0)
         {
-            target = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+            if (!rc.hasLearnedSkill(CommanderSkillType.HEAVY_HANDS))
+            {
+                target = FightMicroUtilities.prioritizeTargets(nearByEnemies);
+            }
+            else
+            {
+                target = FightMicroUtilities.prioritizeHeavyHands(nearByEnemies);
+            }
+
             if (target != null)
             {
                 attack = target.location;

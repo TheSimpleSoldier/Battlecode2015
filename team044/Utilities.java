@@ -1172,7 +1172,7 @@ public class Utilities
     {
         MapLocation[] towers = rc.senseEnemyTowerLocations();
 
-        if (towers.length <= 3)
+        if (towers.length <= 2)
         {
             return rc.senseEnemyHQLocation();
         }
