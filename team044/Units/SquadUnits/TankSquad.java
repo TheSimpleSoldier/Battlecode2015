@@ -16,7 +16,7 @@ public class TankSquad extends SquadUnit
         rc.broadcast(Messaging.TankGroup.ordinal(), -1);
         rc.setIndicatorString(0, "Squad Tank group:" + group);
         nav.setAvoidTowers(false);
-        nav.setAvoidHQ(false);
+        //nav.setAvoidHQ(false);
     }
 
     public void collectData() throws GameActionException
