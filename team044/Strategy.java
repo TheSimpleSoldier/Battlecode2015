@@ -103,7 +103,7 @@ public class Strategy
         int flankingTowers = Strategy.loneTowers(rc);
 
         // Basher Soldier Rush
-        if (numbOfTowers <= 3 && hqDistance < 5000)
+        if (numbOfTowers <= 2 && hqDistance < 5000)
         {
             primaryStructure = BuildOrderMessaging.BuildBaracks;
             secondaryStructure = BuildOrderMessaging.BuildBaracks;
@@ -132,6 +132,9 @@ public class Strategy
 
             BuildOrderMessaging[] tankStrat = {BuildOrderMessaging.BuildSquadTank};
             messenger.changeTankStrat(tankStrat);
+
+            BuildOrderMessaging[] soldierStrat = {BuildOrderMessaging.BuildSquadSoldier};
+            messenger.changeSoldierStrat(soldierStrat);
 
             rc.setIndicatorString(0, "Tank Flanking, enemy unit: " + mostEndGameUnit + ", dist: " + hqDistance + ", " + debug);
         }

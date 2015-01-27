@@ -111,6 +111,10 @@ public class RobotPlayer
                 {
                     unit = getSupplyDepot(rc);
                 }
+                else if (rc.getType() == RobotType.HANDWASHSTATION)
+                {
+                    while (true) { rc.yield(); }
+                }
                 else
                 {
                     System.out.println("Houston we have a problem");

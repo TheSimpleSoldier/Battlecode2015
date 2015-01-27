@@ -121,14 +121,18 @@ public class Messenger
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group2Goal.x + ", y: " + group2Goal.y);
             x = (group2InitialSpot.x + group2Goal.x) / 2;
             y = (group2InitialSpot.y + group2Goal.y) / 2;
+            Direction dir = group2Goal.directionTo(group2InitialSpot);
             group2InitialSpot = new MapLocation(x,y);
+            group2InitialSpot = group2InitialSpot.add(dir, 5);
         }
         if (group3Goal != null && goGoal > 1)
         {
             rc.setIndicatorString(2, "goGoal: " + goGoal + ", x: " + group3Goal.x + ", y: " + group3Goal.y);
             x = (group3InitialSpot.x + group3Goal.x) / 2;
             y = (group3InitialSpot.y + group3Goal.y) / 2;
+            Direction dir = group3Goal.directionTo(group3InitialSpot);
             group3InitialSpot = new MapLocation(x,y);
+            group3InitialSpot = group3InitialSpot.add(dir, 5);
         }
     }
 
