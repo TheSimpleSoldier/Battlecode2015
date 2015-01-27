@@ -224,7 +224,7 @@ public class Messenger
             if (group1Goal == null || group1CurrentSpot.distanceSquaredTo(group1Goal) < 10)
             {
                 group1Goal = Utilities.closestTowerToLoc(enemyTowers, group1CurrentSpot);
-                if (group1Goal == null || enemyTowers.length <= 3)
+                if (group1Goal == null || enemyTowers.length <= 2)
                 {
                     group1Goal = rc.senseEnemyHQLocation();
                 }
@@ -277,7 +277,7 @@ public class Messenger
             if (group2Goal == null || group2CurrentSpot.distanceSquaredTo(group2Goal) < 10)
             {
                 group2Goal = Utilities.closestTowerToLoc(enemyTowers, group2CurrentSpot);
-                if (group2Goal == null || enemyTowers.length <= 4)
+                if (group2Goal == null || enemyTowers.length <= 2)
                 {
                     group2Goal = rc.senseEnemyHQLocation();
                 }
@@ -321,7 +321,7 @@ public class Messenger
             if (group3Goal == null || group3CurrentSpot.distanceSquaredTo(group3Goal) < 10)
             {
                 group3Goal = Utilities.closestTowerToLoc(enemyTowers, group3CurrentSpot);
-                if (group3Goal == null || enemyTowers.length <= 3)
+                if (group3Goal == null || enemyTowers.length <= 2)
                 {
                     group3Goal = rc.senseEnemyHQLocation();
                 }
@@ -412,6 +412,7 @@ public class Messenger
                 group1Offensive = false;
                 //group2TankCount = 0;
                 //group3TankCount = 0;
+                tankStrat[0] = BuildOrderMessaging.BuildDefensiveTank;
                 rc.broadcast(Messaging.TankGroup.ordinal(), 1);
             }
         }
