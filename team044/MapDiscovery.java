@@ -2,6 +2,8 @@ package team044;
 
 import battlecode.common.*;
 
+import java.util.Random;
+
 /**
  * Created by David on 1/17/2015.
  */
@@ -452,18 +454,19 @@ public class MapDiscovery
     {
         MapLocation current = rc.getLocation();
         MapLocation[] spots = new MapLocation[12];
-        spots[0] = new MapLocation(current.x-4,current.y+2);
-        spots[1] = new MapLocation(current.x-4,current.y);
-        spots[2] = new MapLocation(current.x-4,current.y-2);
-        spots[3] = new MapLocation(current.x+4,current.y+2);
+        spots[0] = new MapLocation(current.x-3,current.y+3);
+        spots[1] = new MapLocation(current.x+3,current.y+3);
+        spots[2] = new MapLocation(current.x+3,current.y-3);
+        spots[3] = new MapLocation(current.x-3,current.y-3);
         spots[4] = new MapLocation(current.x+4,current.y);
-        spots[5] = new MapLocation(current.x+4,current.y-2);
-        spots[6] = new MapLocation(current.x-2,current.y+4);
-        spots[7] = new MapLocation(current.x,current.y+4);
-        spots[8] = new MapLocation(current.x+2,current.y+4);
-        spots[9] = new MapLocation(current.x-2,current.y-4);
-        spots[10] = new MapLocation(current.x,current.y-4);
-        spots[11] = new MapLocation(current.x+2,current.y-4);
+        spots[5] = new MapLocation(current.x-4,current.y);
+        spots[6] = new MapLocation(current.x,current.y+4);
+        spots[7] = new MapLocation(current.x,current.y-4);
+        spots[8] = new MapLocation(current.x-1,current.y+1);
+        spots[9] = new MapLocation(current.x+1,current.y-1);
+        spots[10] = new MapLocation(current.x-1,current.y-1);
+        spots[11] = new MapLocation(current.x+1,current.y+1);
+        shuffleFY(spots);
         double[] ore = new double[12];
         ore[0] = rc.senseOre(spots[0]);
         ore[1] = rc.senseOre(spots[1]);
@@ -503,16 +506,16 @@ public class MapDiscovery
         int spot1Count = Messaging.BestSpotMiners.ordinal();
         int spot2Count = Messaging.BestSpot2Miners.ordinal();
         int best = Messaging.BestOre.ordinal();
-        if (ore[big] >= rc.readBroadcast(best)) {
-            rc.broadcast(best, big);
+        if (ore[big] > rc.readBroadcast(best)) {
+            rc.broadcast(best,(int)ore[big]);
             rc.broadcast(Messaging.OreX.ordinal(), spots[big].x);
             rc.broadcast(Messaging.OreY.ordinal(), spots[big].y);
             rc.broadcast(spot1Count, 1);
             return spots[big];
         }
         best = Messaging.BestOre2.ordinal();
-        if (ore[big] >= rc.readBroadcast(best)) {
-            rc.broadcast(best, big);
+        if (ore[big] > rc.readBroadcast(best)) {
+            rc.broadcast(best, (int)ore[big]);
             rc.broadcast(Messaging.OreX2.ordinal(), spots[big].x);
             rc.broadcast(Messaging.OreY2.ordinal(), spots[big].y);
             rc.broadcast(spot2Count, 1);
@@ -521,10 +524,10 @@ public class MapDiscovery
         int best1 = rc.readBroadcast(spot1Count);
         int best2 = rc.readBroadcast(spot2Count);
         if (best1 <= best2) {
-            rc.broadcast(spot1Count, ++best1);
+            //rc.broadcast(spot1Count, ++best1);
             return new MapLocation(rc.readBroadcast(Messaging.OreX.ordinal()), rc.readBroadcast(Messaging.OreY.ordinal()));
         }
-        rc.broadcast(spot2Count, ++best2);
+        //rc.broadcast(spot2Count, ++best2);
         return new MapLocation(rc.readBroadcast(Messaging.OreX2.ordinal()),rc.readBroadcast(Messaging.OreY2.ordinal()));
 
     }
@@ -582,7 +585,7 @@ public class MapDiscovery
             big = 11;
         int best = Messaging.BestOre.ordinal();
         if (ore[big] >= rc.readBroadcast(best)) {
-            rc.broadcast(best, big);
+            rc.broadcast(best, (int) ore[big]);
             rc.broadcast(Messaging.OreX.ordinal(), spots[big].x);
             rc.broadcast(Messaging.OreY.ordinal(), spots[big].y);
             rc.broadcast(Messaging.BestSpotMiners.ordinal(), 0);
@@ -590,11 +593,25 @@ public class MapDiscovery
         }
         best = Messaging.BestOre2.ordinal();
         if (ore[big] >= rc.readBroadcast(best)) {
-            rc.broadcast(best, big);
+            rc.broadcast(best, (int) ore[big]);
             rc.broadcast(Messaging.OreX2.ordinal(), spots[big].x);
             rc.broadcast(Messaging.OreY2.ordinal(), spots[big].y);
             rc.broadcast(Messaging.BestSpot2Miners.ordinal(), 0);
             return;
+        }
+    }
+
+    public static void shuffleFY(MapLocation[] array)
+    {
+        int current;
+        MapLocation temp;
+        Random rand = new Random();
+        for (int i = array.length - 1; i > 0; i--)
+        {
+            current = rand.nextInt(i + 1);
+            temp = array[current];
+            array[current] = array[i];
+            array[i] = temp;
         }
     }
 }

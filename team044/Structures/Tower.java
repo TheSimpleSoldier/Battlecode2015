@@ -143,19 +143,14 @@ public class Tower extends Structure
 
     public boolean fight() throws GameActionException
     {
-        return fighter.structureFightMicro(nearByEnemies);
-    }
-
-    public void distributeSupply(RobotController rc)
-    {
-        if (Clock.getBytecodesLeft() > 1000) {
+        boolean ret = fighter.structureFightMicro(nearByEnemies);
+        if (Clock.getBytecodesLeft() > 900) {
             try {
                 MapDiscovery.towerOreSearch(rc);
-                if (Clock.getBytecodesLeft() > 600)
-                    Utilities.shareSupplies(rc);
             } catch (GameActionException x) {
 
             }
         }
+        return ret;
     }
 }

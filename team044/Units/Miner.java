@@ -114,7 +114,7 @@ public class Miner extends Unit
 
         enemies = rc.senseNearbyRobots(24, opponent);
 
-        if (enemies.length > 0 && Clock.getRoundNum() < 1800)
+        if (enemies.length > 0 && Clock.getRoundNum() < rc.getRoundLimit() - 201)
         {
             if (Clock.getRoundNum() < 1000)
             {
@@ -143,7 +143,7 @@ public class Miner extends Unit
             target = enemyHQ;
         }
         // no need to move if our location is good enough
-        else if (rc.senseOre(rc.getLocation()) >= miningAmount && rc.senseOre(target) < 15)
+        else if (rc.senseOre(rc.getLocation()) >= miningAmount && rc.senseOre(target) < 10)
         {
             return false;
         }

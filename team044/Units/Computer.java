@@ -17,18 +17,13 @@ public class Computer extends Unit
         job = 0;
 
         MapLocation[] towers = rc.senseTowerLocations();
-        target = enemyHQ;
+        target = ourHQ;
         MapLocation myLoc = rc.getLocation();
-        for (int i = 0; i < towers.length; i++)
-        {
-            if (towers[i].distanceSquaredTo(myLoc) < target.distanceSquaredTo(myLoc))
-                target = towers[i];
-        }
-        if (target.equals(enemyHQ)) {
-            target = myLoc.add(myLoc.directionTo(ourHQ).opposite());
-            target = target.add(myLoc.directionTo(ourHQ).opposite());
-            target = target.add(myLoc.directionTo(ourHQ).opposite());
-        }
+        target = myLoc.add(myLoc.directionTo(ourHQ).opposite());
+        target = target.add(myLoc.directionTo(ourHQ).opposite());
+        target = target.add(myLoc.directionTo(ourHQ).opposite());
+        target = target.add(myLoc.directionTo(ourHQ).opposite());
+        target = target.add(myLoc.directionTo(ourHQ).opposite());
     }
 
     public void collectData() throws GameActionException
@@ -59,6 +54,18 @@ public class Computer extends Unit
 
     public boolean takeNextStep() throws GameActionException
     {
+        if (nearByEnemies.length > 0) {
+            MapLocation current = rc.getLocation();
+            if (rc.canMove(current.directionTo(ourHQ))) {
+                return nav.takeNextStep(current.add(current.directionTo(ourHQ)));
+            }
+            if (rc.canMove(current.directionTo(ourHQ).rotateRight())) {
+                return nav.takeNextStep(current.add(current.directionTo(ourHQ).rotateRight()));
+            }
+            if (rc.canMove(current.directionTo(ourHQ).rotateLeft())) {
+                return nav.takeNextStep(current.add(current.directionTo(ourHQ).rotateLeft()));
+            }
+        }
         if (target == null || target.equals(rc.getLocation()))
         {
             return false;
