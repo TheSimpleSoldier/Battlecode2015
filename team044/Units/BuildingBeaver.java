@@ -42,18 +42,10 @@ public class BuildingBeaver extends Beaver
     {
         super.collectData();
 
-        /*
-        if (type == BuildOrderMessaging.BuildMiningBaracks.ordinal() || type == BuildOrderMessaging.BuildMiningAeroSpaceLab.ordinal() && !foundSpot && Clock.getRoundNum() % 15 == 0)
+        if (Clock.getRoundNum() > 1700 && building != RobotType.HANDWASHSTATION)
         {
-            MapLocation temp = Utilities.getBestSpotSimple(rc);
-            if(!temp.equals(rc.getLocation()))
-            {
-                rc.setIndicatorString(1, "Building in new spot: " + temp);
-                buildingSpot = temp;
-                target = buildingSpot.add(buildingSpot.directionTo(rc.getLocation()));
-                foundSpot = true;
-            }
-        }*/
+            building = null;
+        }
 
         if (building == null && rc.isCoreReady())
         {
@@ -65,7 +57,19 @@ public class BuildingBeaver extends Beaver
 
             if (building == null && Clock.getRoundNum() > 500)
             {
-                building = RobotType.SUPPLYDEPOT;
+                if (rc.getTeamOre() > 2500)
+                {
+                    building = RobotType.AEROSPACELAB;
+                }
+                else
+                {
+                    building = RobotType.SUPPLYDEPOT;
+                }
+            }
+
+            if (Clock.getRoundNum() > 1700)
+            {
+                building = RobotType.HANDWASHSTATION;
             }
 
             if (type == BuildOrderMessaging.DoneBuilding.ordinal())
@@ -182,6 +186,7 @@ public class BuildingBeaver extends Beaver
     public boolean carryOutAbility() throws GameActionException
     {
         rc.setIndicatorString(0, "carryOutAbility");
+        RobotInfo[] enemies = rc.senseNearbyRobots(100, rc.getTeam().opponent());
         if (!rc.isCoreReady())
         {
             return false;
@@ -197,7 +202,7 @@ public class BuildingBeaver extends Beaver
             return false;
         }
 
-        if (build || rc.getLocation().distanceSquaredTo(buildingSpot) < 3)
+        if (enemies.length == 0 && build || rc.getLocation().distanceSquaredTo(buildingSpot) < 3)
         {
             if (Utilities.BuildStructure(rc, buildingSpot, building))
             {
@@ -239,10 +244,6 @@ public class BuildingBeaver extends Beaver
 
     public Unit getNewStrategy(Unit current) throws GameActionException
     {
-        if (becomeMiner)
-        {
-            return new MinerBeaver(rc);
-        }
         return current;
     }
 }

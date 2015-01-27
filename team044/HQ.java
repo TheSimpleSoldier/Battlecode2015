@@ -49,9 +49,7 @@ public class HQ extends Structure
     public void handleMessages() throws GameActionException
     {
         //rc.setIndicatorString(0, "Messaging");
-        int roundNumb = Clock.getRoundNum();
         messenger.giveUnitOrders();
-        rc.setIndicatorString(0, "Rounds elapsed:" + (Clock.getRoundNum() - roundNumb));
         messenger.manageGroups();
 
         //rc.setIndicatorString(0, "after give unit orders");
@@ -79,11 +77,11 @@ public class HQ extends Structure
         if (rc.getRoundLimit() - Clock.getRoundNum() < 200)
         {
             rc.broadcast(Messaging.RushEnemyBase.ordinal(), 1);
-            //rc.setIndicatorString(2, "Rushing enemy");
+            rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
         // currently we attack when we reach round 1000
         // TODO: Smarter attack metrics
-        else if (Clock.getRoundNum() % 500 < 6 || (rc.getRoundLimit() - Clock.getRoundNum()) < 200)
+        else if (Clock.getRoundNum() > 500 && Clock.getRoundNum() % 250 < 6)
         {
             rc.broadcast(Messaging.Attack.ordinal(), 1);
         }
@@ -336,7 +334,7 @@ public class HQ extends Structure
         int average = 0;
         int count = 0;
 
-        while (Clock.getRoundNum() > 20 && Clock.getRoundNum() < 40 && rc.getTeamOre() > 300)
+        while (Clock.getRoundNum() > 15 && Clock.getRoundNum() < 50 && rc.getTeamOre() > 300)
         {
             rc.yield();
         }

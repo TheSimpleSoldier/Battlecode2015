@@ -121,5 +121,7 @@ public enum Messaging {
     TowersUp,
     EnemyTowerHP,
     EnemyHQHP,
+    BasherRatio,
+    BasherRush,
     // etc
 }

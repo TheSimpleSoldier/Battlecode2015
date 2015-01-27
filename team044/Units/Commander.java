@@ -50,60 +50,41 @@ public class Commander extends Unit
         // collect our data
         super.collectData();
 
-        //rc.setIndicatorString(0, "Flash Cool down: " + rc.getFlashCooldown());
-
+        if (rc.readBroadcast(Messaging.Attack.ordinal()) == 1)
+        {
+            rushing = true;
+        }
+        else
+        {
+            RobotInfo[] allies = rc.senseNearbyRobots(100, us);
+            if (allies.length == 0)
+            {
+                rushing = false;
+            }
+        }
 
         enemies = rc.senseNearbyRobots(35, opponent);
         // when we hit 100 health we head back to the battlefield
         if (regenerating && rc.getHealth() >= 150)
         {
-        //    rc.setIndicatorString(1, "Attacking");
             regenerating = false;
         }
 
         // when our health gets too low we head away from the battlefield
         if (!regenerating && (rc.getHealth() <= 75))
         {
-        //    rc.setIndicatorString(1, "Regenerating");
             regenerating = true;
         }
 
-        target = Utilities.getRushLocation(rc);
-
-        /*
-        // change target every 25 turns
-        if (Clock.getRoundNum() % 20 != 0 && (!rc.canSenseLocation(target) || rc.isPathable(rc.getType(), target)))
+        if (rushing)
         {
-        }
-        else if (rc.getLocation().distanceSquaredTo(enemyHQ) > 400)
-        {
-            target = enemyHQ;
+            target = Utilities.getRushLocation(rc);
         }
         else
         {
-            int choice = random.nextInt(5);
+            target = Utilities.getTowerClosestToEnemyHQ(rc);
+        }
 
-            if (choice == 0)
-            {
-                target = enemyHQ.add(enemyHQ.directionTo(ourHQ), 6);
-            }
-            else if (choice == 1)
-            {
-                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft(), 6);
-            }
-            else if (choice == 2)
-            {
-                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight(), 6);
-            }
-            else if (choice == 3)
-            {
-                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateLeft().rotateLeft(), 6);
-            }
-            else if (choice == 4)
-            {
-                target = enemyHQ.add(enemyHQ.directionTo(ourHQ).rotateRight().rotateRight(), 6);
-            }
-        }*/
     }
 
     public boolean takeNextStep() throws GameActionException

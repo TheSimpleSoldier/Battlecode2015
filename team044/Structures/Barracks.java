@@ -32,7 +32,7 @@ public class Barracks extends Structure
         // collect our data
         super.collectData();
         numbOfSoldiers = rc.readBroadcast(Messaging.NumbOfSoldiers.ordinal());
-        if (random.nextInt(4) < 5)
+        if (random.nextInt(4) < rc.readBroadcast(Messaging.BasherRatio.ordinal()))
         {
             basher = false;
         }
@@ -44,17 +44,18 @@ public class Barracks extends Structure
 
     public boolean carryOutAbility() throws GameActionException
     {
-        /*if (basher && Utilities.spawnUnit(RobotType.BASHER, rc))
+        if (rc.readBroadcast(Messaging.BasherRush.ordinal()) == 1)
         {
-            return true;
+            if (basher && Utilities.spawnUnit(RobotType.BASHER, rc))
+            {
+                return true;
+            }
+            else if (!basher && Utilities.spawnUnit(RobotType.SOLDIER, rc))
+            {
+                return true;
+            }
         }
-        else if (!basher && Utilities.spawnUnit(RobotType.SOLDIER, rc))
-        {
-            return true;
-        }
-
-        /**/
-        if (rc.readBroadcast(Messaging.ShutOffBasherProd.ordinal()) == 0)
+        else if (rc.readBroadcast(Messaging.ShutOffBasherProd.ordinal()) == 0)
         {
             if (Utilities.spawnUnit(RobotType.BASHER, rc))
             {

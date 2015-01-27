@@ -2,7 +2,8 @@ package team044.Units.SupportingUnits;
 
 import battlecode.common.GameActionException;
 import battlecode.common.RobotController;
-import team044.Messaging;
+import team044.*;
+import team044.Units.Rushers.SoldierRusher;
 import team044.Units.SupportingUnit;
 
 public class SupportingSoldier extends SupportingUnit
@@ -24,5 +25,14 @@ public class SupportingSoldier extends SupportingUnit
             group = rc.readBroadcast(Messaging.SoldierGroup.ordinal());
             rc.broadcast(Messaging.SoldierGroup.ordinal(), -1);
         }
+    }
+
+    public Unit getNewStrategy(Unit current) throws GameActionException
+    {
+        if (rc.readBroadcast(Messaging.RushEnemyBase.ordinal()) == 1)
+        {
+            return new SoldierRusher(rc);
+        }
+        return current;
     }
 }
